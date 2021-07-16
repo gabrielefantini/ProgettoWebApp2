@@ -25,6 +25,8 @@ repositories {
 extra["springCloudVersion"] = "2020.0.3"
 
 dependencies {
+    implementation("org.openjdk.jol:jol-core:0.10")
+
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-validation")
