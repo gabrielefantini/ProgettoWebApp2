@@ -1,6 +1,6 @@
 package it.polito.wa2.group17.common.transaction
 
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.FUNCTION)
 annotation class MultiserviceTransactional(val transactionName: String)
 
 @Target(AnnotationTarget.FUNCTION)

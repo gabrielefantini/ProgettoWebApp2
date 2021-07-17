@@ -15,14 +15,10 @@ class MultiserviceTransactionAspect {
     private lateinit var multiserviceTransactionLinker: MultiserviceTransactionLinker
 
     @Autowired
-    private lateinit var transactionInvoker: TransactionInvoker
-
-
-    @Autowired
     private lateinit var multiserviceTransactionSynchronizer: MultiserviceTransactionSynchronizer
 
     @Around("@annotation(MultiserviceTransactional)")
-    fun filterEnabledUsersAccess(proceedingJoinPoint: ProceedingJoinPoint): Any {
+    fun multiserviceTransaction(proceedingJoinPoint: ProceedingJoinPoint): Any? {
         val invokingMethod = (proceedingJoinPoint.signature as MethodSignature).method
 
         val rollback =
@@ -30,11 +26,15 @@ class MultiserviceTransactionAspect {
                 invokingMethod.getAnnotation(MultiserviceTransactional::class.java).transactionName
             )
 
-        try {
-            return proceedingJoinPoint.proceed()
-        } catch (t: Throwable) {
-            //perform rollback
-            throw t
+        if (!rollback.parameterTypes.contentEquals(invokingMethod.parameterTypes)) {
+            throw IllegalStateException("Rollback parameters of $rollback does not match with the ones of the transaction $invokingMethod")
         }
+
+        return multiserviceTransactionSynchronizer.invokeWithinMultiserviceTransaction(
+            rollback.apply { isAccessible = true },
+            proceedingJoinPoint.args,
+            proceedingJoinPoint.target
+        ) { proceedingJoinPoint.proceed() }
+
     }
 }
