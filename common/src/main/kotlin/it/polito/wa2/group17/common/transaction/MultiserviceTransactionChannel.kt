@@ -1,37 +1,59 @@
 package it.polito.wa2.group17.common.transaction
 
+import it.polito.wa2.group17.common.utils.AbstractSubscribable
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
 
 @Component
-class MultiserviceTransactionChannel {
+class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransactionMessage>() {
 
-    private val listenerIndex = AtomicInteger(0)
-    private val listeners = ConcurrentHashMap<Int, (MultiserviceTransactionMessage) -> Unit>()
+    @Value("\${TODO}")
+    private lateinit var topic: String
+    private lateinit var kafkaProducer: KafkaProducer<String, MultiserviceTransactionMessage>
+    private lateinit var kafkaConsumer: KafkaConsumer<String, MultiserviceTransactionMessage>
+
+    @Value("\${spring.application.name}")
+    private lateinit var serviceID: String
+
+    init {
+        initProducer()
+        initConsumer()
+    }
+
+    private fun initConsumer() {
+        TODO("Not yet implemented")
+    }
+
+    private fun initProducer() {
+        TODO("Not yet implemented")
+    }
 
     fun notifyTransactionStart(transactionID: String) {
-        TODO()
+        sendTransactionMessage(MultiserviceTransactionStatus.STARTED, transactionID)
     }
 
     fun notifyTransactionSuccess(transactionID: String) {
-        TODO()
-
+        sendTransactionMessage(MultiserviceTransactionStatus.COMPLETED, transactionID)
     }
 
     fun notifyTransactionFailure(transactionID: String) {
-        TODO()
+        sendTransactionMessage(MultiserviceTransactionStatus.FAILED, transactionID)
     }
 
-    @Synchronized
-    fun subscribeToTransactionMessages(listener: (MultiserviceTransactionMessage) -> Unit): Int {
-        val id = listenerIndex.getAndIncrement()
-        listeners[id] = listener
-        return id
-    }
-
-    @Synchronized
-    fun deSubscribeToTransactionMessages(subscriptionID: Int) {
-        listeners.remove(subscriptionID)
+    private fun sendTransactionMessage(transactionStatus: MultiserviceTransactionStatus, transactionID: String) {
+        kafkaProducer.send(
+            ProducerRecord(
+                topic,
+                MultiserviceTransactionMessage(
+                    transactionStatus,
+                    serviceID,
+                    transactionID
+                )
+            )
+        )
     }
 }

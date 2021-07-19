@@ -1,6 +1,5 @@
 package it.polito.wa2.group17.common.transaction
 
-import lombok.EqualsAndHashCode
 import java.lang.reflect.Method
 import java.time.Instant
 import java.util.concurrent.locks.Lock
@@ -12,7 +11,7 @@ data class MultiserviceTransactionData(
     val instance: Any?,
     val lock: Lock,
     val function: () -> Any?,
-    val startingTime : Instant = Instant.now()
+    val startingTime: Instant = Instant.now(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -26,6 +25,7 @@ data class MultiserviceTransactionData(
         if (instance != other.instance) return false
         if (lock != other.lock) return false
         if (function != other.function) return false
+        if (startingTime != other.startingTime) return false
 
         return true
     }
@@ -37,7 +37,9 @@ data class MultiserviceTransactionData(
         result = 31 * result + (instance?.hashCode() ?: 0)
         result = 31 * result + lock.hashCode()
         result = 31 * result + function.hashCode()
+        result = 31 * result + startingTime.hashCode()
         return result
     }
+
 
 }

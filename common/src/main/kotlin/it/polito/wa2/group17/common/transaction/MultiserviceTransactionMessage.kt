@@ -1,5 +1,7 @@
 package it.polito.wa2.group17.common.transaction
 
+import java.time.Instant
+
 enum class MultiserviceTransactionStatus {
     STARTED,
     COMPLETED,
@@ -7,7 +9,8 @@ enum class MultiserviceTransactionStatus {
 }
 
 data class MultiserviceTransactionMessage(
-    val status: MultiserviceTransactionStatus,
-    val serviceID: String,
-    val transactionID: String
+    var status: MultiserviceTransactionStatus,
+    var serviceID: String,
+    var transactionID: String,
+    var timestamp: Instant = Instant.now()
 )

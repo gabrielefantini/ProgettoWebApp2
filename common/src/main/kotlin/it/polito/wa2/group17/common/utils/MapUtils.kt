@@ -16,3 +16,10 @@ fun <K : Comparable<K>, V> Map<out K, V>.toSortedMutableMap(): MutableMap<K, V> 
 
 fun <K, V> Map<out K, V>.toSortedMutableMap(comparator: Comparator<in K>): MutableMap<K, V> =
     TreeMap<K, V>(comparator).apply { putAll(this@toSortedMutableMap) }
+
+fun <K, V> MutableMap<K, V>.putIfAbsentAndThen(key: K, value: V, then: V.() -> Unit) {
+    val oldValue = putIfAbsent(key, value)
+    if (oldValue == null)
+        then(value)
+    else then(oldValue)
+}
