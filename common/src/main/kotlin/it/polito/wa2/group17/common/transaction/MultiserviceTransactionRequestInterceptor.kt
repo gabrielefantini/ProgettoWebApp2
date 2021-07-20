@@ -14,7 +14,7 @@ class MultiserviceTransactionRequestInterceptor : HandlerInterceptor {
     private lateinit var multiserviceTransactionContextHolder: MultiserviceTransactionContextHolder
 
     companion object {
-        private val TRANSACTION_HEADER = "X-Transaction"
+        private const val TRANSACTION_HEADER = "X-Transaction"
     }
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
