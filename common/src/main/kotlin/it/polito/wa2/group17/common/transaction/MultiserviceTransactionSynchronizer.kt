@@ -158,7 +158,9 @@ class MultiserviceTransactionSynchronizer : Loggable {
     private fun doRollbackTransaction(transactionData: MultiserviceTransactionData<*>) {
         val transactionID = transactionData.id
         try {
-            transactionData.rollback.invoke(transactionData.instance, *transactionData.args)
+            transactionInvoker.invokeWithinTransaction {
+                transactionData.rollback.invoke(transactionData.instance, *transactionData.args)
+            }
             logger.debug("Manual rollback of multiservice transaction $transactionID performed successfully")
         } catch (t2: Throwable) {
             logger.error("Error performing manual rollback of multiservice transaction $transactionID", t2)
