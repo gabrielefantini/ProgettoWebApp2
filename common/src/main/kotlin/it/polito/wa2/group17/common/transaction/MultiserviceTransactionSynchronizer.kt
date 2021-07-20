@@ -1,9 +1,9 @@
 package it.polito.wa2.group17.common.transaction
 
 import it.polito.wa2.group17.common.utils.Cache
+import it.polito.wa2.group17.common.utils.Loggable
+import it.polito.wa2.group17.common.utils.Loggable.Companion.logger
 import it.polito.wa2.group17.common.utils.putIfAbsentAndThen
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -15,12 +15,7 @@ import javax.annotation.PostConstruct
 import kotlin.concurrent.withLock
 
 @Component
-class MultiserviceTransactionSynchronizer {
-
-    private companion object {
-        val logger: Logger = LoggerFactory.getLogger(MultiserviceTransactionSynchronizer::class.java)
-    }
-
+class MultiserviceTransactionSynchronizer : Loggable {
     @Autowired
     private lateinit var transactionInvoker: TransactionInvoker
 
@@ -30,10 +25,10 @@ class MultiserviceTransactionSynchronizer {
     @Value("\${transaction.rollbackTimeout:10000}")
     private var rollbackTimeout: Long = 10000
 
-    private lateinit var transactionCache: Cache<String, MultiserviceTransactionData>
+    private lateinit var transactionCache: Cache<String, MultiserviceTransactionData<*>>
 
 
-    private lateinit var uncompletedTransactions:
+    private lateinit var uncompletedTransactionsCache:
             Cache<String, MutableSet<String>> // chiave id transazione, valore set di id servizi che l'hanno startata
 
 
@@ -41,21 +36,21 @@ class MultiserviceTransactionSynchronizer {
     private fun init() {
         transactionChannel.subscribe(this::handleTransactionMessage)
 
-        transactionCache = Cache(rollbackTimeout, TimeUnit.MILLISECONDS)
+        transactionCache = Cache(rollbackTimeout, TimeUnit.MILLISECONDS, "Transaction Cache")
         transactionCache.subscribe {
-            if (uncompletedTransactions[it.first]?.isNotEmpty() == true) {
+            if (uncompletedTransactionsCache[it.first]?.isNotEmpty() == true) {
                 logger.warn(
-                    "Multiservice transaction {} has reached timeout without being completed by all services!",
-                    it.first
+                    "Multiservice transaction ${it.first} has reached timeout without being completed by all services!"
                 )
                 handleExpiredTransaction(it.second)
             }
         }
 
-        uncompletedTransactions = Cache(3 * rollbackTimeout, TimeUnit.MILLISECONDS)
-        uncompletedTransactions.addVoter { !transactionCache.containsKey(it.first) }
-
-
+        uncompletedTransactionsCache =
+            Cache(3 * rollbackTimeout, TimeUnit.MILLISECONDS, "Uncompleted transaction Cache")
+        //quelle che riguardano il servizio vengono rimosse in altri punti
+        //la pulizia automatica di questa cache rimuove solo le transazioni non completate che riguardano altri servizi ma non questo
+        uncompletedTransactionsCache.addVoter { !transactionCache.containsKey(it.first) }
     }
 
     @Synchronized
@@ -63,7 +58,7 @@ class MultiserviceTransactionSynchronizer {
         when (multiserviceTransactionMessage.status) {
             MultiserviceTransactionStatus.STARTED -> {
                 synchronized(this) {
-                    uncompletedTransactions.putIfAbsentAndThen(
+                    uncompletedTransactionsCache.putIfAbsentAndThen(
                         multiserviceTransactionMessage.transactionID,
                         HashSet()
                     ) {
@@ -74,15 +69,14 @@ class MultiserviceTransactionSynchronizer {
             }
             MultiserviceTransactionStatus.COMPLETED -> {
                 synchronized(this) {
-                    uncompletedTransactions[multiserviceTransactionMessage.transactionID]?.remove(
+                    uncompletedTransactionsCache[multiserviceTransactionMessage.transactionID]?.remove(
                         multiserviceTransactionMessage.serviceID
                     )
-
                 }
             }
             MultiserviceTransactionStatus.FAILED -> {
                 synchronized(this) {
-                    uncompletedTransactions.remove(multiserviceTransactionMessage.transactionID)
+                    uncompletedTransactionsCache.remove(multiserviceTransactionMessage.transactionID)
                 }
                 rollbackTransaction(multiserviceTransactionMessage.transactionID)
             }
@@ -90,9 +84,9 @@ class MultiserviceTransactionSynchronizer {
     }
 
 
-    private fun handleExpiredTransaction(multiserviceTransactionData: MultiserviceTransactionData) {
+    private fun handleExpiredTransaction(multiserviceTransactionData: MultiserviceTransactionData<*>) {
         synchronized(this) {
-            uncompletedTransactions.remove(multiserviceTransactionData.id)
+            uncompletedTransactionsCache.remove(multiserviceTransactionData.id)
         }
         rollbackTransaction(multiserviceTransactionData.id, false)
     }
@@ -102,62 +96,78 @@ class MultiserviceTransactionSynchronizer {
         rollback: Method,
         args: Array<Any?>,
         instance: Any,
-        function: () -> T
-    ): T {
+        invokingMethod: Method,
+        joinPoint: () -> T
+    ): T? {
         val currentTransactionID = MultiserviceTransactionContextHolder.getCurrentTransactionID()
-        logger.info("Performing multiservice transaction step of transaction {}", currentTransactionID)
+        logger.info("Performing multiservice transaction step of transaction $currentTransactionID")
         val transactionData =
-            MultiserviceTransactionData(currentTransactionID, rollback, args, instance, ReentrantLock(), function)
+            MultiserviceTransactionData(
+                currentTransactionID,
+                rollback,
+                args,
+                instance,
+                ReentrantLock(),
+                invokingMethod,
+                joinPoint,
+                instance.javaClass
+            )
 
         transactionCache[currentTransactionID] = transactionData
         return transactionData.lock.withLock { startMultiserviceTransaction(transactionData) }
     }
 
 
-    private fun <T> startMultiserviceTransaction(transactionData: MultiserviceTransactionData): T {
+    private fun <T> startMultiserviceTransaction(transactionData: MultiserviceTransactionData<T>): T? {
         val transactionID = transactionData.id
-        try {
-            logger.debug("Starting multiservice transaction {}", transactionID)
-            transactionChannel.notifyTransactionStart(transactionID)
-            val result = transactionInvoker.invokeWithinTransaction(transactionData.function) as T
-            logger.debug("Multiservice transaction {} completed", transactionID)
-            transactionChannel.notifyTransactionSuccess(transactionID)
-            return result
+
+        logger.debug("Starting multiservice transaction $transactionID")
+        transactionChannel.notifyTransactionStart(transactionID)
+        return try {
+            transactionInvoker.invokeWithinTransaction(transactionData.joinPoint)
         } catch (t: Throwable) {
             logger.error(
-                "Error during multiservice transaction {}. Notifying other services after having performed rollback.",
-                transactionID,
+                "Error during multiservice transaction $transactionID. Notifying other services after having performed rollback.",
                 t
             )
             transactionChannel.notifyTransactionFailure(transactionID)
             throw t
+        }.also {
+            logger.debug("Multiservice transaction $transactionID completed")
+            transactionChannel.notifyTransactionSuccess(transactionID)
         }
     }
 
     private fun rollbackTransaction(transactionID: String, cleanTransactionCache: Boolean = true) {
-        logger.warn("Performing manual rollback of multiservice transaction {}", transactionID)
+        logger.warn("Performing manual rollback of multiservice transaction $transactionID")
 
         val transactionData = transactionCache[transactionID] ?: return
         transactionChannel.notifyTransactionFailure(transactionID)
 
-        transactionData.lock.withLock {
-            doRollbackTransaction(transactionData)
+        try {
+            transactionData.lock.withLock {
+                doRollbackTransaction(transactionData)
+            }
+        } finally {
+            if (cleanTransactionCache)
+                transactionCache.remove(transactionID)
         }
-        if (cleanTransactionCache)
-            transactionCache.remove(transactionID)
+
     }
 
-    private fun doRollbackTransaction(transactionData: MultiserviceTransactionData) {
+    private fun doRollbackTransaction(transactionData: MultiserviceTransactionData<*>) {
         val transactionID = transactionData.id
         try {
             transactionData.rollback.invoke(transactionData.instance, *transactionData.args)
-            logger.debug("Manual rollback of multiservice transaction {} performed successfully", transactionID)
+            logger.debug("Manual rollback of multiservice transaction $transactionID performed successfully")
         } catch (t2: Throwable) {
-            logger.error("Error performing manual rollback of multiservice transaction {}", transactionID, t2)
+            logger.error("Error performing manual rollback of multiservice transaction $transactionID", t2)
             throw TransactionSystemException(
-                "Application exception overridden by multiservice transaction exception",
+                "Couldn't rollback multiservice transaction $transactionID",
                 t2
             )
         }
     }
+
+
 }

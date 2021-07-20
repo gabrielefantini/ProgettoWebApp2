@@ -33,7 +33,8 @@ class MultiserviceTransactionAspect {
         return multiserviceTransactionSynchronizer.invokeWithinMultiserviceTransaction(
             rollback.apply { isAccessible = true },
             proceedingJoinPoint.args,
-            proceedingJoinPoint.target
+            proceedingJoinPoint.target,
+            invokingMethod
         ) { proceedingJoinPoint.proceed() }
 
     }

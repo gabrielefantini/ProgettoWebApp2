@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.common.utils
 
+import org.openjdk.jol.vm.VM
 import java.time.Instant
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
@@ -8,9 +9,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 
-class Cache<K, V>(val timeout: Long, val timeUnit: TimeUnit) :
+class Cache<K, V>(
+    val timeout: Long,
+    val timeUnit: TimeUnit,
+    val name: String = VM.current().addressOf(this).toString()
+) :
     AbstractSubscribable<Pair<K, V>>(),
     MutableMap<K, V> {
+
+
+    companion object {
+        private val THREAD_POOL = Executors.newScheduledThreadPool(10)
+    }
 
     private val innerMap = HashMap<K, Pair<Instant, V>>()
     private val voters = HashSet<(Pair<K, V>) -> Boolean>().apply { add { true } }
@@ -37,8 +47,7 @@ class Cache<K, V>(val timeout: Long, val timeUnit: TimeUnit) :
         if (this::cleanSchedule.isInitialized && !(cleanSchedule.isDone || cleanSchedule.isCancelled))
             throw IllegalAccessException("Cannot restart a cache which is not stopped!")
 
-        cleanSchedule = Executors.newScheduledThreadPool(1)
-            .scheduleAtFixedRate(this::cleanMap, timeout, timeout, timeUnit)
+        cleanSchedule = THREAD_POOL.scheduleAtFixedRate(this::cleanMap, timeout, timeout, timeUnit)
     }
 
 
@@ -47,6 +56,7 @@ class Cache<K, V>(val timeout: Long, val timeUnit: TimeUnit) :
     }
 
     private fun cleanMap() {
+        Thread.currentThread().name = "Cache cleaner of $name"
         lock.write {
             val iter = innerMap.iterator()
             val cleanTime = Instant.now()
@@ -55,7 +65,7 @@ class Cache<K, V>(val timeout: Long, val timeUnit: TimeUnit) :
                 if (value.value.first.plus(timeout, timeUnit.toChronoUnit()).isBefore(cleanTime) &&
                     voters.all { it(value.key to value.value.second) }
                 ) {
-                    listeners.values.forEach { it(value.key to value.value.second) }
+                    sendToAllListeners(value.key to value.value.second)
                     iter.remove()
                 }
             }
