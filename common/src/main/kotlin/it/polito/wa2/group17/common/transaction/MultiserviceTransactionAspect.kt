@@ -17,7 +17,7 @@ class MultiserviceTransactionAspect {
     @Autowired
     private lateinit var multiserviceTransactionSynchronizer: MultiserviceTransactionSynchronizer
 
-    @Around("@annotation(MultiserviceTransactional)")
+    @Around("@annotation(it.polito.wa2.group17.common.transaction.MultiserviceTransactional)")
     fun multiserviceTransaction(proceedingJoinPoint: ProceedingJoinPoint): Any? {
         val invokingMethod = (proceedingJoinPoint.signature as MethodSignature).method
 
