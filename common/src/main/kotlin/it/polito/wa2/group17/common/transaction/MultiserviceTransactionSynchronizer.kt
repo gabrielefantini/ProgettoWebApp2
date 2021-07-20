@@ -97,6 +97,7 @@ class MultiserviceTransactionSynchronizer : Loggable {
         args: Array<Any?>,
         instance: Any,
         invokingMethod: Method,
+        shouldPropagateResult: Boolean,
         joinPoint: () -> T
     ): T? {
         val currentTransactionID = MultiserviceTransactionContextHolder.getCurrentTransactionID()
@@ -110,7 +111,8 @@ class MultiserviceTransactionSynchronizer : Loggable {
                 ReentrantLock(),
                 invokingMethod,
                 joinPoint,
-                instance.javaClass
+                instance.javaClass,
+                shouldPropagateResult
             )
 
         transactionCache[currentTransactionID] = transactionData
@@ -124,7 +126,9 @@ class MultiserviceTransactionSynchronizer : Loggable {
         logger.debug("Starting multiservice transaction $transactionID")
         transactionChannel.notifyTransactionStart(transactionID)
         return try {
-            transactionInvoker.invokeWithinTransaction(transactionData.joinPoint)
+            val result = transactionInvoker.invokeWithinTransaction(transactionData.joinPoint)
+            transactionData.transactionResult = result
+            result
         } catch (t: Throwable) {
             logger.error(
                 "Error during multiservice transaction $transactionID. Notifying other services after having performed rollback.",
@@ -158,8 +162,11 @@ class MultiserviceTransactionSynchronizer : Loggable {
     private fun doRollbackTransaction(transactionData: MultiserviceTransactionData<*>) {
         val transactionID = transactionData.id
         try {
+            val args = if (transactionData.shouldPropagateResult)
+                arrayOf(*transactionData.args, transactionData.transactionResult) else transactionData.args
+
             transactionInvoker.invokeWithinTransaction {
-                transactionData.rollback.invoke(transactionData.instance, *transactionData.args)
+                transactionData.rollback.invoke(transactionData.instance, *args)
             }
             logger.debug("Manual rollback of multiservice transaction $transactionID performed successfully")
         } catch (t2: Throwable) {

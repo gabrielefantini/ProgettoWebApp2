@@ -12,8 +12,10 @@ data class MultiserviceTransactionData<T>(
     val lock: Lock,
     val invokingMethod: Method,
     val joinPoint: () -> T?,
-    val targetClass : Class<*>,
+    val targetClass: Class<*>,
+    val shouldPropagateResult: Boolean,
     val startingTime: Instant = Instant.now(),
+    var transactionResult: T? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -29,7 +31,9 @@ data class MultiserviceTransactionData<T>(
         if (invokingMethod != other.invokingMethod) return false
         if (joinPoint != other.joinPoint) return false
         if (targetClass != other.targetClass) return false
+        if (shouldPropagateResult != other.shouldPropagateResult) return false
         if (startingTime != other.startingTime) return false
+        if (transactionResult != other.transactionResult) return false
 
         return true
     }
@@ -43,7 +47,9 @@ data class MultiserviceTransactionData<T>(
         result = 31 * result + invokingMethod.hashCode()
         result = 31 * result + joinPoint.hashCode()
         result = 31 * result + targetClass.hashCode()
+        result = 31 * result + shouldPropagateResult.hashCode()
         result = 31 * result + startingTime.hashCode()
+        result = 31 * result + (transactionResult?.hashCode() ?: 0)
         return result
     }
 
