@@ -8,15 +8,11 @@ import java.time.Instant
 
 
 data class Transaction(
-    val id: Long? = null,
+    val id: Long,
     val timeInstant: Instant,
     val amount: Double = 0.0,
-
+    val reason: String,
     @param:CustomConversion(CustomConversion.Using(IdAnnotatedExtractor::class, TransactionEntity::class))
-    @param:ConvertibleAlias(ConvertibleAlias.From(TransactionEntity::class, "source"))
-    val sourceWalletId: Long,
-
-    @param:CustomConversion(CustomConversion.Using(IdAnnotatedExtractor::class, TransactionEntity::class))
-    @param:ConvertibleAlias(ConvertibleAlias.From(TransactionEntity::class, "dest"))
-    val destinationWalletId: Long,
+    @param:ConvertibleAlias(ConvertibleAlias.From(TransactionEntity::class,"source"))
+    val sourceWallet: Long,
 )

@@ -5,31 +5,35 @@ import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.RollbackFor
 import it.polito.wa2.group17.common.utils.converter.convert
-import it.polito.wa2.group17.exceptions.security.UserNotAllowedException
+import it.polito.wa2.group17.wallet.connector.UsersConnector
 import it.polito.wa2.group17.wallet.entity.TransactionEntity
 import it.polito.wa2.group17.wallet.entity.WalletEntity
 import it.polito.wa2.group17.wallet.exception.InvalidTransactionException
 import it.polito.wa2.group17.wallet.model.Transaction
 import it.polito.wa2.group17.wallet.model.Wallet
 import it.polito.wa2.group17.wallet.repository.TransactionRepository
-import it.polito.wa2.group17.wallet.repository.UserRepository
 import it.polito.wa2.group17.wallet.repository.WalletRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.time.Instant
 
 interface WalletService {
 
     @Throws(EntityNotFoundException::class)
-    fun getWallet(walletId: Long): Wallet?
+    fun getWallet(walletId: Long): Wallet
 
     @Throws(EntityNotFoundException::class)
     fun addWalletToUser(userId: Long): Wallet
 
     @Throws(EntityNotFoundException::class, InvalidTransactionException::class)
-    fun performTransaction(sourceWalletId: Long, destinationWalletId: Long, amount: Double): Transaction
+    fun performTransaction(
+        amount: Double,
+        reason: String,
+        sourceWalletId: Long,
+        userId: Long,
+        timeInstant: Instant = Instant.now()
+    ): Transaction
 
     @Throws(EntityNotFoundException::class)
     fun getTransactionsOfWallet(walletId: Long): List<Transaction>
@@ -37,20 +41,24 @@ interface WalletService {
     @Throws(EntityNotFoundException::class)
     fun getTransactionsOfWallet(walletId: Long, from: Instant, to: Instant = Instant.now()): List<Transaction>
 
+    @Throws(EntityNotFoundException::class)
+    fun getTransactionOfWallet(walletId: Long, transactionId: Long): Transaction
+
 }
 
 
 @Service
 private class WalletServiceImpl(
     val walletRepository: WalletRepository,
-    val userRepository: UserRepository,
-    val transactionRepository: TransactionRepository
+    val transactionRepository: TransactionRepository,
+    val usersConnector: UsersConnector
 ) : WalletService {
 
     companion object {
         private val logger = LoggerFactory.getLogger(WalletServiceImpl::class.java)
 
         private const val ADD_WALLET_TRANSACTION_ID = "addWallet"
+        private const val PERFORM_TRANSACTION_TRANSACTION_ID = "performTransaction"
 
     }
 
@@ -66,85 +74,109 @@ private class WalletServiceImpl(
     @MultiserviceTransactional(ADD_WALLET_TRANSACTION_ID)
     override fun addWalletToUser(userId: Long): Wallet {
         logger.info("Adding new wallet to user with id {}", userId)
-        val user = userRepository.findByIdOrNull(userId)
-        if (user != null) {
-            val wallet = WalletEntity(user = user)
-            walletRepository.save(wallet)
-            logger.info("Wallet added.")
-            return wallet.convert()
-        }
-        throw EntityNotFoundException("user with id $userId")
+        val wallet = WalletEntity(userId = userId)
+        walletRepository.save(wallet)
+        logger.info("Wallet added.")
+        return wallet.convert()
     }
 
     @RollbackFor(ADD_WALLET_TRANSACTION_ID)
     private fun removeWalletFromUser(userId: Long, createdWallet: Wallet) {
-        logger.info("Removing wallet from user with id {}", userId)
-        val user = userRepository.findByIdOrNull(userId)
-        if (user != null) {
-            val wallet = WalletEntity(user = user)
-            walletRepository.save(wallet)
-            logger.info("Wallet added.")
-            return wallet.convert()
-        }
-        throw EntityNotFoundException("user with id $userId")
+        logger.warn("Removing wallet {} from user with id {}", createdWallet.id, userId)
+        walletRepository.deleteById(createdWallet.id)
+        logger.info("Wallet {} removed from user with id {}", createdWallet.id, userId)
     }
 
-    override fun performTransaction(sourceWalletId: Long, destinationWalletId: Long, amount: Double): Transaction {
+    @MultiserviceTransactional(PERFORM_TRANSACTION_TRANSACTION_ID)
+    override fun performTransaction(
+        amount: Double,
+        reason: String,
+        sourceWalletId: Long,
+        userId: Long,
+        timeInstant: Instant
+    ): Transaction {
+
         logger.info(
-            "Performing transaction of {} from wallet {} to wallet {}",
+            "Performing transaction of {} from wallet {}",
             amount,
             sourceWalletId,
-            destinationWalletId
         )
 
-        if (amount <= 0) {
-            throw InvalidTransactionException(sourceWalletId, destinationWalletId, amount, "Amount is <=0")
+        if (amount == 0.0)
+            throw InvalidTransactionException(
+                sourceWalletId, amount,
+                "Illegal transaction with no amount"
+            )
+
+        val sourceWallet = walletRepository.findByIdOrNull(sourceWalletId)
+            ?: throw EntityNotFoundException("Source wallet with id $sourceWalletId")
+
+        if (amount > 0) {
+            //check if an admin is performing this operation
+            if (!usersConnector.isAdmin(userId))
+                throw InvalidTransactionException(
+                    sourceWalletId,
+                    amount,
+                    "Transactions with positive amount can be performed only by admins"
+                )
+        } else {
+            // check if the authenticated user is the owner of the wallet
+            if (sourceWallet.userId != userId)
+                throw InvalidTransactionException(sourceWalletId, amount, "User $userId is not the owner of the wallet")
         }
-        if (sourceWalletId == destinationWalletId) {
+        //check if source wallet has enough amount
+        if (sourceWallet.amount + amount < 0) {
             throw InvalidTransactionException(
                 sourceWalletId,
-                destinationWalletId,
                 amount,
-                "Cannot perform transactions with same destination as source"
+                "Source wallet has not enough credits"
             )
         }
 
-        //check if both wallet exists
+        val transaction = TransactionEntity(
+            amount = amount,
+            source = sourceWallet, reason = reason, timeInstant = timeInstant
+        )
+        transactionRepository.save(transaction)
+        sourceWallet.amount += amount
+        walletRepository.save(sourceWallet)
+        logger.info("Transaction performed.")
+        return transaction.convert()
+
+    }
+
+    @RollbackFor(PERFORM_TRANSACTION_TRANSACTION_ID)
+    private fun rollbackTransaction(
+        amount: Double,
+        reason: String,
+        sourceWalletId: Long,
+        userId: Long,
+        timeInstant: Instant,
+        transaction: Transaction,
+    ) {
+
+        logger.warn(
+            "Performing rollback of transaction {} from wallet {}",
+            transaction.id,
+            sourceWalletId,
+        )
+
         val sourceWallet = walletRepository.findByIdOrNull(sourceWalletId)
-        val destinationWallet = walletRepository.findByIdOrNull(destinationWalletId)
-        if (sourceWallet != null && destinationWallet != null) {
-
-            // check if the authenticated user is the owner of the wallet
-            val userDetails = SecurityContextHolder.getContext().authentication.name
-            if (sourceWallet.user.userEntity.username != userDetails)
-                throw UserNotAllowedException(userDetails)
-
-            //both wallets are available
-            //check if source wallet has enough amount
-            if (sourceWallet.amount < amount) {
-                throw InvalidTransactionException(
-                    sourceWalletId,
-                    destinationWalletId,
-                    amount,
-                    "Source wallet has not enough credits"
-                )
-            }
-
-            val transaction = TransactionEntity(amount = amount, source = sourceWallet, dest = destinationWallet)
-            transactionRepository.save(transaction)
-            //update both wallets amount
-            sourceWallet.amount -= amount
-            destinationWallet.amount += amount
-            walletRepository.saveAll(listOf(sourceWallet, destinationWallet))
-            logger.info("Transaction performed.")
-            return transaction.convert()
-        }
         if (sourceWallet == null) {
-            throw EntityNotFoundException("Source wallet with id $sourceWalletId")
-        } else {
-            throw EntityNotFoundException("Destination wallet with id $destinationWalletId")
+            logger.error(
+                "Cannot rollback transaction ${transaction.id} " +
+                        "because wallet $sourceWalletId does not exist any more!"
+            )
+            transactionRepository.deleteById(transaction.id)
+            return
         }
 
+        if (transactionRepository.findById(transaction.id).isPresent) {
+            transactionRepository.deleteById(transaction.id)
+            sourceWallet.amount -= amount
+            walletRepository.save(sourceWallet)
+        }
+        logger.info("Transaction {} rolled back.", transaction.id)
     }
 
     override fun getTransactionsOfWallet(walletId: Long): List<Transaction> {
@@ -152,19 +184,27 @@ private class WalletServiceImpl(
         logger.info("Searching for wallet with id {}", walletId)
         val wallet = walletRepository.findByIdOrNull(walletId)
         if (wallet != null) {
-            val transactions = mutableListOf<Transaction>()
-            transactions.addAll(wallet.incomingTransactions.map { it.convert() })
-            transactions.addAll(wallet.outgoingTransactions.map { it.convert() })
-            return transactions
+            return wallet.transactions.map { it.convert() }
         }
         throw EntityNotFoundException("Wallet with id $walletId")
     }
 
     override fun getTransactionsOfWallet(walletId: Long, from: Instant, to: Instant): List<Transaction> {
-        if (!to.isAfter(from)) throw GenericBadRequestException("Invalid date range from $from to $to")
+        if (!to.isAfter(from))
+            throw GenericBadRequestException("Invalid date range from $from to $to")
         logger.info("Retrieving transactions of wallet {} from {} to {}", walletId, from, to)
         val list = getTransactionsOfWallet(walletId)
         return list.filter { it.timeInstant.isAfter(from) && it.timeInstant.isBefore(to) }
+    }
+
+    override fun getTransactionOfWallet(walletId: Long, transactionId: Long): Transaction {
+        return transactionRepository.findById(transactionId)
+            .orElseThrow { EntityNotFoundException(transactionId) }
+            .apply {
+                if (source.getId() != walletId)
+                    throw EntityNotFoundException("$transactionId of wallet $walletId")
+            }
+            .convert()
     }
 
 }

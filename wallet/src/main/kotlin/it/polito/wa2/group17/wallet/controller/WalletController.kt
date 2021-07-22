@@ -6,7 +6,6 @@ import it.polito.wa2.group17.wallet.model.TransactionRequest
 import it.polito.wa2.group17.wallet.model.Wallet
 import it.polito.wa2.group17.wallet.service.WalletService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindingResult
@@ -36,6 +35,9 @@ class WalletController {
     fun getWalletById(@PathVariable walletID: Long): ResponseEntity<Wallet> =
         ResponseEntity.ok(walletService.getWallet(walletID))
 
+    @GetMapping("/{walletID}/amount")
+    fun getWalletAmountById(@PathVariable walletID: Long): ResponseEntity<Double> =
+        ResponseEntity.ok(walletService.getWallet(walletID).amount)
 
     @PostMapping("/{walletID}/transaction")
     fun performTransaction(
@@ -47,19 +49,23 @@ class WalletController {
             return ResponseEntity.badRequest().body(bindingResult.extractErrors())
 
         val transaction = walletService.performTransaction(
+            transactionRequest.amount,
+            transactionRequest.reason,
             walletID,
-            transactionRequest.destinationWalletId,
-            transactionRequest.amount
+            transactionRequest.userId,
+            transactionRequest.timeInstant
         )
-        return ResponseEntity.created(URI.create("/wallet/$walletID/transaction/${transaction.id}")).body(transaction)
+        return ResponseEntity
+            .created(URI.create("/wallet/$walletID/transaction/${transaction.id}"))
+            .body(transaction)
 
     }
 
     @GetMapping("/{walletId}/transactions")
     fun getTransactionsOfWallet(
         @PathVariable walletId: Long,
-        @RequestParam("from") from: Instant,
-        @RequestParam("to") to: Instant
+        @RequestParam("from", required = false) from: Instant,
+        @RequestParam("to", required = false) to: Instant
     ): ResponseEntity<List<Transaction>> =
         ResponseEntity.ok(
             walletService
@@ -71,14 +77,8 @@ class WalletController {
     fun getTransactionOfWallet(
         @PathVariable("walletId") walletId: Long,
         @PathVariable("transactionId") transactionId: Long
-    ): ResponseEntity<Transaction> {
-        val transactions = walletService
-            .getTransactionsOfWallet(walletId)
-        val requiredTransaction = transactions.associateBy { it.id }[transactionId]
-        return if (requiredTransaction != null)
-            ResponseEntity.ok(requiredTransaction)
-        else ResponseEntity.notFound().build()
-    }
+    ): ResponseEntity<Transaction> =
+        ResponseEntity.ok(walletService.getTransactionOfWallet(walletId, transactionId))
 
 
 }
