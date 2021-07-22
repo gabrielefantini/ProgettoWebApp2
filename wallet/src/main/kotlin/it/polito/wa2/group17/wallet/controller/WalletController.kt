@@ -16,7 +16,7 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping(
-    value = ["/wallet"],
+    value = ["/wallets"],
     produces = [MediaType.APPLICATION_JSON_VALUE]
 )
 class WalletController {
@@ -35,11 +35,7 @@ class WalletController {
     fun getWalletById(@PathVariable walletID: Long): ResponseEntity<Wallet> =
         ResponseEntity.ok(walletService.getWallet(walletID))
 
-    @GetMapping("/{walletID}/amount")
-    fun getWalletAmountById(@PathVariable walletID: Long): ResponseEntity<Double> =
-        ResponseEntity.ok(walletService.getWallet(walletID).amount)
-
-    @PostMapping("/{walletID}/transaction")
+    @PostMapping("/{walletID}/transactions")
     fun performTransaction(
         @PathVariable walletID: Long,
         @RequestBody @Valid transactionRequest: TransactionRequest,
@@ -56,7 +52,7 @@ class WalletController {
             transactionRequest.timeInstant
         )
         return ResponseEntity
-            .created(URI.create("/wallet/$walletID/transaction/${transaction.id}"))
+            .created(URI.create("/wallet/$walletID/transactions/${transaction.id}"))
             .body(transaction)
 
     }

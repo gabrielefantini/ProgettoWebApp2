@@ -7,10 +7,12 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.annotation.AliasFor
 import org.springframework.stereotype.Component
 
-
-annotation class RemoteCaller
+@Target(AnnotationTarget.CLASS)
+@Component
+annotation class Connector(@get:AliasFor(annotation = Component::class) val value: String = "")
 
 @Component
 @Aspect
@@ -22,7 +24,7 @@ class CircuitBreakerAspect {
     @Autowired
     private lateinit var retryRegistry: RetryRegistry
 
-    @Around("@annotation(it.polito.wa2.group17.common.connector.RemoteCaller)")
+    @Around("@annotation(it.polito.wa2.group17.common.connector.Connector)")
     fun connectorAspect(proceedingJoinPoint: ProceedingJoinPoint): Any? {
         val id = proceedingJoinPoint.signature.name
         val circuit = circuitBreakerRegistry.circuitBreaker(id)
