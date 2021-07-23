@@ -22,8 +22,8 @@ class MultiserviceTransactionSynchronizer : Loggable {
     @Autowired
     private lateinit var transactionChannel: MultiserviceTransactionChannel
 
-    @Value("\${transaction.rollbackTimeout:10000}")
-    private var rollbackTimeout: Long = 10000
+    @Value("\${transaction.rollbackTimeout:40000}")
+    private var rollbackTimeout: Long = 40000
 
     private lateinit var transactionCache: Cache<String, MultiserviceTransactionData<*>>
 
@@ -43,13 +43,15 @@ class MultiserviceTransactionSynchronizer : Loggable {
                     "Multiservice transaction ${it.first} has reached timeout without being completed by all services!"
                 )
                 handleExpiredTransaction(it.second)
+            } else synchronized(this) {
+                uncompletedTransactionsCache.remove(it.first)
             }
         }
 
         uncompletedTransactionsCache =
             Cache(3 * rollbackTimeout, TimeUnit.MILLISECONDS, "Uncompleted transaction Cache")
         //quelle che riguardano il servizio vengono rimosse in altri punti
-        //la pulizia automatica di questa cache rimuove solo le transazioni non completate che riguardano altri servizi ma non questo
+        //la pulizia automatica di questa cache rimuove solo le transazioni non completate che riguardano altri servizi ma non quello attuale
         uncompletedTransactionsCache.addVoter { !transactionCache.containsKey(it.first) }
     }
 
