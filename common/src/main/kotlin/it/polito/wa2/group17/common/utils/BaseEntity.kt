@@ -12,6 +12,9 @@ class BaseEntity<ID : Serializable> : AbstractEntity<ID>() {
     @GeneratedValue
     private var id: ID? = null
     override fun getId(): ID? = id
+    fun setId(id: ID) {
+        this.id = id
+    }
 }
 
 abstract class AbstractEntity<ID : Serializable> {
