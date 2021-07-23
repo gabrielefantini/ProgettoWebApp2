@@ -2,6 +2,7 @@ package it.polito.wa2.group17.warehouse.service
 
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
+import it.polito.wa2.group17.common.mail.MailService
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.RollbackFor
 import it.polito.wa2.group17.common.utils.converter.convert
@@ -10,12 +11,15 @@ import it.polito.wa2.group17.warehouse.dto.FulfillRequest
 import it.polito.wa2.group17.warehouse.dto.SellRequest
 import it.polito.wa2.group17.warehouse.dto.SellResponse
 import it.polito.wa2.group17.warehouse.entity.WarehouseEntity
+import it.polito.wa2.group17.warehouse.exception.ProductNotEnoughException
+import it.polito.wa2.group17.warehouse.exception.ProductNotFoundException
 import it.polito.wa2.group17.warehouse.model.StoredProduct
 import it.polito.wa2.group17.warehouse.model.Warehouse
 import it.polito.wa2.group17.warehouse.model.WarehouseUpdated
 import it.polito.wa2.group17.warehouse.repository.WarehouseRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import it.polito.wa2.group17.warehouse.entity.StoredProductEntity as StoredProductEntity1
 
 
 interface WarehouseService {
@@ -48,6 +52,9 @@ private class WarehouseServiceImpl : WarehouseService {
 
     @Autowired
     private lateinit var warehouseUpdater: WarehouseUpdater
+
+    @Autowired
+    private lateinit var mailService: MailService
 
     override fun getWarehouses(): List<Warehouse> =
         warehouseRepository.findAll().map { it.convert() }
@@ -84,22 +91,75 @@ private class WarehouseServiceImpl : WarehouseService {
 
 
     override fun partiallyUpdateWarehouse(warehouseId: Long, products: List<StoredProduct>): Warehouse {
-        val result: Warehouse = warehouseUpdater.partiallyUpdateWarehouse(warehouseId, products).newVersion.convert()
-        //TODO CHECK LIMIT
-        return result
+        val result = warehouseUpdater.partiallyUpdateWarehouse(warehouseId, products).newVersion
+        checkProductLimits(result)
+        return result.convert()
     }
 
     override fun updateOrInsertWarehouse(warehouseId: Long, products: List<StoredProduct>): Warehouse {
-        val result: Warehouse = warehouseUpdater.updateOrInsertWarehouse(warehouseId, products).newVersion.convert()
-        //TODO CHECK LIMIT
-        return result
+        val result = warehouseUpdater.updateOrInsertWarehouse(warehouseId, products).newVersion
+        checkProductLimits(result)
+        return result.convert()
     }
 
 
     @MultiserviceTransactional(SELL_PRODUCT_TRANSACTION_ID)
     override fun sellProduct(sellRequest: SellRequest): SellResponse {
-        //TODO CHECK LIMIT
-        TODO("Not yet implemented")
+        val targetProductEntity: StoredProductEntity1
+        val targetWarehouseEntity: WarehouseEntity
+
+        if (sellRequest.warehouseID == null) {
+            val warehouses = warehouseRepository.findAll()
+
+            synchronized(this) {
+                targetWarehouseEntity = warehouses.filter { warehouseEntity ->
+                    warehouseEntity.products.any {
+                        it.productId == sellRequest.productID
+                    }
+                }.apply {
+                    if (isEmpty())
+                        throw ProductNotFoundException(sellRequest.productID)
+                }.firstOrNull { warehouse ->
+                    warehouse.products.any { it.quantity > sellRequest.quantity }
+                } ?: throw ProductNotEnoughException(sellRequest.productID, sellRequest.quantity)
+
+                targetProductEntity =
+                    targetWarehouseEntity.products.find { it.productId == sellRequest.productID }!!
+
+                targetProductEntity.quantity -= sellRequest.quantity
+                warehouseRepository.save(targetWarehouseEntity)
+            }
+        } else {
+            synchronized(this) {
+                targetWarehouseEntity = warehouseRepository.findById(sellRequest.warehouseID!!)
+                    .orElseThrow { EntityNotFoundException(sellRequest.warehouseID!!) }
+
+                targetProductEntity = targetWarehouseEntity
+                    .products.firstOrNull { it.productId == sellRequest.productID } ?: throw GenericBadRequestException(
+                    "Product with id ${sellRequest.productID} cannot be found in ${sellRequest.warehouseID}"
+                )
+
+                if (targetProductEntity.quantity < sellRequest.quantity)
+                    throw ProductNotEnoughException(sellRequest.productID, sellRequest.quantity)
+
+                targetProductEntity.quantity -= sellRequest.quantity
+                warehouseRepository.save(targetWarehouseEntity)
+            }
+
+        }
+        if (targetProductEntity.quantity < targetProductEntity.minimumQuantity)
+            sendAlertMessageToAdmins(createAlertMessageForProduct(targetProductEntity))
+
+        return SellResponse(sellRequest.productID, sellRequest.quantity, targetProductEntity.getId()!!)
+    }
+
+    @RollbackFor(SELL_PRODUCT_TRANSACTION_ID)
+    private fun rollbackSellProduct(sellRequest: SellRequest, sellResponse: SellResponse) {
+        warehouseRepository.findById(sellRequest.warehouseID!!)
+            .get().apply {
+                products.first { it.productId == sellResponse.productID }.quantity += sellResponse.quantity
+                warehouseRepository.save(this)
+            }
     }
 
 
@@ -108,6 +168,22 @@ private class WarehouseServiceImpl : WarehouseService {
         TODO("Not yet implemented")
     }
 
+    private fun checkProductLimits(warehouse: WarehouseEntity) {
+        val mailBuilder = StringBuilder()
+        warehouse.products.forEach {
+            if (it.minimumQuantity < it.quantity)
+                mailBuilder.append(createAlertMessageForProduct(it))
+        }
+        sendAlertMessageToAdmins(mailBuilder.toString())
+    }
+
+    private fun createAlertMessageForProduct(product: StoredProductEntity1) =
+        "Product ${product.productId} in warehouse ${product.warehouse.getId()} has as quantity ${product.quantity}." +
+                "Alert threshold is ${product.minimumQuantity}.\n"
+
+    private fun sendAlertMessageToAdmins(alertMessage: String) = usersConnector.getAdmins().forEach {
+        mailService.sendMessage(it.email, "PRODUCTS QUANTITY ALARM", alertMessage)
+    }
 }
 
 @Service
