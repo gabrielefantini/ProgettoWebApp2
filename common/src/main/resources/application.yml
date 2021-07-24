@@ -1,0 +1,16 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    protocol: smtp
+    port: 587
+    username: group17wa2@gmail.com
+    password: Group_17_Wa2_Polito!!
+    template:
+      textPlaceholder: {TEXT}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+          #ssl.trust: smtp-mail.outlook.com
+        debug: false

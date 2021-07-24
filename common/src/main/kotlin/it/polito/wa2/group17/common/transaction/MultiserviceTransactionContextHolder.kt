@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 @Component
 class MultiserviceTransactionContextHolder {
     companion object {
-        private val currentTransactionId = ThreadLocal<String>()
+        private val currentTransactionId = InheritableThreadLocal<String>()
         fun getCurrentTransactionID(): String = currentTransactionId.get()
     }
 
