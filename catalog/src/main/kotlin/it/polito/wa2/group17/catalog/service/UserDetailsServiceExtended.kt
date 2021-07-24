@@ -9,6 +9,7 @@ import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyVerifiedException
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.catalog.security.RoleName
+import it.polito.wa2.group17.common.mail.MailService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value

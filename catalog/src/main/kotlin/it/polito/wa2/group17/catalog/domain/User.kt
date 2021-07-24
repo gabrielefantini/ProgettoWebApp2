@@ -1,8 +1,8 @@
 package it.polito.wa2.group17.catalog.domain
 
-import it.polito.wa2.group17.catalog.domain.base.BaseEntity
 import it.polito.wa2.group17.catalog.security.RoleName
 import it.polito.wa2.group17.catalog.security.StringToRoleNamesConverter
+import it.polito.wa2.group17.common.utils.BaseEntity
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 import org.springframework.validation.annotation.Validated
