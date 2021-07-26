@@ -24,7 +24,7 @@ class MultiserviceTransactionAspect {
 
         val rollback =
             multiserviceTransactionLinker.getRollbackFor(
-                invokingMethod.getAnnotation(MultiserviceTransactional::class.java).transactionName
+                MultiserviceTransactional.extractTransactionName(invokingMethod)
             )
 
         val invokingMethodReturnType = invokingMethod.returnType

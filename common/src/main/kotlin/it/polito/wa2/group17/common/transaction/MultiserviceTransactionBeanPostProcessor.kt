@@ -12,10 +12,10 @@ class MultiserviceTransactionBeanPostProcessor : BeanPostProcessor {
 
     override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
         bean.javaClass.declaredMethods
-            .filter { it.isAnnotationPresent(RollbackFor::class.java) }
-            .forEach {
-                val transactionName = it.getAnnotation(RollbackFor::class.java).transactionName
-                multiserviceTransactionLinker.registerRollbackFor(transactionName, it)
+            .filter { it.isAnnotationPresent(Rollback::class.java) }
+            .forEach { method ->
+                val transactionName = Rollback.extractTransactionName(method)
+                multiserviceTransactionLinker.registerRollbackFor(transactionName, method)
             }
         return bean
     }
