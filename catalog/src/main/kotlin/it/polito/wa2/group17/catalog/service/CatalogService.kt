@@ -1,10 +1,13 @@
 package it.polito.wa2.group17.catalog.service
 
+import it.polito.wa2.group17.catalog.connector.WarehouseConnector
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
+import it.polito.wa2.group17.catalog.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,10 +24,10 @@ interface CatalogService {
     fun addNewOrder(order: String/*OrderDto*/): Long
 
     @Throws(EntityNotFoundException::class)
-    fun listProducts(): Unit?
+    fun listProducts(): List<StoredProductDto>
 
     @Throws(EntityNotFoundException::class)
-    fun getProduct(productId: Long): Unit?
+    fun getProduct(productId: Long): StoredProductDto?
 
     @Throws(EntityNotFoundException::class)
     fun getWallets(): Unit?
@@ -47,6 +50,10 @@ private open class CatalogServiceImpl(
 ) : CatalogService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    @Autowired
+    private lateinit var warehouseConnector: WarehouseConnector
+
     override fun getOrders(): Unit? {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
@@ -66,17 +73,16 @@ private open class CatalogServiceImpl(
         return orderId
     }
 
-    override fun listProducts(): Unit? {
+    override fun listProducts(): List<StoredProductDto> {
         logger.info("Listing all the products...")
-        //TODO
-        return null
-
+        return warehouseConnector.getProducts()
     }
 
-    override fun getProduct(productId: Long): Unit? {
+    override fun getProduct(productId: Long): StoredProductDto? {
         logger.info("Searching for product with id {}", productId)
-        //TODO
-        return null
+        val prod = warehouseConnector.getProducts().filter { it.productId == productId }
+        return if (prod.isNotEmpty()) prod[0]
+        else null
     }
 
     override fun getWallets(): Unit? {

@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.catalog.controller
 
+import it.polito.wa2.group17.catalog.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.service.CatalogService
@@ -39,12 +40,12 @@ class CatalogController {
 
     // tutti possono elencare i prodotti
     @GetMapping("/products")
-    fun getProducts(): ResponseEntity<Unit> {
+    fun getProducts(): ResponseEntity<List<StoredProductDto>> {
         return ResponseEntity.ok(catalogService.listProducts())
     }
 
     @GetMapping("/product/{productId}")
-    fun getProductById(@PathVariable productId: Long): ResponseEntity<Unit> {
+    fun getProductById(@PathVariable productId: Long): ResponseEntity<StoredProductDto> {
         return ResponseEntity.ok(catalogService.getProduct(productId))
     }
 
