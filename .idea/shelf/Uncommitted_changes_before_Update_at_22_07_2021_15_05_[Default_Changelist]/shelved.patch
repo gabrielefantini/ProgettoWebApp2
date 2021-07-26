@@ -1,0 +1,866 @@
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package it.polito.wa2.group17.catalog\r\n\r\nimport org.springframework.boot.autoconfigure.SpringBootApplication\r\nimport org.springframework.boot.runApplication\r\n\r\n@SpringBootApplication\r\nclass CatalogApplication\r\n\r\nfun main(args: Array<String>) {\r\n    runApplication<CatalogApplication>(*args)\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt
+--- a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt	(revision ae1f453d12c5c7c71bfec698bfb413f1ea08edb4)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt	(date 1626713472842)
+@@ -2,9 +2,20 @@
+ 
+ import org.springframework.boot.autoconfigure.SpringBootApplication
+ import org.springframework.boot.runApplication
++import org.springframework.context.annotation.Bean
++import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
++import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
++import org.springframework.security.crypto.factory.PasswordEncoderFactories
++import org.springframework.security.crypto.password.PasswordEncoder
+ 
+ @SpringBootApplication
+-class CatalogApplication
++@EnableWebSecurity
++@EnableGlobalMethodSecurity(prePostEnabled = true)
++class CatalogApplication{
++
++    @Bean
++    fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
++}
+ 
+ fun main(args: Array<String>) {
+     runApplication<CatalogApplication>(*args)
+Index: catalog/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import org.jetbrains.kotlin.gradle.tasks.KotlinCompile\r\n\r\nplugins {\r\n    id(\"org.springframework.boot\") version \"2.5.2\"\r\n    id(\"io.spring.dependency-management\") version \"1.0.11.RELEASE\"\r\n    kotlin(\"jvm\") version \"1.5.20\"\r\n    kotlin(\"plugin.spring\") version \"1.5.20\"\r\n}\r\n\r\ngroup = \"it.polito.wa2.group17\"\r\nversion = \"1.0.0-SNAPSHOT\"\r\njava.sourceCompatibility = JavaVersion.VERSION_11\r\n\r\nconfigurations {\r\n    compileOnly {\r\n        extendsFrom(configurations.annotationProcessor.get())\r\n    }\r\n}\r\n\r\nrepositories {\r\n    mavenCentral()\r\n}\r\n\r\ndependencies {\r\n    implementation(project(\":common\"))\r\n    implementation(\"org.springframework.boot:spring-boot-starter\")\r\n    implementation(\"org.jetbrains.kotlin:kotlin-reflect\")\r\n    implementation(\"org.jetbrains.kotlin:kotlin-stdlib-jdk8\")\r\n    compileOnly(\"org.projectlombok:lombok\")\r\n    developmentOnly(\"org.springframework.boot:spring-boot-devtools\")\r\n    annotationProcessor(\"org.projectlombok:lombok\")\r\n    testImplementation(\"org.springframework.boot:spring-boot-starter-test\")\r\n}\r\n\r\ntasks.withType<KotlinCompile> {\r\n    kotlinOptions {\r\n        freeCompilerArgs = listOf(\"-Xjsr305=strict\")\r\n        jvmTarget = \"11\"\r\n    }\r\n}\r\n\r\ntasks.withType<Test> {\r\n    useJUnitPlatform()\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/build.gradle.kts b/catalog/build.gradle.kts
+--- a/catalog/build.gradle.kts	(revision ae1f453d12c5c7c71bfec698bfb413f1ea08edb4)
++++ b/catalog/build.gradle.kts	(date 1626712111260)
+@@ -5,6 +5,7 @@
+     id("io.spring.dependency-management") version "1.0.11.RELEASE"
+     kotlin("jvm") version "1.5.20"
+     kotlin("plugin.spring") version "1.5.20"
++    kotlin("plugin.jpa") version "1.5.20"
+ }
+ 
+ group = "it.polito.wa2.group17"
+@@ -23,13 +24,26 @@
+ 
+ dependencies {
+     implementation(project(":common"))
+-    implementation("org.springframework.boot:spring-boot-starter")
++    implementation("org.springframework.boot:spring-boot-starter-web")
++    implementation("org.springframework.boot:spring-boot-starter-security")
+     implementation("org.jetbrains.kotlin:kotlin-reflect")
+     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
++
++    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
++    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
++    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
++
++    implementation("org.springframework.boot:spring-boot-starter-mail")
++    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
++    implementation("javax.validation:validation-api")
++
+     compileOnly("org.projectlombok:lombok")
+     developmentOnly("org.springframework.boot:spring-boot-devtools")
+     annotationProcessor("org.projectlombok:lombok")
+     testImplementation("org.springframework.boot:spring-boot-starter-test")
++
++
++
+ }
+ 
+ tasks.withType<KotlinCompile> {
+@@ -42,3 +56,4 @@
+ tasks.withType<Test> {
+     useJUnitPlatform()
+ }
++
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/EmailAlreadyPresentException.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/EmailAlreadyPresentException.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/EmailAlreadyPresentException.kt
+new file mode 100644
+--- /dev/null	(date 1626707851289)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/EmailAlreadyPresentException.kt	(date 1626707851289)
+@@ -0,0 +1,9 @@
++package it.polito.wa2.group17.catalog.exceptions.auth
++
++import it.polito.wa2.group17.catalog.exceptions.AutoLoggableException
++import org.springframework.http.HttpStatus
++import org.springframework.web.bind.annotation.ResponseStatus
++
++@ResponseStatus(HttpStatus.CONFLICT)
++class EmailAlreadyPresentException(email: String) :
++    AutoLoggableException("There is already an account bound to $email ")
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/AutoLoggableException.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/AutoLoggableException.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/AutoLoggableException.kt
+new file mode 100644
+--- /dev/null	(date 1626707318167)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/AutoLoggableException.kt	(date 1626707318167)
+@@ -0,0 +1,14 @@
++package it.polito.wa2.group17.catalog.exceptions
++
++import it.polito.wa2.group17.common.utils.reflection.CallSiteInspector
++import org.slf4j.LoggerFactory
++
++abstract class AutoLoggableException(message: String) : Exception(message) {
++    init {
++        /**
++         * Get the logger of the first calling class outside the exception hierarchy!
++         */
++        LoggerFactory.getLogger(CallSiteInspector.getCallerClass { !Exception::class.java.isAssignableFrom(it) })
++            .error(message)
++    }
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/EmailVerificationTokenRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/EmailVerificationTokenRepository.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/EmailVerificationTokenRepository.kt
+new file mode 100644
+--- /dev/null	(date 1626707318134)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/EmailVerificationTokenRepository.kt	(date 1626707318134)
+@@ -0,0 +1,36 @@
++package it.polito.wa2.group17.catalog.repository
++
++import it.polito.wa2.group17.catalog.service.EmailVerificationToken
++import org.springframework.data.repository.CrudRepository
++import org.springframework.stereotype.Repository
++import java.time.Instant
++import java.util.*
++import javax.persistence.EntityManager
++import javax.persistence.PersistenceContext
++import javax.persistence.criteria.Path
++import javax.persistence.criteria.Root
++
++@Repository
++interface EmailVerificationTokenRepository : CrudRepository<EmailVerificationToken, UUID>,
++    TokenExpirationAwareRepository
++
++interface TokenExpirationAwareRepository {
++    fun findExpiredTokens(): MutableList<EmailVerificationToken>
++}
++
++private class TokenExpirationAwareRepositoryImpl : TokenExpirationAwareRepository {
++    @PersistenceContext
++    private lateinit var entityManager: EntityManager
++
++    override fun findExpiredTokens(): MutableList<EmailVerificationToken> {
++        val criteriaBuilder = entityManager.criteriaBuilder
++        val criteriaQuery = criteriaBuilder.createQuery(EmailVerificationToken::class.java)
++
++        val token: Root<EmailVerificationToken> = criteriaQuery.from(EmailVerificationToken::class.java)
++        val expireDatePath: Path<Instant> = token.get("expireDate")
++
++        criteriaQuery.select(token).where(criteriaBuilder.lessThan(expireDatePath, Instant.now()))
++        return entityManager.createQuery(criteriaQuery).resultList
++    }
++
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/CustomerRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/CustomerRepository.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/CustomerRepository.kt
+new file mode 100644
+--- /dev/null	(date 1626707851327)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/CustomerRepository.kt	(date 1626707851327)
+@@ -0,0 +1,9 @@
++package it.polito.wa2.group17.catalog.repository
++
++import it.polito.wa2.group17.catalog.domain.Customer
++import org.springframework.data.repository.CrudRepository
++import org.springframework.stereotype.Repository
++
++@Repository
++interface CustomerRepository : CrudRepository<Customer, Long> {
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/InvalidTokenException.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/InvalidTokenException.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/InvalidTokenException.kt
+new file mode 100644
+--- /dev/null	(date 1626707318319)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/InvalidTokenException.kt	(date 1626707318319)
+@@ -0,0 +1,6 @@
++package it.polito.wa2.group17.catalog.exceptions.auth
++
++import it.polito.wa2.group17.catalog.exceptions.GenericBadRequestException
++
++class InvalidTokenException(token: String) :
++    GenericBadRequestException("Token $token is not valid")
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyVerifiedException.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyVerifiedException.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyVerifiedException.kt
+new file mode 100644
+--- /dev/null	(date 1626707851354)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyVerifiedException.kt	(date 1626707851354)
+@@ -0,0 +1,7 @@
++package it.polito.wa2.group17.catalog.exceptions.auth
++
++import it.polito.wa2.group17.catalog.exceptions.GenericBadRequestException
++
++
++class UserAlreadyVerifiedException(username: String) :
++    GenericBadRequestException("User $username has been already verified")
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/WebSecurityConfig.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/WebSecurityConfig.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/WebSecurityConfig.kt
+new file mode 100644
+--- /dev/null	(date 1626713349337)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/WebSecurityConfig.kt	(date 1626713349337)
+@@ -0,0 +1,67 @@
++package it.polito.wa2.group17.catalog.security
++
++import it.polito.wa2.group17.catalog.security.jwt.JwtAuthenticationTokenFilter
++import it.polito.wa2.group17.catalog.service.UserDetailsServiceExtendedImpl
++import org.springframework.beans.factory.annotation.Autowired
++import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate
++import org.springframework.context.annotation.Bean
++import org.springframework.context.annotation.Configuration
++import org.springframework.context.annotation.Profile
++import org.springframework.http.HttpMethod
++import org.springframework.security.authentication.AuthenticationManager
++import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
++import org.springframework.security.config.annotation.web.builders.HttpSecurity
++import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
++import org.springframework.security.crypto.password.PasswordEncoder
++import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
++import kotlin.jvm.Throws
++
++@Configuration
++@ConditionalOnSingleCandidate(value = WebSecurityConfigurerAdapter::class)
++class WebSecurityConfig(val passwordEncoder: PasswordEncoder, val userDetailsService: UserDetailsServiceExtendedImpl) :
++    WebSecurityConfigurerAdapter() {
++
++    @Autowired
++    private lateinit var authEntryPoint: AuthEntryPoint
++
++    override fun configure(auth: AuthenticationManagerBuilder) {
++        auth
++            .userDetailsService(userDetailsService)
++            .passwordEncoder(passwordEncoder)
++    }
++
++    override fun configure(http: HttpSecurity) {
++        http
++            .exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
++            .authorizeRequests()
++            .antMatchers("/swagger-ui/").permitAll()
++            .antMatchers("/auth/**").permitAll()
++            .antMatchers(HttpMethod.GET, "/products/**").permitAll()
++            .anyRequest().authenticated()
++
++        http.csrf().disable()
++
++        http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
++    }
++
++    @Bean
++    fun authenticationTokenFilter(): JwtAuthenticationTokenFilter = JwtAuthenticationTokenFilter()
++
++    @Bean
++    @Throws(Exception::class)
++    override fun authenticationManagerBean(): AuthenticationManager = super.authenticationManagerBean()
++
++}
++
++
++/**
++ * Security Configuration just for "local" profile
++ */
++@Configuration
++@Profile("no-security")
++class SecurityConfigLocal : WebSecurityConfigurerAdapter() {
++    override fun configure(http: HttpSecurity) {
++        http.cors().and().csrf().disable()
++            .antMatcher("/**").authorizeRequests().anyRequest().permitAll()
++    }
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/GenericBadRequestException.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/GenericBadRequestException.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/GenericBadRequestException.kt
+new file mode 100644
+--- /dev/null	(date 1626707318196)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/GenericBadRequestException.kt	(date 1626707318196)
+@@ -0,0 +1,7 @@
++package it.polito.wa2.group17.catalog.exceptions
++
++import org.springframework.http.HttpStatus
++import org.springframework.web.bind.annotation.ResponseStatus
++
++@ResponseStatus(HttpStatus.BAD_REQUEST)
++open class GenericBadRequestException(message: String) : AutoLoggableException(message)
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/AuthEntryPoint.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/AuthEntryPoint.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/AuthEntryPoint.kt
+new file mode 100644
+--- /dev/null	(date 1626709315031)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/AuthEntryPoint.kt	(date 1626709315031)
+@@ -0,0 +1,27 @@
++package it.polito.wa2.group17.catalog.security
++
++import org.slf4j.LoggerFactory
++import org.springframework.security.core.AuthenticationException
++import org.springframework.security.web.AuthenticationEntryPoint
++import org.springframework.stereotype.Component
++import java.io.IOException
++import javax.servlet.ServletException
++import javax.servlet.http.HttpServletRequest
++import javax.servlet.http.HttpServletResponse
++import kotlin.jvm.Throws
++
++@Component
++class AuthEntryPoint(): AuthenticationEntryPoint {
++
++    private val logger = LoggerFactory.getLogger(javaClass)
++
++    @Throws(IOException::class,ServletException::class)
++    override fun commence(
++        request: HttpServletRequest?,
++        response: HttpServletResponse?,
++        authException: AuthenticationException?
++    ) {
++        logger.error("Unauthorized error: {}", authException?.message);
++        response?.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
++    }
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyPresentException.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyPresentException.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyPresentException.kt
+new file mode 100644
+--- /dev/null	(date 1626707851363)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyPresentException.kt	(date 1626707851363)
+@@ -0,0 +1,9 @@
++package it.polito.wa2.group17.catalog.exceptions.auth
++
++import it.polito.wa2.group17.catalog.exceptions.AutoLoggableException
++import org.springframework.http.HttpStatus
++import org.springframework.web.bind.annotation.ResponseStatus
++
++@ResponseStatus(HttpStatus.CONFLICT)
++class UserAlreadyPresentException(username: String) :
++    AutoLoggableException("User $username is already present")
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginResponse.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginResponse.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginResponse.kt
+new file mode 100644
+--- /dev/null	(date 1626707318285)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginResponse.kt	(date 1626707318285)
+@@ -0,0 +1,14 @@
++package it.polito.wa2.group17.catalog.model
++
++data class LoginResponse(
++    val token: String,
++    val id: Long,
++    val username: String,
++    val email: String,
++    val roles: List<String>,
++    val customerId: Long?
++)
++
++data class BadLoginResponse(
++    val error: String
++)
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/UserRegistration.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/UserRegistration.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/UserRegistration.kt
+new file mode 100644
+--- /dev/null	(date 1626707318369)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/UserRegistration.kt	(date 1626707318369)
+@@ -0,0 +1,16 @@
++package it.polito.wa2.group17.catalog.model
++
++import it.polito.wa2.group17.catalog.costraints.FieldsMatch
++import javax.validation.constraints.Email
++
++@FieldsMatch("password", "passwordConfirm", "Passwords don't match")
++data class UserRegistration(
++    val username: String,
++    @field:Email(message = "Email is not valid")
++    val email: String,
++    val name: String,
++    val surname: String,
++    val address: String,
++    val password: String,
++    val passwordConfirm: String
++)
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginRequest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginRequest.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginRequest.kt
+new file mode 100644
+--- /dev/null	(date 1626707318335)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginRequest.kt	(date 1626707318335)
+@@ -0,0 +1,6 @@
++package it.polito.wa2.group17.catalog.model
++
++data class LoginRequest (
++    val username: String,
++    val password: String,
++)
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtUtils.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtUtils.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtUtils.kt
+new file mode 100644
+--- /dev/null	(date 1626707851297)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtUtils.kt	(date 1626707851297)
+@@ -0,0 +1,77 @@
++package it.polito.wa2.group17.catalog.security.jwt
++
++import it.polito.wa2.group17.catalog.dto.UserDetailsDto
++import it.polito.wa2.group17.catalog.service.UserDetailsServiceExtendedImpl
++import org.slf4j.LoggerFactory
++import org.springframework.beans.factory.annotation.Autowired
++import org.springframework.beans.factory.annotation.Value
++import org.springframework.security.core.Authentication
++import org.springframework.stereotype.Component
++import java.security.Key
++import java.security.SignatureException
++import java.util.*
++import io.jsonwebtoken.*
++import io.jsonwebtoken.security.Keys
++
++@Component
++class JwtUtils() {
++
++    private companion object val logger = LoggerFactory.getLogger(javaClass)
++
++    @Autowired
++    private lateinit var userService: UserDetailsServiceExtendedImpl
++
++    @Value("\${application.jwt.jwtSecret}")
++    private lateinit var jwtSecret: String
++
++    @Value("\${application.jwt.jwtExpirationMs}")
++    private lateinit var jwtExpirationMs: String
++
++    private fun getSigningKey(): Key {
++        return Keys.hmacShaKeyFor(Base64.getEncoder().encode(jwtSecret.encodeToByteArray()))
++    }
++
++    fun generateJwtToken(authentication: Authentication): String {
++        return Jwts
++            .builder()
++            .setSubject((authentication.principal as UserDetailsDto).username)
++            .setIssuedAt(Date(Date().time))
++            .setExpiration(Date((Date().time + 30000)))
++            .signWith(getSigningKey(), SignatureAlgorithm.HS512)
++            .compact()
++    }
++
++    fun validateJwtToken(authToken: String): Boolean {
++        try {
++            Jwts
++                .parserBuilder()
++                .setSigningKey(getSigningKey())
++                .build()
++                .parseClaimsJws(authToken)
++            return true
++        } catch (e: SignatureException) {
++            logger.error("Invalid JWT signature: {}", e.message)
++        } catch (e: MalformedJwtException) {
++            logger.error("Invalid JWT token: {}", e.message)
++        } catch (e: ExpiredJwtException) {
++            logger.error("JWT token is expired: {}", e.message)
++        } catch (e: UnsupportedJwtException) {
++            logger.error("JWT token is unsupported: {}", e.message)
++        } catch (e: IllegalArgumentException) {
++            logger.error("JWT claims string is empty: {}", e.message)
++        }
++        return false
++    }
++
++    fun getDetailsFromJwtToken(authToken: String): UserDetailsDto {
++        return userService.loadUserByUsername(
++            Jwts
++                .parserBuilder()
++                .setSigningKey(getSigningKey())
++                .build()
++                .parseClaimsJws(authToken)
++                .body
++                .subject
++        )
++    }
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/costraints/FieldMatchConstraint.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/costraints/FieldMatchConstraint.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/costraints/FieldMatchConstraint.kt
+new file mode 100644
+--- /dev/null	(date 1626707318186)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/costraints/FieldMatchConstraint.kt	(date 1626707318186)
+@@ -0,0 +1,35 @@
++package it.polito.wa2.group17.catalog.costraints
++
++import org.springframework.beans.BeanWrapperImpl
++import javax.validation.Constraint
++import javax.validation.ConstraintValidator
++import javax.validation.ConstraintValidatorContext
++import javax.validation.Payload
++import kotlin.reflect.KClass
++
++@Constraint(validatedBy = [FieldsMatchConstraintValidator::class])
++@Target(AnnotationTarget.TYPE, AnnotationTarget.CLASS)
++@Repeatable
++annotation class FieldsMatch(
++    val fieldA: String,
++    val fieldB: String,
++    val message: String = "Fields don't match!",
++    val groups: Array<KClass<*>> = [],
++    val payload: Array<KClass<out Payload>> = []
++) {
++
++    @Target(AnnotationTarget.TYPE)
++    annotation class List(vararg val value: FieldsMatch)
++}
++
++class FieldsMatchConstraintValidator : ConstraintValidator<FieldsMatch, Any> {
++    private lateinit var fieldA: String
++    private lateinit var fieldB: String
++    override fun initialize(constraintAnnotation: FieldsMatch) {
++        fieldA = constraintAnnotation.fieldA
++        fieldB = constraintAnnotation.fieldB
++    }
++
++    override fun isValid(value: Any, context: ConstraintValidatorContext): Boolean =
++        BeanWrapperImpl(value).run { getPropertyValue(fieldA) == getPropertyValue(fieldB) }
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/EmailVerificationToken.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/EmailVerificationToken.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/EmailVerificationToken.kt
+new file mode 100644
+--- /dev/null	(date 1626707318247)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/EmailVerificationToken.kt	(date 1626707318247)
+@@ -0,0 +1,29 @@
++package it.polito.wa2.group17.catalog.service
++
++import com.sun.istack.NotNull
++import it.polito.wa2.group17.catalog.domain.AbstractEntity
++import org.hibernate.annotations.GenericGenerator
++import org.hibernate.annotations.Type
++import java.time.Instant
++import java.util.*
++import javax.persistence.Entity
++import javax.persistence.GeneratedValue
++import javax.persistence.Id
++
++@Entity
++class EmailVerificationToken(
++    @NotNull
++    val username: String,
++    @NotNull
++    val expireDate: Instant
++) : AbstractEntity<UUID>() {
++
++    @Id
++    @GeneratedValue(generator = "uuid2")
++    @GenericGenerator(name = "uuid2", strategy = "uuid2")
++    @Type(type = "uuid-char")
++    private var id: UUID? = null
++    override fun getId(): UUID? = id
++
++}
++
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtAuthenticationTokenFilter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtAuthenticationTokenFilter.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtAuthenticationTokenFilter.kt
+new file mode 100644
+--- /dev/null	(date 1626712852090)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtAuthenticationTokenFilter.kt	(date 1626712852090)
+@@ -0,0 +1,56 @@
++package it.polito.wa2.group17.catalog.security.jwt
++
++import it.polito.wa2.group17.catalog.service.UserDetailsServiceExtendedImpl
++import org.springframework.beans.factory.annotation.Autowired
++import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
++import org.springframework.security.core.context.SecurityContextHolder
++import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
++import org.springframework.util.StringUtils
++import org.springframework.web.filter.OncePerRequestFilter
++import java.io.IOException
++import javax.servlet.FilterChain
++import javax.servlet.ServletException
++import javax.servlet.http.HttpServletRequest
++import javax.servlet.http.HttpServletResponse
++import kotlin.jvm.Throws
++
++class JwtAuthenticationTokenFilter : OncePerRequestFilter() {
++
++    @Autowired
++    private lateinit var jwtUtils: JwtUtils
++
++    @Autowired
++    private lateinit var userDetailsService : UserDetailsServiceExtendedImpl
++
++    @Throws(ServletException::class, IOException::class)
++    override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
++        try{
++            var jwt = parseJwt(request)
++            if(jwt != null && jwtUtils.validateJwtToken(jwt)){
++
++                val username = jwtUtils.getDetailsFromJwtToken(jwt).username
++                val userDetails = userDetailsService.loadUserByUsername(username)
++                val authentication = UsernamePasswordAuthenticationToken(userDetails,null,userDetails.authorities)
++
++                authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
++                SecurityContextHolder.getContext().authentication = authentication
++            }
++        }catch (e: Exception) {
++            logger.error("User authentication failure: {}", e)
++        }
++
++        filterChain.doFilter(request,response)
++    }
++
++    private fun parseJwt(request: HttpServletRequest): String? {
++        var header = request.getHeader("Authorization")
++        val bearer = "Bearer "
++
++        header = if(StringUtils.hasText(header) && header.startsWith(bearer))
++            header.substring(bearer.length,header.length)
++        else
++            null
++
++        return header
++    }
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/MailService.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/MailService.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/MailService.kt
+new file mode 100644
+--- /dev/null	(date 1626704069040)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/MailService.kt	(date 1626704069040)
+@@ -0,0 +1,34 @@
++package it.polito.wa2.group17.catalog.service
++
++import org.slf4j.LoggerFactory
++import org.springframework.beans.factory.annotation.Autowired
++import org.springframework.beans.factory.annotation.Value
++import org.springframework.mail.SimpleMailMessage
++import org.springframework.mail.javamail.JavaMailSender
++import org.springframework.stereotype.Service
++
++internal interface MailService {
++    fun sendMessage(destination: String, subject: String, body: String)
++}
++
++@Service
++private class MailServiceImpl : MailService {
++    @Autowired
++    private lateinit var javaMailSender: JavaMailSender
++    private val logger = LoggerFactory.getLogger(javaClass)
++
++    @Value("\${spring.mail.username}")
++    private lateinit var source: String
++
++    override fun sendMessage(destination: String, subject: String, body: String) {
++        logger.info("Sending email with subject '{}' to {}", subject, destination)
++        javaMailSender.send(SimpleMailMessage().apply {
++            setFrom(source)
++            setTo(destination)
++            setSubject(subject)
++            setText(body)
++        })
++        logger.info("Email '{}' successfully sent to {}.", subject, destination)
++    }
++
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/NotificationService.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/NotificationService.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/NotificationService.kt
+new file mode 100644
+--- /dev/null	(date 1626707318157)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/NotificationService.kt	(date 1626707318157)
+@@ -0,0 +1,87 @@
++package it.polito.wa2.group17.catalog.service
++
++import it.polito.wa2.group17.catalog.exceptions.auth.InvalidTokenException
++import it.polito.wa2.group17.catalog.repository.EmailVerificationTokenRepository
++import org.slf4j.LoggerFactory
++import org.springframework.beans.factory.annotation.Autowired
++import org.springframework.beans.factory.annotation.Value
++import org.springframework.stereotype.Service
++import org.springframework.transaction.annotation.Transactional
++import java.time.Instant
++import java.util.*
++import java.util.concurrent.Executors
++import java.util.concurrent.TimeUnit
++import javax.annotation.PostConstruct
++
++internal interface NotificationService {
++    fun createTokenForUser(username: String): EmailVerificationToken
++
++    @Throws(InvalidTokenException::class)
++    fun verifyToken(token: String): String
++}
++
++@Service
++@Transactional
++private open class NotificationServiceImpl : NotificationService {
++
++    @Autowired
++    private lateinit var tokenRepo: EmailVerificationTokenRepository
++
++    private val logger = LoggerFactory.getLogger(javaClass)
++
++    @Value("\${notifications.tokenVerification.expirationMargin}")
++    private var expirationMarginMillis: Long? = null
++
++    @PostConstruct
++    private fun init() {
++        logger.info("Initializing expired token cleaning thread with interval {} millis", expirationMarginMillis)
++        Executors.newScheduledThreadPool(1)
++            .scheduleAtFixedRate(
++                this::deleteExpiredTokens,
++                0,
++                expirationMarginMillis!!,
++                TimeUnit.MILLISECONDS
++            )
++    }
++
++    @Synchronized
++    private fun deleteExpiredTokens() {
++        logger.info("Cleaning expired tokens..")
++        val expired = tokenRepo.findExpiredTokens()
++        logger.debug("Expired tokens are {}", expired)
++        tokenRepo.deleteAll(expired)
++        logger.info("Deleted {} expired tokens", expired.size)
++    }
++
++
++    override fun createTokenForUser(username: String): EmailVerificationToken {
++        logger.info("Creating validation token for user {}", username)
++        val token = tokenRepo.save(
++            EmailVerificationToken(
++                username,
++                Instant.now().plusMillis(expirationMarginMillis!!)
++            )
++        )
++        logger.info(
++            "Validation token for user {} is {} expiring on {}",
++            username,
++            token.getId().toString(),
++            token.expireDate
++        )
++        return token
++    }
++
++    @Synchronized
++    override fun verifyToken(token: String): String {
++        logger.info("Verifying token {}", token)
++        val storedToken = tokenRepo.findById(UUID.fromString(token))
++        if (!storedToken.isPresent || !Instant.now().isBefore(storedToken.get().expireDate)
++        ) throw InvalidTokenException(token)
++        logger.info("Token {} is valid", token)
++        val username = storedToken.get().username
++        tokenRepo.delete(storedToken.get())
++        return username
++    }
++
++
++}
+Index: catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/BaseEntity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/BaseEntity.kt b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/BaseEntity.kt
+new file mode 100644
+--- /dev/null	(date 1626707318346)
++++ b/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/BaseEntity.kt	(date 1626707318346)
+@@ -0,0 +1,38 @@
++package it.polito.wa2.group17.catalog.domain
++
++import org.springframework.data.util.ProxyUtils
++import java.io.Serializable
++import javax.persistence.GeneratedValue
++import javax.persistence.Id
++import javax.persistence.MappedSuperclass
++
++@MappedSuperclass
++open class BaseEntity<ID : Serializable> : AbstractEntity<ID>() {
++    @Id
++    @GeneratedValue
++    private var id: ID? = null
++    override fun getId(): ID? = id
++}
++
++abstract class AbstractEntity<ID : Serializable> {
++
++    companion object {
++        private const val serialVersionUID = -43869754L
++    }
++
++    abstract fun getId(): ID?
++
++    override fun toString(): String = "@Entity ${this.javaClass.name}(id=${getId()})"
++
++    override fun equals(other: Any?): Boolean {
++        if (other == null) return false
++        if (other === this) return true
++        if (javaClass != ProxyUtils.getUserClass(other)) return false
++        other as BaseEntity<*>
++        return if (null == getId()) false else this.getId() == other.getId()
++    }
++
++    override fun hashCode(): Int {
++        return 31
++    }
++}
