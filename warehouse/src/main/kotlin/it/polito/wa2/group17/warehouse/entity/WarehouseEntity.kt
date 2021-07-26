@@ -7,5 +7,5 @@ import javax.persistence.OneToMany
 @Entity
 class WarehouseEntity(
     @OneToMany(mappedBy = "warehouse")
-    var products: List<StoredProductEntity>
+    var products: MutableList<StoredProductEntity>
 ) : BaseEntity<Long>()
