@@ -32,7 +32,7 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
     @Value("\${transaction.kafka.bootstrapServer}")
     private lateinit var bootstrapServer: String
 
-    @Value("\${transaction.kafka.topic}")
+    @Value("\${transaction.kafka.topic:multiservice_transactions}")
     private lateinit var topic: String
 
     @Value("\${transaction.kafka.pollTimeout:1}")
