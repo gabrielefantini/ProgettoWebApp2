@@ -1,6 +1,6 @@
 spring:
   application:
-    name: wallet-service
+    name: warehouse-service
   datasource:
     url: jdbc:mariadb://localhost:3306/final_project
     username: root
@@ -29,3 +29,4 @@ eureka:
       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true
+
