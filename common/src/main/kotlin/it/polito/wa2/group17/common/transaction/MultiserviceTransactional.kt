@@ -8,7 +8,7 @@ annotation class MultiserviceTransactional(val transactionName: String = "") {
         fun extractTransactionName(method: Method): String {
             var transactionName = method.getAnnotation(MultiserviceTransactional::class.java).transactionName
             if (transactionName.isBlank())
-                transactionName = method.declaringClass.canonicalName + "." + method.name
+                transactionName = method.name
             return transactionName
         }
     }
@@ -20,7 +20,7 @@ annotation class Rollback(val transactionName: String = "") {
         fun extractTransactionName(method: Method): String {
             var transactionName = method.getAnnotation(Rollback::class.java).transactionName
             if (transactionName.isBlank())
-                transactionName = method.declaringClass.canonicalName + "." + method.name.replace("rollbackFor", "")
+                transactionName = method.name.replace("rollbackFor", "")
                     .replaceFirstChar { it.lowercaseChar() }
             return transactionName
         }
