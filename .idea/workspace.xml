@@ -8,7 +8,14 @@
       <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/StoredProductDto.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/WarehouseDto.kt" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="Primo commit">
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/WarehouseService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/WarehouseService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
     </list>
@@ -52,7 +59,22 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="JpbToolWindowState">
+    <option name="myId2FirstActivated">
+      <map>
+        <entry key="JPA Structure" value="true" />
+      </map>
+    </option>
+    <option name="myId2Visible">
+      <map>
+        <entry key="JPA Structure" value="false" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectId" id="1vWx8Fk627ZVGi93NTq8jvBY8fa" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -66,6 +88,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="spring" />
   </component>
@@ -85,19 +108,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Spring Boot.CatalogApplication">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="CatalogApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="FinalProject.catalog.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="it.polito.wa2.group17.catalog.CatalogApplication" />

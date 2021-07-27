@@ -4,18 +4,15 @@ import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import it.polito.wa2.group17.common.mail.MailService
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
-import it.polito.wa2.group17.common.transaction.RollbackFor
+import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.common.utils.converter.convert
 import it.polito.wa2.group17.warehouse.connector.UsersConnector
-import it.polito.wa2.group17.warehouse.dto.FulfillRequest
-import it.polito.wa2.group17.warehouse.dto.SellRequest
-import it.polito.wa2.group17.warehouse.dto.SellResponse
+import it.polito.wa2.group17.warehouse.dto.*
 import it.polito.wa2.group17.warehouse.entity.WarehouseEntity
 import it.polito.wa2.group17.warehouse.exception.ProductNotEnoughException
 import it.polito.wa2.group17.warehouse.exception.ProductNotFoundException
 import it.polito.wa2.group17.warehouse.model.StoredProduct
 import it.polito.wa2.group17.warehouse.model.Warehouse
-import it.polito.wa2.group17.warehouse.model.WarehouseUpdated
 import it.polito.wa2.group17.warehouse.repository.WarehouseRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -29,20 +26,22 @@ interface WarehouseService {
     fun getWarehouse(warehouseId: Long): Warehouse
     fun deleteWarehouse(warehouseId: Long): Warehouse
     fun createWarehouse(products: List<StoredProduct>): Warehouse
-    fun partiallyUpdateWarehouse(warehouseId: Long, products: List<StoredProduct>): Warehouse
-    fun updateOrInsertWarehouse(warehouseId: Long, products: List<StoredProduct>): Warehouse
     fun sellProduct(sellRequest: SellRequest): SellResponse
     fun fulfillProduct(fulfillRequest: FulfillRequest)
+    fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProduct
+    fun removeProductFromWarehouse(warehouseId: Long, productId: Long): StoredProduct
+    fun removeAllProductsFromWarehouse(warehouseId: Long): List<StoredProduct>
+    fun updateProductLimit(
+        warehouseId: Long,
+        productId: Long,
+        updateProductRequest: UpdateProductRequest
+    ): StoredProduct
 }
 
 @Service
 private class WarehouseServiceImpl : WarehouseService {
 
     private companion object {
-        private const val DELETE_WAREHOUSE_TRANSACTION_ID = "deleteWarehouse"
-        private const val CREATE_WAREHOUSE_TRANSACTION_ID = "createWarehouse"
-        private const val SELL_PRODUCT_TRANSACTION_ID = "sellProduct"
-        private const val FULFILL_PRODUCT_TRANSACTION_ID = "fulfillProduct"
         private val logger: Logger = LoggerFactory.getLogger(WarehouseService::class.java)
     }
 
@@ -53,10 +52,10 @@ private class WarehouseServiceImpl : WarehouseService {
     private lateinit var warehouseRepository: WarehouseRepository
 
     @Autowired
-    private lateinit var warehouseUpdater: WarehouseUpdater
+    private lateinit var mailService: MailService
 
     @Autowired
-    private lateinit var mailService: MailService
+    private lateinit var productUpdater: ProductUpdater
 
     override fun getWarehouses(): List<Warehouse> {
         logger.info("Retrieving all warehouses")
@@ -65,22 +64,22 @@ private class WarehouseServiceImpl : WarehouseService {
 
     override fun getWarehouse(warehouseId: Long): Warehouse {
         logger.info("Retrieving warehouse with id {}", warehouseId)
-        return warehouseRepository.findById(warehouseId).orElseThrow { EntityNotFoundException(warehouseId) }.convert()
+        return getWarehouseEntity(warehouseId).convert()
     }
 
-    @MultiserviceTransactional(DELETE_WAREHOUSE_TRANSACTION_ID)
+    @MultiserviceTransactional
     override fun deleteWarehouse(warehouseId: Long): Warehouse {
         logger.info("Deleting warehouse with id {}", warehouseId)
         val warehouse =
-            warehouseRepository.findById(warehouseId).orElseThrow { EntityNotFoundException(warehouseId) }
+            getWarehouseEntity(warehouseId)
                 .convert<Warehouse>()
         warehouseRepository.deleteById(warehouseId)
         logger.info("Warehouse with id {} deleted", warehouseId)
         return warehouse
     }
 
-    @RollbackFor(DELETE_WAREHOUSE_TRANSACTION_ID)
-    private fun rollbackDeleteWarehouse(warehouseId: Long, warehouse: Warehouse) {
+    @Rollback
+    private fun rollbackForDeleteWarehouse(warehouseId: Long, warehouse: Warehouse) {
         logger.warn("Performing rollback of warehouse {} delete.", warehouseId)
         val warehouseEntity =
             WarehouseEntity(products = warehouse.products.map { it.convert<StoredProductEntity1>() }.toMutableList())
@@ -89,7 +88,7 @@ private class WarehouseServiceImpl : WarehouseService {
         logger.info("Rollback delete of warehouse {} succeed", warehouseId)
     }
 
-    @MultiserviceTransactional(CREATE_WAREHOUSE_TRANSACTION_ID)
+    @MultiserviceTransactional
     override fun createWarehouse(products: List<StoredProduct>): Warehouse {
         if (logger.isInfoEnabled) {
             logger.info("Creating warehouse having products ${products.map { it.productId }}")
@@ -100,28 +99,15 @@ private class WarehouseServiceImpl : WarehouseService {
             .convert()
     }
 
-    @RollbackFor(CREATE_WAREHOUSE_TRANSACTION_ID)
-    private fun rollbackCreateWarehouse(products: List<StoredProduct>, warehouse: Warehouse) {
+    @Rollback
+    private fun rollbackForCreateWarehouse(products: List<StoredProduct>, warehouse: Warehouse) {
         logger.warn("Performing rollback of creation of warehouse {}", warehouse.id)
         warehouseRepository.deleteById(warehouse.id)
         logger.warn("Rollback of creation of warehouse {} succeed", warehouse.id)
     }
 
 
-    override fun partiallyUpdateWarehouse(warehouseId: Long, products: List<StoredProduct>): Warehouse {
-        val result = warehouseUpdater.partiallyUpdateWarehouse(warehouseId, products).newVersion
-        checkProductLimits(result)
-        return result.convert()
-    }
-
-    override fun updateOrInsertWarehouse(warehouseId: Long, products: List<StoredProduct>): Warehouse {
-        val result = warehouseUpdater.updateOrInsertWarehouse(warehouseId, products).newVersion
-        checkProductLimits(result)
-        return result.convert()
-    }
-
-
-    @MultiserviceTransactional(SELL_PRODUCT_TRANSACTION_ID)
+    @MultiserviceTransactional
     override fun sellProduct(sellRequest: SellRequest): SellResponse {
         val targetProductEntity: StoredProductEntity1
         val targetWarehouseEntity: WarehouseEntity
@@ -190,14 +176,13 @@ private class WarehouseServiceImpl : WarehouseService {
             sellRequest.warehouseID
         )
 
-        if (targetProductEntity.quantity < targetProductEntity.minimumQuantity)
-            sendAlertMessageToAdmins(createAlertMessageForProduct(targetProductEntity))
+        checkProductLimit(targetProductEntity)
 
         return SellResponse(sellRequest.productID, sellRequest.quantity, targetProductEntity.getId()!!)
     }
 
-    @RollbackFor(SELL_PRODUCT_TRANSACTION_ID)
-    private fun rollbackSellProduct(sellRequest: SellRequest, sellResponse: SellResponse) {
+    @Rollback
+    private fun rollbackForSellProduct(sellRequest: SellRequest, sellResponse: SellResponse) {
         logger.warn(
             "Performing rollback of selling {} products with id {} from {}",
             sellResponse.quantity,
@@ -219,7 +204,7 @@ private class WarehouseServiceImpl : WarehouseService {
     }
 
 
-    @MultiserviceTransactional(FULFILL_PRODUCT_TRANSACTION_ID)
+    @MultiserviceTransactional
     override fun fulfillProduct(fulfillRequest: FulfillRequest) {
         logger.info(
             "Fulfilling {} products with id {} to {}",
@@ -244,8 +229,8 @@ private class WarehouseServiceImpl : WarehouseService {
         )
     }
 
-    @RollbackFor(FULFILL_PRODUCT_TRANSACTION_ID)
-    private fun rollbackFulfillProduct(fulfillRequest: FulfillRequest) {
+    @Rollback
+    private fun rollbackForFulfillProduct(fulfillRequest: FulfillRequest) {
         logger.warn(
             "Performing rollback of fulfilling {} products with id {} to {}",
             fulfillRequest.quantity,
@@ -273,9 +258,108 @@ private class WarehouseServiceImpl : WarehouseService {
             fulfillRequest.warehouseID
         )
 
-        if (targetProduct.quantity < targetProduct.minimumQuantity)
-            sendAlertMessageToAdmins(createAlertMessageForProduct(targetProduct))
+        checkProductLimit(targetProduct)
     }
+
+    @MultiserviceTransactional
+    override fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProduct {
+        val warehouse =
+            getWarehouseEntity(warehouseId)
+
+        if (warehouse.products.any { it.productId == addProductRequest.productId })
+            throw GenericBadRequestException("Warehouse $warehouseId already contains ${addProductRequest.productId}")
+
+
+        val product = StoredProductEntity1(
+            productId = addProductRequest.productId,
+            quantity = addProductRequest.quantity,
+            minimumQuantity = addProductRequest.minimumQuantity,
+            warehouse = warehouse
+        )
+        warehouse.products.add(product)
+        warehouseRepository.save(warehouse)
+
+        checkProductLimit(product)
+
+        return product.convert()
+    }
+
+    @Rollback
+    private fun rollbackForAddProductToWarehouse(
+        warehouseId: Long,
+        addProductRequest: AddProductRequest,
+        storedProduct: StoredProduct
+    ) {
+        val warehouse = getWarehouseEntity(warehouseId)
+        warehouse.products.removeAll { it.productId == storedProduct.productId }
+        warehouseRepository.save(warehouse)
+    }
+
+
+    @MultiserviceTransactional
+    override fun removeProductFromWarehouse(warehouseId: Long, productId: Long): StoredProduct {
+        val warehouse = getWarehouseEntity(warehouseId)
+        val product = warehouse.products.find { it.productId == productId } ?: throw EntityNotFoundException(productId)
+        val result: StoredProduct = product.convert()
+        warehouse.products.remove(product)
+        warehouseRepository.save(warehouse)
+        return result
+    }
+
+    @Rollback
+    private fun rollbackForRemoveProductFromWarehouse(
+        warehouseId: Long,
+        productId: Long,
+        storedProduct: StoredProduct
+    ) {
+        val warehouse = getWarehouseEntity(warehouseId)
+        val product = StoredProductEntity1(
+            productId = productId,
+            quantity = storedProduct.quantity,
+            minimumQuantity = storedProduct.minimumQuantity,
+            warehouse = warehouse
+        )
+        warehouse.products.add(product)
+        warehouseRepository.save(warehouse)
+
+        checkProductLimit(product)
+    }
+
+    @MultiserviceTransactional
+    override fun removeAllProductsFromWarehouse(warehouseId: Long): List<StoredProduct> {
+        val warehouse = getWarehouseEntity(warehouseId)
+        val products: List<StoredProduct> = warehouse.products.map { it.convert() }
+        warehouse.products.clear()
+        warehouseRepository.save(warehouse)
+        return products
+    }
+
+
+    @Rollback
+    private fun rollbackForRemoveAllProductsFromWarehouse(warehouseId: Long, products: List<StoredProduct>) {
+        val warehouse = getWarehouseEntity(warehouseId)
+        val productsEntities = products.map {
+            StoredProductEntity1(
+                productId = it.productId,
+                quantity = it.quantity,
+                minimumQuantity = it.minimumQuantity,
+                warehouse = warehouse
+            )
+        }
+        warehouse.products.addAll(productsEntities)
+        warehouseRepository.save(warehouse)
+
+        checkProductLimits(warehouse)
+    }
+
+
+    override fun updateProductLimit(
+        warehouseId: Long,
+        productId: Long,
+        updateProductRequest: UpdateProductRequest
+    ): StoredProduct =
+        productUpdater.updateProduct(warehouseId, productId, updateProductRequest).newState!!.convert()
+
 
     private fun checkProductLimits(warehouse: WarehouseEntity) {
         logger.info("Checking product limits for warehouse {}", warehouse.getId())
@@ -297,99 +381,77 @@ private class WarehouseServiceImpl : WarehouseService {
             mailService.sendMessage(it.email, "PRODUCTS QUANTITY ALARM", alertMessage)
         }
     }
+
+    private fun checkProductLimit(product: StoredProductEntity1) {
+        if (product.quantity < product.minimumQuantity)
+            sendAlertMessageToAdmins(createAlertMessageForProduct(product))
+    }
+
+    private fun getWarehouseEntity(warehouseId: Long) =
+        warehouseRepository.findById(warehouseId).orElseThrow { EntityNotFoundException(warehouseId) }
 }
 
 @Service
-private class WarehouseUpdater() {
+private class ProductUpdater {
+
+    data class ProductUpdated(
+        var deltaQuantity: Int = 0,
+        var deltaMinimumQuantity: Int = 0,
+        var newState: StoredProductEntity1? = null
+    )
+
     private companion object {
-        private const val PARTIALLY_UPDATE_WAREHOUSE_TRANSACTION_ID = "partiallyUpdateWarehouse"
-        private const val UPDATE_WAREHOUSE_TRANSACTION_ID = "updateWarehouse"
         private val logger: Logger = LoggerFactory.getLogger(WarehouseService::class.java)
     }
+
 
     @Autowired
     private lateinit var warehouseRepository: WarehouseRepository
 
-    @MultiserviceTransactional(PARTIALLY_UPDATE_WAREHOUSE_TRANSACTION_ID)
-    fun partiallyUpdateWarehouse(warehouseId: Long, products: List<StoredProduct>): WarehouseUpdated {
-        logger.info(
-            "Partially updating warehouse {} with products {}", warehouseId, products
+    @MultiserviceTransactional
+    fun updateProduct(warehouseId: Long, productId: Long, updateProductRequest: UpdateProductRequest): ProductUpdated {
+        logger.info("Updating product {} from warehouse {}: {}", productId, warehouseId, updateProductRequest)
+
+        val warehouse = warehouseRepository.findById(warehouseId).orElseThrow { EntityNotFoundException(warehouseId) }
+        val product = warehouse.products.find { it.productId == productId } ?: throw EntityNotFoundException(productId)
+        val updateResult = ProductUpdated()
+
+        if (updateProductRequest.quantity != null) {
+            updateResult.deltaQuantity = product.quantity - updateProductRequest.quantity
+            product.quantity = updateProductRequest.quantity
+        }
+
+
+        if (updateProductRequest.minimumQuantity != null) {
+            updateResult.deltaMinimumQuantity = product.minimumQuantity - updateProductRequest.minimumQuantity
+            product.minimumQuantity = updateProductRequest.minimumQuantity
+        }
+        warehouseRepository.save(warehouse)
+
+        updateResult.newState = product
+        logger.info("Updated product {} from warehouse {}: {}", productId, warehouseId, updateResult)
+        return updateResult
+    }
+
+    @Rollback
+    private fun rollbackForUpdateProduct(
+        warehouseId: Long,
+        productId: Long,
+        updateProductRequest: UpdateProductRequest,
+        updateResult: ProductUpdated
+    ) {
+        logger.warn(
+            "Performing rollback of updating product {} from warehouse {}: {}",
+            productId,
+            warehouseId,
+            updateResult
         )
-
-
-        val warehouse =
-            warehouseRepository.findById(warehouseId).orElseThrow { EntityNotFoundException(warehouseId) }
-        val oldVersion = warehouse.convert<WarehouseEntity>() //just a clone
-
-
-        products.forEach {
-            val matching = warehouse.products.firstOrNull { p -> it.productId == p.productId }
-            if (matching == null) {
-                warehouse.products.add(
-                    StoredProductEntity1(
-                        productId = it.productId,
-                        quantity = it.quantity,
-                        minimumQuantity = it.minimumQuantity,
-                        warehouse = warehouse
-                    )
-                )
-            } else {
-                matching.apply {
-                    quantity = it.quantity
-                    minimumQuantity = it.minimumQuantity
-                }
-            }
-        }
-        val newVersion = warehouseRepository.save(warehouse)
-        logger.info("Warehouse {} updated", warehouseId)
-        return WarehouseUpdated(previousVersion = oldVersion, newVersion = newVersion)
+        val warehouse = warehouseRepository.findById(warehouseId).orElseThrow { EntityNotFoundException(warehouseId) }
+        val product = warehouse.products.find { it.productId == productId } ?: throw EntityNotFoundException(productId)
+        product.quantity += updateResult.deltaQuantity
+        product.minimumQuantity += updateResult.deltaMinimumQuantity
+        warehouseRepository.save(warehouse)
+        logger.info("Rollback for product updating product {} from warehouse {} succeed.", productId, warehouseId)
     }
 
-    @RollbackFor(UPDATE_WAREHOUSE_TRANSACTION_ID)
-    private fun rollbackPartiallyUpdateWarehouse(
-        warehouseId: Long,
-        products: List<StoredProduct>,
-        warehouseUpdated: WarehouseUpdated
-    ) {
-        logger.warn("Performing rollback of warehouse {} partially update {}", warehouseId, products)
-        warehouseRepository.save(warehouseUpdated.previousVersion!!)
-        logger.warn("Rollback of warehouse {} partially update performed successfully", warehouseId)
-    }
-
-    fun updateOrInsertWarehouse(warehouseId: Long, products: List<StoredProduct>): WarehouseUpdated {
-        val warehouseOptional =
-            warehouseRepository.findById(warehouseId)
-
-        return if (warehouseOptional.isEmpty) {
-            logger.info("Saving warehouse {} with products {}", warehouseId, products)
-            val warehouse =
-                WarehouseEntity(products = products.map { it.convert<StoredProductEntity1>() }.toMutableList())
-            warehouse.setId(warehouseId)
-            WarehouseUpdated(
-                previousVersion = null,
-                newVersion = warehouseRepository.save(warehouse)
-            ).apply { logger.info("Saved warehouse {}", warehouseId) }
-        } else {
-            logger.info("Fully updating warehouse {} with products {}", warehouseId, products)
-            val warehouse = warehouseOptional.get()
-            val oldVersion: WarehouseEntity = warehouse.convert()
-            warehouse.products = products.map { it.convert<StoredProductEntity1>() }.toMutableList()
-            val newVersion = warehouseRepository.save(warehouse)
-            logger.info("Warehouse {} updated", warehouseId)
-            WarehouseUpdated(previousVersion = oldVersion, newVersion = newVersion)
-        }
-    }
-
-    @RollbackFor(UPDATE_WAREHOUSE_TRANSACTION_ID)
-    private fun rollbackUpdateOrInsertWarehouse(
-        warehouseId: Long,
-        products: List<StoredProduct>,
-        warehouseUpdated: WarehouseUpdated
-    ) {
-        logger.warn("Performing rollback of update/insert of {}", warehouseId)
-        if (warehouseUpdated.previousVersion == null) {
-            warehouseRepository.deleteById(warehouseId).let { logger.info("Deleted warehouse {}", warehouseId) }
-        } else warehouseRepository.save(warehouseUpdated.previousVersion)
-            .let { logger.info("Restored warehouse {}", warehouseId) }
-    }
 }

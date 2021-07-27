@@ -13,7 +13,7 @@ class UsersConnector {
     @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @Value("\${connectors.users}")
+    @Value("\${connectors.users.uri}")
     private lateinit var uri: String
 
     fun isAdmin(userId: Long): Boolean {

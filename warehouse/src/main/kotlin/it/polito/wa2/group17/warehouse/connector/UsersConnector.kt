@@ -12,7 +12,7 @@ class UsersConnector {
     @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @Value("\${connectors.users}")
+    @Value("\${connectors.users.uri}")
     private lateinit var uri: String
 
     fun getAdmins(): List<UserDto> {
@@ -20,6 +20,4 @@ class UsersConnector {
             "$uri/admins", Array<UserDto>::class.java
         ).body?.toList() ?: listOf()
     }
-
-
 }

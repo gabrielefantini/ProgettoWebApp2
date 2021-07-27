@@ -3,7 +3,7 @@ package it.polito.wa2.group17.wallet.service
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
-import it.polito.wa2.group17.common.transaction.RollbackFor
+import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.common.utils.converter.convert
 import it.polito.wa2.group17.wallet.connector.UsersConnector
 import it.polito.wa2.group17.wallet.entity.TransactionEntity
@@ -80,7 +80,7 @@ private class WalletServiceImpl(
         return wallet.convert()
     }
 
-    @RollbackFor(ADD_WALLET_TRANSACTION_ID)
+    @Rollback(ADD_WALLET_TRANSACTION_ID)
     private fun removeWalletFromUser(userId: Long, createdWallet: Wallet) {
         logger.warn("Removing wallet {} from user with id {}", createdWallet.id, userId)
         walletRepository.deleteById(createdWallet.id)
@@ -145,7 +145,7 @@ private class WalletServiceImpl(
 
     }
 
-    @RollbackFor(PERFORM_TRANSACTION_TRANSACTION_ID)
+    @Rollback(PERFORM_TRANSACTION_TRANSACTION_ID)
     private fun rollbackTransaction(
         amount: Double,
         reason: String,

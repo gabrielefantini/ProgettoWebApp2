@@ -1,14 +1,11 @@
 package it.polito.wa2.group17.warehouse.controller
 
-import it.polito.wa2.group17.common.utils.extractErrors
-import it.polito.wa2.group17.warehouse.dto.FulfillRequest
-import it.polito.wa2.group17.warehouse.dto.SellRequest
-import it.polito.wa2.group17.warehouse.dto.WarehouseRequest
+import it.polito.wa2.group17.warehouse.dto.*
+import it.polito.wa2.group17.warehouse.model.StoredProduct
 import it.polito.wa2.group17.warehouse.service.WarehouseService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 import javax.validation.Valid
@@ -32,6 +29,38 @@ class WarehouseController {
     fun getWarehouse(@PathVariable warehouseId: Long) =
         ResponseEntity.ok(warehouseService.getWarehouse(warehouseId))
 
+    @GetMapping("/{warehouseId}/products")
+    fun getProductsOfWarehouse(@PathVariable warehouseId: Long) =
+        ResponseEntity.ok(warehouseService.getWarehouse(warehouseId).products)
+
+    @GetMapping("/{warehouseId}/products/{productId}")
+    fun getProductOfWarehouse(
+        @PathVariable warehouseId: Long,
+        @PathVariable productId: Long
+    ): ResponseEntity<StoredProduct> {
+        val product = warehouseService.getWarehouse(warehouseId).products.find { it.productId == productId }
+        return if (product == null)
+            ResponseEntity.notFound().build()
+        else ResponseEntity.ok(product)
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    @PostMapping
+    fun saveWarehouse(
+        @RequestBody @Valid warehouseRequest: WarehouseRequest,
+    ): ResponseEntity<*> {
+        val warehouse = warehouseService.createWarehouse(warehouseRequest.products)
+        return ResponseEntity
+            .created(URI.create("/warehouses/${warehouse.id}"))
+            .body(warehouse)
+    }
+
+    @DeleteMapping("/{warehouseId}")
+    fun deleteWarehouse(@PathVariable warehouseId: Long) =
+        ResponseEntity.ok(warehouseService.deleteWarehouse(warehouseId))
+
+
     @PostMapping("/sell")
     fun sellProductFromAnyWarehouse(@RequestBody @Valid sellRequest: SellRequest) =
         ResponseEntity.ok(warehouseService.sellProduct(sellRequest))
@@ -47,35 +76,32 @@ class WarehouseController {
     fun fulfillWarehouse(@PathVariable warehouseId: Long, @RequestBody @Valid fulfillRequest: FulfillRequest) =
         ResponseEntity.ok(warehouseService.fulfillProduct(fulfillRequest.apply { warehouseID = warehouseId }))
 
-    @PostMapping
-    fun saveWarehouse(
-        @RequestBody @Valid warehouseRequest: WarehouseRequest,
-        bindingResult: BindingResult
-    ): ResponseEntity<*> {
-        if (bindingResult.hasErrors())
-            return ResponseEntity.badRequest().body(bindingResult.extractErrors())
 
-        val warehouse = warehouseService.createWarehouse(warehouseRequest.products)
-        return ResponseEntity
-            .created(URI.create("/warehouses/${warehouse.id}"))
-            .body(warehouse)
+    @PostMapping("/{warehouseId}/products")
+    fun addProductToWarehouse(
+        @PathVariable warehouseId: Long,
+        @RequestBody @Valid addProductRequest: AddProductRequest
+    ): ResponseEntity<StoredProduct> {
+        val storedProduct = warehouseService.addProductToWarehouse(warehouseId, addProductRequest)
+        return ResponseEntity.created(URI.create("/warehouse/${warehouseId}/${storedProduct.productId}"))
+            .body(storedProduct)
     }
 
-    @PutMapping("/{warehouseId}")
-    fun fullyUpdateOrInsertWarehouse(
+    @DeleteMapping("/{warehouseId}/products/{productId}")
+    fun removeProductFromWarehouse(
         @PathVariable warehouseId: Long,
-        @RequestBody @Valid warehouseRequest: WarehouseRequest
-    ) = ResponseEntity.ok(warehouseService.updateOrInsertWarehouse(warehouseId, warehouseRequest.products))
+        @PathVariable productId: Long,
+    ) = ResponseEntity.ok(warehouseService.removeProductFromWarehouse(warehouseId, productId))
 
-    @PatchMapping("/{warehouseId}")
-    fun partiallyUpdateWarehouse(
+    @DeleteMapping("/{warehouseId}/products")
+    fun removeProductsFromWarehouse(
+        @PathVariable warehouseId: Long
+    ) = ResponseEntity.ok(warehouseService.removeAllProductsFromWarehouse(warehouseId))
+
+    @PatchMapping("/{warehouseId}/products/{productId}")
+    fun updateProductLimit(
         @PathVariable warehouseId: Long,
-        @RequestBody @Valid warehouseRequest: WarehouseRequest
-    ) = ResponseEntity.ok(warehouseService.partiallyUpdateWarehouse(warehouseId, warehouseRequest.products))
-
-
-    @DeleteMapping("/{warehouseId}")
-    fun deleteWarehouse(@PathVariable warehouseId: Long) =
-        ResponseEntity.ok(warehouseService.deleteWarehouse(warehouseId))
-
+        @PathVariable productId: Long,
+        @RequestBody @Valid updateProductRequest: UpdateProductRequest
+    ) = ResponseEntity.ok(warehouseService.updateProductLimit(warehouseId, productId, updateProductRequest))
 }

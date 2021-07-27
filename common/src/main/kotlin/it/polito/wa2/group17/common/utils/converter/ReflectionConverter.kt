@@ -401,5 +401,7 @@ object ReflectionConverter {
 }
 
 inline fun <reified D : Any> Any.convert(): D = ReflectionConverter.convert(this)
+inline fun <reified D : Any> D.clone(): D = ReflectionConverter.convert(this)
+
 inline fun <reified D : Any> Any.convertTo(destination: D) =
     ReflectionConverter.convert(this, destination)
