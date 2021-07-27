@@ -4,14 +4,13 @@ import it.polito.wa2.group17.common.utils.BaseEntity
 import org.jetbrains.annotations.NotNull
 import javax.persistence.Entity
 import javax.persistence.OneToMany
-import javax.persistence.Table
 import javax.validation.constraints.Min
 
 @Entity
 class OrderEntity(
     @NotNull
     var buyer: String,
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "orderId")
     var productOrders: MutableList<ProductOrderEntity>,
     @NotNull
     @Min(0)

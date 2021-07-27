@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull
 import javax.persistence.Entity
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
-import javax.persistence.Table
 import javax.validation.constraints.Min
 
 @Entity
@@ -18,6 +17,6 @@ class ProductOrderEntity(
     @Min(0)
     var price: Long,
     @ManyToOne
-    @JoinColumn(name = "order", referencedColumnName = "id")
-    var order: OrderEntity,
+    @JoinColumn(name = "order_entity", referencedColumnName = "id")
+    var orderId: OrderEntity,
 ): BaseEntity<Long>()
