@@ -23,7 +23,14 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":common"))// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-client
+    implementation(project(":common"))
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.hibernate.validator:hibernate-validator")
+    implementation("javax.validation:validation-api")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.0.3")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 }
 
 tasks.withType<KotlinCompile> {

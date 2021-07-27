@@ -5,9 +5,11 @@ import org.springframework.boot.runApplication
 import it.polito.wa2.group17.common.*
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient
 
 @SpringBootApplication(scanBasePackages = ["it.polito.wa2.group17"])
 @ConfigurationPropertiesScan
+//@EnableEurekaClient //TODO RE-ENABLE
 class WarehouseApplication
 
 fun main(args: Array<String>) {

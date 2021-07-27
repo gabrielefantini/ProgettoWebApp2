@@ -16,7 +16,7 @@ annotation class Connector(@get:AliasFor(annotation = Component::class) val valu
 
 @Component
 @Aspect
-class CircuitBreakerAspect {
+class ConnectorAspect {
 
     @Autowired
     private lateinit var circuitBreakerRegistry: CircuitBreakerRegistry

@@ -7,7 +7,7 @@ import java.util.*
 
 @Connector
 @Primary
-@ConditionalOnProperty(prefix = "connectors.users", name = ["mocked"], havingValue = "true")
+@ConditionalOnProperty(prefix = "connectors.users.mock", name = ["enabled"], havingValue = "true")
 class UsersConnectorMocked : UsersConnector() {
 
     private val random = Random()

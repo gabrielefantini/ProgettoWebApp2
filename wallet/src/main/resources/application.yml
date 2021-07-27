@@ -1,18 +1,35 @@
 spring:
   application:
     name: wallet-service
+  mail:
+    host: smtp.gmail.com
+    protocol: smtp
+    port: 587
+    username: group17wa2@gmail.com
+    password: Group_17_Wa2_Polito!!
+    template:
+      textPlaceholder: "{TEXT}"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+          #ssl.trust: smtp-mail.outlook.com
+        debug: false
 
 connectors:
-  users: users-service
+  users:
+    uri: ${USERS_URI:users-service}
+    mock:
+      enabled: true
 
 transaction:
   kafka:
-    bootstrapServer: transaction-kafka
-    topic: transactions
+    bootstrapServer: ${KAFKA_SERVER:transaction-kafka}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true

@@ -10,7 +10,7 @@ import java.util.*
 
 @Connector
 @Primary
-@ConditionalOnProperty(prefix = "connectors.users", name = ["mocked"], havingValue = "true")
+@ConditionalOnProperty(prefix = "connectors.users.mock", name = ["enabled"], havingValue = "true")
 class UsersConnectorMocked : UsersConnector() {
 
     @Autowired
@@ -22,7 +22,7 @@ class UsersConnectorMocked : UsersConnector() {
         usersMockedProperties.testEmails.map { UserDto().apply { email = it; id = random.nextLong() } }
 }
 
-@ConfigurationProperties("connectors.users.mocked")
+@ConfigurationProperties("connectors.users.mock")
 class UsersMockedProperties {
     var testEmails = mutableListOf<String>()
 }

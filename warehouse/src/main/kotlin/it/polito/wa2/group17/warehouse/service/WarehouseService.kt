@@ -39,7 +39,7 @@ interface WarehouseService {
 }
 
 @Service
-private class WarehouseServiceImpl : WarehouseService {
+private open class WarehouseServiceImpl : WarehouseService {
 
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(WarehouseService::class.java)
@@ -392,7 +392,7 @@ private class WarehouseServiceImpl : WarehouseService {
 }
 
 @Service
-private class ProductUpdater {
+private open class ProductUpdater {
 
     data class ProductUpdated(
         var deltaQuantity: Int = 0,

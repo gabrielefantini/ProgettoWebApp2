@@ -48,7 +48,7 @@ interface WalletService {
 
 
 @Service
-private class WalletServiceImpl(
+private open class WalletServiceImpl(
     val walletRepository: WalletRepository,
     val transactionRepository: TransactionRepository,
     val usersConnector: UsersConnector
