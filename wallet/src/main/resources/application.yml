@@ -1,27 +1,23 @@
 spring:
   application:
     name: wallet-service
-  mail:
-    host: smtp.gmail.com
-    protocol: smtp
-    port: 587
-    username: group17wa2@gmail.com
-    password: Group_17_Wa2_Polito!!
-    template:
-      textPlaceholder: "{TEXT}"
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls.enable: true
-          #ssl.trust: smtp-mail.outlook.com
-        debug: false
+  datasource:
+    url: jdbc:mariadb://localhost:3306/final_project
+    username: root
+    password: password
+  jpa:
+    #show-sql: true
+    generate-ddl: true
+    properties.hibernate.dialect: org.hibernate.dialect.MariaDBDialect
+    hibernate.ddl-auto: update
 
 connectors:
   users:
     uri: ${USERS_URI:users-service}
     mock:
       enabled: true
+  mail:
+    uri: localhost:8080
 
 transaction:
   kafka:
@@ -33,3 +29,7 @@ eureka:
       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true
+
+
+server:
+  port: 8081

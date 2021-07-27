@@ -56,10 +56,6 @@ private open class WalletServiceImpl(
 
     companion object {
         private val logger = LoggerFactory.getLogger(WalletServiceImpl::class.java)
-
-        private const val ADD_WALLET_TRANSACTION_ID = "addWallet"
-        private const val PERFORM_TRANSACTION_TRANSACTION_ID = "performTransaction"
-
     }
 
     override fun getWallet(walletId: Long): Wallet {
@@ -71,7 +67,7 @@ private open class WalletServiceImpl(
         throw EntityNotFoundException("Wallet with id $walletId")
     }
 
-    @MultiserviceTransactional(ADD_WALLET_TRANSACTION_ID)
+    @MultiserviceTransactional
     override fun addWalletToUser(userId: Long): Wallet {
         logger.info("Adding new wallet to user with id {}", userId)
         val wallet = WalletEntity(userId = userId)
@@ -80,14 +76,14 @@ private open class WalletServiceImpl(
         return wallet.convert()
     }
 
-    @Rollback(ADD_WALLET_TRANSACTION_ID)
-    private fun removeWalletFromUser(userId: Long, createdWallet: Wallet) {
+    @Rollback
+    private fun rollbackForAddWalletToUser(userId: Long, createdWallet: Wallet) {
         logger.warn("Removing wallet {} from user with id {}", createdWallet.id, userId)
         walletRepository.deleteById(createdWallet.id)
         logger.info("Wallet {} removed from user with id {}", createdWallet.id, userId)
     }
 
-    @MultiserviceTransactional(PERFORM_TRANSACTION_TRANSACTION_ID)
+    @MultiserviceTransactional
     override fun performTransaction(
         amount: Double,
         reason: String,
@@ -145,8 +141,8 @@ private open class WalletServiceImpl(
 
     }
 
-    @Rollback(PERFORM_TRANSACTION_TRANSACTION_ID)
-    private fun rollbackTransaction(
+    @Rollback
+    private fun rollbackForPerformTransaction(
         amount: Double,
         reason: String,
         sourceWalletId: Long,
@@ -198,6 +194,7 @@ private open class WalletServiceImpl(
     }
 
     override fun getTransactionOfWallet(walletId: Long, transactionId: Long): Transaction {
+        logger.info("Retrieving transaction {} from wallet ", transactionId, walletId)
         return transactionRepository.findById(transactionId)
             .orElseThrow { EntityNotFoundException(transactionId) }
             .apply {

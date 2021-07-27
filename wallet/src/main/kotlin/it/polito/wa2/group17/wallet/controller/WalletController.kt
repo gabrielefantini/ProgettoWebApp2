@@ -60,13 +60,15 @@ class WalletController {
     @GetMapping("/{walletId}/transactions")
     fun getTransactionsOfWallet(
         @PathVariable walletId: Long,
-        @RequestParam("from", required = false) from: Instant,
-        @RequestParam("to", required = false) to: Instant
-    ): ResponseEntity<List<Transaction>> =
-        ResponseEntity.ok(
-            walletService
-                .getTransactionsOfWallet(walletId, from, to)
-        )
+        @RequestParam("from", required = false) from: Instant?,
+        @RequestParam("to", required = false) to: Instant?
+    ): ResponseEntity<List<Transaction>> {
+        val transactions: List<Transaction> = if (from != null)
+            walletService.getTransactionsOfWallet(walletId, from, to ?: Instant.now())
+        else walletService.getTransactionsOfWallet(walletId)
+
+        return ResponseEntity.ok(transactions)
+    }
 
 
     @GetMapping("{walletId}/transactions/{transactionId}")

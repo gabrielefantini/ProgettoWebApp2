@@ -1,6 +1,7 @@
 package it.polito.wa2.group17.common.utils.reflection
 
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.reflect.KClass
@@ -98,5 +99,16 @@ private fun searchForFieldsRecursive(clazz: Class<*>?, destination: MutableColle
 fun <T> Class<T>.getAllFields(): Array<Field> {
     val destination = mutableListOf<Field>()
     searchForFieldsRecursive(this, destination)
+    return destination.toTypedArray()
+}
+
+private fun searchForMethodsRecursive(clazz: Class<*>?, destination: MutableCollection<Method>) {
+    if (clazz == null) return
+    destination.addAll(clazz.declaredMethods)
+    searchForMethodsRecursive(clazz.superclass, destination)
+}
+fun <T> Class<T>.getAllMethods(): Array<Method> {
+    val destination = mutableListOf<Method>()
+    searchForMethodsRecursive(this, destination)
     return destination.toTypedArray()
 }

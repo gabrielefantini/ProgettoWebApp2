@@ -1,9 +1,9 @@
 package it.polito.wa2.group17.common.transaction
 
 import it.polito.wa2.group17.common.utils.Cache
-import it.polito.wa2.group17.common.utils.Loggable
-import it.polito.wa2.group17.common.utils.Loggable.Companion.logger
 import it.polito.wa2.group17.common.utils.putIfAbsentAndThen
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -15,7 +15,11 @@ import javax.annotation.PostConstruct
 import kotlin.concurrent.withLock
 
 @Component
-class MultiserviceTransactionSynchronizer : Loggable {
+class MultiserviceTransactionSynchronizer {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(MultiserviceTransactionSynchronizer::class.java)
+    }
+
     @Autowired
     private lateinit var transactionInvoker: TransactionInvoker
 

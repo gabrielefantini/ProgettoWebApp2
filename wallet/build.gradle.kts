@@ -28,9 +28,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.hibernate.validator:hibernate-validator")
     implementation("javax.validation:validation-api")
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.0.3")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.0.3")
 }
 
 tasks.withType<KotlinCompile> {

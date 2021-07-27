@@ -2,8 +2,8 @@ package it.polito.wa2.group17.common.utils.converter.impl
 
 import it.polito.wa2.group17.common.utils.converter.CustomConverter
 import it.polito.wa2.group17.common.utils.reflection.getAllFields
-import org.springframework.data.annotation.Id
 import java.lang.reflect.Field
+import javax.persistence.Id
 
 class IdAnnotatedExtractor : CustomConverter<Any, Any> {
     override fun invoke(source: Any): Any {

@@ -32,7 +32,7 @@ class MultiserviceTransactionAspect {
         val invokingMethodParamTypes = invokingMethod.parameterTypes
         val rollbackParamTypes = rollback.parameterTypes
 
-        if ((rollbackParamTypes.size + if (hasReturnType) 1 else 0) != invokingMethodParamTypes.size)
+        if ((rollbackParamTypes.size - if (hasReturnType) 1 else 0) != invokingMethodParamTypes.size)
             incompatibleRollbackException(rollback, invokingMethod)
 
         for ((i, param) in invokingMethodParamTypes.withIndex()) {
@@ -54,7 +54,7 @@ class MultiserviceTransactionAspect {
 
     }
 
-    private fun incompatibleRollbackException(rollback: Method, invokingMethod: Method) {
+    private fun incompatibleRollbackException(rollback: Method, invokingMethod: Method): Nothing {
         throw IllegalStateException("Rollback parameters of $rollback does not match with the ones of the transaction $invokingMethod")
 
     }

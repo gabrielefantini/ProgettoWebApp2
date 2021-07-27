@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: mail-service
   mail:
     host: smtp.gmail.com
     protocol: smtp
@@ -14,3 +16,4 @@ spring:
           starttls.enable: true
           #ssl.trust: smtp-mail.outlook.com
         debug: false
+

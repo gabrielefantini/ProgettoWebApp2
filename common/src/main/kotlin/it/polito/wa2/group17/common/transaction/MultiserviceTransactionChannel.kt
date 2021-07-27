@@ -1,8 +1,6 @@
 package it.polito.wa2.group17.common.transaction
 
 import it.polito.wa2.group17.common.utils.AbstractSubscribable
-import it.polito.wa2.group17.common.utils.Loggable
-import it.polito.wa2.group17.common.utils.Loggable.Companion.logger
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -10,6 +8,8 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.support.serializer.JsonDeserializer
 import org.springframework.kafka.support.serializer.JsonSerializer
@@ -21,7 +21,10 @@ import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
 @Component
-class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransactionMessage>(), Loggable {
+class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransactionMessage>() {
+    private companion object {
+        private val logger: Logger = LoggerFactory.getLogger(MultiserviceTransactionChannel::class.java)
+    }
 
     private lateinit var kafkaProducer: KafkaProducer<String, MultiserviceTransactionMessage>
     private lateinit var kafkaConsumer: KafkaConsumer<String, MultiserviceTransactionMessage>
