@@ -10,9 +10,18 @@ import javax.validation.constraints.Min
 class OrderEntity(
     @NotNull
     var buyer: String,
-    @OneToMany(mappedBy = "orderId")
+
+    @OneToMany(mappedBy = "order")
     var productOrders: MutableList<ProductOrderEntity>,
+
     @NotNull
     @Min(0)
     var price: Long,
+
+    @NotNull
+    var status: OrderStatus,
 ) : BaseEntity<Long>()
+
+enum class OrderStatus {
+    ISSUED,DELIVERING,DELIVERED,FAILED,CANCELED
+}
