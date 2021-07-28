@@ -7,6 +7,8 @@ import it.polito.wa2.group17.catalog.service.CatalogService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -65,5 +67,17 @@ class CatalogController {
     @OnlyEnabledUsers
     fun updateUserInfo(@RequestBody username: String, @RequestBody email: String, @RequestBody name: String, @RequestBody surname: String, @RequestBody deliveryAddr:String): ResponseEntity<Long> {
         return ResponseEntity.ok(catalogService.updateUserInformation(username, email, name, surname, deliveryAddr))
+    }
+
+    @GetMapping("/setAdmin/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    fun setAdmin(@PathVariable username: String): ResponseEntity<Long>{
+        return ResponseEntity.ok(catalogService.setUserAsAdmin(username))
+    }
+
+    @GetMapping("/cancelOrder/{orderId}")
+    @OnlyEnabledUsers
+    fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Long> {
+        return ResponseEntity.ok(catalogService.cancelUserOrder(orderId))
     }
 }
