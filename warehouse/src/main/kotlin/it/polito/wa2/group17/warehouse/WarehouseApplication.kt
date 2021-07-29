@@ -9,7 +9,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient
 
 @SpringBootApplication(scanBasePackages = ["it.polito.wa2.group17"])
 @ConfigurationPropertiesScan
-//@EnableEurekaClient //TODO RE-ENABLE
+@EnableEurekaClient
 class WarehouseApplication
 
 fun main(args: Array<String>) {

@@ -17,7 +17,7 @@ connectors:
     mock:
       enabled: true
   mail:
-    uri: localhost:8080
+    uri: ${MAIL_URI:mail-service}
 
 transaction:
   kafka:
