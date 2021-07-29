@@ -9,8 +9,8 @@ import javax.validation.constraints.NotNull
 
 data class StoredProduct(
     @field:NotNull
-    @field:ConvertibleAlias(ConvertibleAlias.From(StoredProductEntity::class, "product"))
-    @field:CustomConversion(CustomConversion.Using(IdAnnotatedExtractor::class, StoredProductEntity::class))
+    @param:ConvertibleAlias(ConvertibleAlias.From(StoredProductEntity::class, "product"))
+    @param:CustomConversion(CustomConversion.Using(IdAnnotatedExtractor::class, StoredProductEntity::class))
     val productId: Long,
 
     @field:NotNull

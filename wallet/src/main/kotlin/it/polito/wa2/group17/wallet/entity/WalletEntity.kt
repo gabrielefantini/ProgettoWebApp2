@@ -3,6 +3,7 @@ package it.polito.wa2.group17.wallet.entity
 
 import it.polito.wa2.group17.common.utils.BaseEntity
 import it.polito.wa2.group17.common.utils.converter.ConvertibleCollection
+import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.OneToMany
 import javax.validation.constraints.Min
@@ -16,7 +17,7 @@ class WalletEntity(
     @NotNull
     var userId: Long,
 
-    @OneToMany(mappedBy = "source")
+    @OneToMany(mappedBy = "source",cascade = [CascadeType.ALL])
     @field:ConvertibleCollection(TransactionEntity::class)
     var transactions: MutableList<TransactionEntity> = mutableListOf()
 

@@ -28,8 +28,9 @@ interface WarehouseService {
     fun getWarehouse(warehouseId: Long): Warehouse
     fun deleteWarehouse(warehouseId: Long): Warehouse
     fun createWarehouse(products: List<StoredProduct>): Warehouse
-    fun sellProduct(sellRequest: SellRequest): SellResponse
-    fun fulfillProduct(fulfillRequest: FulfillRequest)
+    fun sellProductFromAnywhere(sellRequest: SellRequest): SellResponse
+    fun sellProduct(warehouseId: Long, sellRequest: SellRequest): SellResponse
+    fun fulfillProduct(warehouseId: Long, fulfillRequest: FulfillRequest): StoredProduct
     fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProduct
     fun removeProductFromWarehouse(warehouseId: Long, productId: Long): StoredProduct
     fun removeAllProductsFromWarehouse(warehouseId: Long): List<StoredProduct>
@@ -109,10 +110,10 @@ private open class WarehouseServiceImpl : WarehouseService {
         logger.info("Deleting warehouse with id {}", warehouseId)
         val warehouse =
             getWarehouseEntity(warehouseId)
-                .convert<Warehouse>()
+        storedProductRepository.deleteAllById(warehouse.products.map { it.getId() })
         warehouseRepository.deleteById(warehouseId)
         logger.info("Warehouse with id {} deleted", warehouseId)
-        return warehouse
+        return warehouse.convert()
     }
 
     @Rollback
@@ -141,73 +142,87 @@ private open class WarehouseServiceImpl : WarehouseService {
 
 
     @MultiserviceTransactional
-    override fun sellProduct(sellRequest: SellRequest): SellResponse {
+    override fun sellProductFromAnywhere(sellRequest: SellRequest): SellResponse {
         val targetProductEntity: StoredProductEntity
         val targetWarehouseEntity: WarehouseEntity
 
-        if (sellRequest.warehouseID == null) {
+
+        logger.info(
+            "Selling {} products with id {} from any warehouse",
+            sellRequest.quantity,
+            sellRequest.productID,
+        )
+        val warehouses = warehouseRepository.findAll()
+
+        synchronized(this) {
+            targetWarehouseEntity = warehouses.filter { warehouseEntity ->
+                warehouseEntity.products.any {
+                    it.product.getId() == sellRequest.productID
+                }
+            }.apply {
+                if (isEmpty())
+                    throw ProductNotFoundException(sellRequest.productID)
+            }.firstOrNull { warehouse ->
+                warehouse.products.any { it.quantity > sellRequest.quantity }
+            } ?: throw ProductNotEnoughException(sellRequest.productID, sellRequest.quantity)
+
             logger.info(
-                "Selling {} products with id {} from any warehouse",
+                "Selected warehouse for selling {} products with id {} is {}",
                 sellRequest.quantity,
                 sellRequest.productID,
+                targetWarehouseEntity.getId()
             )
-            val warehouses = warehouseRepository.findAll()
 
-            synchronized(this) {
-                targetWarehouseEntity = warehouses.filter { warehouseEntity ->
-                    warehouseEntity.products.any {
-                        it.product.getId() == sellRequest.productID
-                    }
-                }.apply {
-                    if (isEmpty())
-                        throw ProductNotFoundException(sellRequest.productID)
-                }.firstOrNull { warehouse ->
-                    warehouse.products.any { it.quantity > sellRequest.quantity }
-                } ?: throw ProductNotEnoughException(sellRequest.productID, sellRequest.quantity)
+            targetProductEntity =
+                targetWarehouseEntity.products.find { it.product.getId() == sellRequest.productID }!!
 
-                logger.info(
-                    "Selected warehouse for selling {} products with id {} is {}",
-                    sellRequest.quantity,
-                    sellRequest.productID,
-                    targetWarehouseEntity.getId()
+            targetProductEntity.quantity -= sellRequest.quantity
+            warehouseRepository.save(targetWarehouseEntity)
+        }
+
+        logger.info(
+            "Sold {} products with id {} from {}",
+            sellRequest.quantity,
+            sellRequest.productID,
+            targetWarehouseEntity.getId()
+        )
+
+        checkProductLimit(targetProductEntity)
+
+        return SellResponse(sellRequest.productID, sellRequest.quantity, targetProductEntity.getId()!!)
+    }
+
+    override fun sellProduct(warehouseId: Long, sellRequest: SellRequest): SellResponse {
+        val targetProductEntity: StoredProductEntity
+        val targetWarehouseEntity: WarehouseEntity
+
+        logger.info(
+            "Selling {} products with id {} from {}",
+            sellRequest.quantity,
+            sellRequest.productID,
+            warehouseId
+        )
+        synchronized(this) {
+            targetWarehouseEntity = warehouseRepository.findById(warehouseId)
+                .orElseThrow { EntityNotFoundException(warehouseId) }
+
+            targetProductEntity = targetWarehouseEntity
+                .products.firstOrNull { it.product.getId() == sellRequest.productID }
+                ?: throw GenericBadRequestException(
+                    "Product with id ${sellRequest.productID} cannot be found in ${warehouseId}"
                 )
 
-                targetProductEntity =
-                    targetWarehouseEntity.products.find { it.product.getId() == sellRequest.productID }!!
+            if (targetProductEntity.quantity < sellRequest.quantity)
+                throw ProductNotEnoughException(sellRequest.productID, sellRequest.quantity)
 
-                targetProductEntity.quantity -= sellRequest.quantity
-                warehouseRepository.save(targetWarehouseEntity)
-            }
-        } else {
-            logger.info(
-                "Selling {} products with id {} from {}",
-                sellRequest.quantity,
-                sellRequest.productID,
-                sellRequest.warehouseID
-            )
-            synchronized(this) {
-                targetWarehouseEntity = warehouseRepository.findById(sellRequest.warehouseID!!)
-                    .orElseThrow { EntityNotFoundException(sellRequest.warehouseID!!) }
-
-                targetProductEntity = targetWarehouseEntity
-                    .products.firstOrNull { it.product.getId() == sellRequest.productID }
-                    ?: throw GenericBadRequestException(
-                        "Product with id ${sellRequest.productID} cannot be found in ${sellRequest.warehouseID}"
-                    )
-
-                if (targetProductEntity.quantity < sellRequest.quantity)
-                    throw ProductNotEnoughException(sellRequest.productID, sellRequest.quantity)
-
-                targetProductEntity.quantity -= sellRequest.quantity
-                warehouseRepository.save(targetWarehouseEntity)
-            }
-
+            targetProductEntity.quantity -= sellRequest.quantity
+            warehouseRepository.save(targetWarehouseEntity)
         }
         logger.info(
             "Sold {} products with id {} from {}",
             sellRequest.quantity,
             sellRequest.productID,
-            sellRequest.warehouseID
+            targetWarehouseEntity.getId()
         )
 
         checkProductLimit(targetProductEntity)
@@ -216,7 +231,15 @@ private open class WarehouseServiceImpl : WarehouseService {
     }
 
     @Rollback
-    private fun rollbackForSellProduct(sellRequest: SellRequest, sellResponse: SellResponse) {
+    private fun rollbackForSellProductFromAnywhere(sellRequest: SellRequest, sellResponse: SellResponse) {
+        doRollbackForSellProduct(sellResponse)
+    }
+    @Rollback
+    private fun rollbackForSellProduct(warehouseId: Long, sellRequest: SellRequest, sellResponse: SellResponse) {
+        doRollbackForSellProduct(sellResponse)
+    }
+
+    private fun doRollbackForSellProduct(sellResponse: SellResponse){
         logger.warn(
             "Performing rollback of selling {} products with id {} from {}",
             sellResponse.quantity,
@@ -239,15 +262,15 @@ private open class WarehouseServiceImpl : WarehouseService {
 
 
     @MultiserviceTransactional
-    override fun fulfillProduct(fulfillRequest: FulfillRequest) {
+    override fun fulfillProduct(warehouseId: Long, fulfillRequest: FulfillRequest): StoredProduct {
         logger.info(
             "Fulfilling {} products with id {} to {}",
             fulfillRequest.quantity,
             fulfillRequest.productID,
-            fulfillRequest.warehouseID
+            warehouseId
         )
-        val warehouse = warehouseRepository.findById(fulfillRequest.warehouseID)
-            .orElseThrow { EntityNotFoundException(fulfillRequest.warehouseID) }
+        val warehouse = warehouseRepository.findById(warehouseId)
+            .orElseThrow { EntityNotFoundException(warehouseId) }
 
         val targetProduct = warehouse.products.firstOrNull { it.product.getId() == fulfillRequest.productID }
             ?: throw EntityNotFoundException(fulfillRequest.productID)
@@ -259,21 +282,26 @@ private open class WarehouseServiceImpl : WarehouseService {
             "Fulfilled {} products with id {} to {}",
             fulfillRequest.quantity,
             fulfillRequest.productID,
-            fulfillRequest.warehouseID
+            warehouseId
         )
+        return targetProduct.convert()
     }
 
     @Rollback
-    private fun rollbackForFulfillProduct(fulfillRequest: FulfillRequest) {
+    private fun rollbackForFulfillProduct(
+        warehouseId: Long,
+        fulfillRequest: FulfillRequest,
+        storedProduct: StoredProduct
+    ) {
         logger.warn(
             "Performing rollback of fulfilling {} products with id {} to {}",
             fulfillRequest.quantity,
             fulfillRequest.productID,
-            fulfillRequest.warehouseID
+            warehouseId
         )
 
-        val warehouse = warehouseRepository.findById(fulfillRequest.warehouseID)
-            .orElseThrow { EntityNotFoundException(fulfillRequest.warehouseID) }
+        val warehouse = warehouseRepository.findById(warehouseId)
+            .orElseThrow { EntityNotFoundException(warehouseId) }
 
         val targetProduct = warehouse.products.firstOrNull { it.product.getId() == fulfillRequest.productID }
             ?: throw EntityNotFoundException(fulfillRequest.productID)
@@ -289,7 +317,7 @@ private open class WarehouseServiceImpl : WarehouseService {
             "Successfully performed rollback of fulfilling {} products with id {} from {}",
             fulfillRequest.quantity,
             fulfillRequest.productID,
-            fulfillRequest.warehouseID
+            warehouseId
         )
 
         checkProductLimit(targetProduct)

@@ -63,18 +63,18 @@ class WarehouseController {
 
     @PostMapping("/sell")
     fun sellProductFromAnyWarehouse(@RequestBody @Valid sellRequest: SellRequest) =
-        ResponseEntity.ok(warehouseService.sellProduct(sellRequest))
+        ResponseEntity.ok(warehouseService.sellProductFromAnywhere(sellRequest))
 
     @PostMapping("/{warehouseId}/sell")
     fun sellProductFromWarehouse(
         @PathVariable warehouseId: Long,
         @RequestBody @Valid sellRequest: SellRequest
     ) =
-        ResponseEntity.ok(warehouseService.sellProduct(sellRequest.apply { this.warehouseID = warehouseId }))
+        ResponseEntity.ok(warehouseService.sellProduct(warehouseId, sellRequest))
 
     @PostMapping("/{warehouseId}/fulfill")
     fun fulfillWarehouse(@PathVariable warehouseId: Long, @RequestBody @Valid fulfillRequest: FulfillRequest) =
-        ResponseEntity.ok(warehouseService.fulfillProduct(fulfillRequest.apply { warehouseID = warehouseId }))
+        ResponseEntity.ok(warehouseService.fulfillProduct(warehouseId, fulfillRequest))
 
 
     @PostMapping("/{warehouseId}/products")

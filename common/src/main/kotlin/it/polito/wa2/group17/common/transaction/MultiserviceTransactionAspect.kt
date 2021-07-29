@@ -28,7 +28,11 @@ class MultiserviceTransactionAspect {
             )
 
         val invokingMethodReturnType = invokingMethod.returnType
-        val hasReturnType = !invokingMethodReturnType.equals(Unit::class.java)
+        val hasReturnType = !invokingMethodReturnType.equals(Void.TYPE) &&
+                !invokingMethodReturnType.equals(Unit::class.java) &&
+                !invokingMethodReturnType.equals(Void::class.java) &&
+                !invokingMethodReturnType.equals(Nothing::class.java)
+
         val invokingMethodParamTypes = invokingMethod.parameterTypes
         val rollbackParamTypes = rollback.parameterTypes
 

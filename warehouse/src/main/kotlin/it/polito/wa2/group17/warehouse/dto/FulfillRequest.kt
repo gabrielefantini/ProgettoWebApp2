@@ -6,5 +6,4 @@ import javax.validation.constraints.NotNull
 data class FulfillRequest(
     @field:NotNull val productID: Long,
     @field:NotNull @field:Min(0) val quantity: Int,
-    @field:NotNull var warehouseID: Long
 )
