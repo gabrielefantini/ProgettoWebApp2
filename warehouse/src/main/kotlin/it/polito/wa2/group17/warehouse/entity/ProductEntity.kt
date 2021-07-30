@@ -5,7 +5,6 @@ import javax.persistence.Entity
 
 @Entity
 class ProductEntity(
-
 ) : BaseEntity<Long>()
 
 
