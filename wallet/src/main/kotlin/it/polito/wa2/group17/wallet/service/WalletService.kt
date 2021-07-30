@@ -44,6 +44,9 @@ interface WalletService {
     @Throws(EntityNotFoundException::class)
     fun getTransactionOfWallet(walletId: Long, transactionId: Long): Transaction
 
+    @Throws(EntityNotFoundException::class)
+    fun getWalletFromUser(userId: Long): Wallet
+
 }
 
 
@@ -202,6 +205,15 @@ private open class WalletServiceImpl(
                     throw EntityNotFoundException("$transactionId of wallet $walletId")
             }
             .convert()
+    }
+
+    override fun getWalletFromUser(userId: Long): Wallet {
+        logger.info("Retrieving wallet from user {}",userId);
+        return walletRepository.findByUserId(userId)?.let {
+            convert()
+        }?: run{
+            throw EntityNotFoundException(userId)
+        }
     }
 
 }

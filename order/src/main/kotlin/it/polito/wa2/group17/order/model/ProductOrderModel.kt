@@ -6,5 +6,5 @@ import javax.validation.constraints.Min
 data class ProductOrderModel(
     @field:NotNull val productId: Long,
     @field:NotNull @field:Min(0) val quantity: Long,
-    @field:NotNull @field:Min(0) val price: Long,
+    @field:NotNull @field:Min(0) val price: Double,
 )

@@ -4,6 +4,6 @@ import org.jetbrains.annotations.NotNull
 import javax.validation.Valid
 
 data class OrderRequest(
-    @field:NotNull val username: String,
+    @field:NotNull val userId: Long,
     @field:NotNull val productOrders: List<@Valid ProductOrderModel>
 )

@@ -9,14 +9,17 @@ import javax.validation.constraints.Min
 @Entity
 class OrderEntity(
     @NotNull
-    var buyer: String,
+    var buyerId: Long,
 
     @OneToMany(mappedBy = "order")
     var productOrders: MutableList<ProductOrderEntity>,
 
+    @OneToMany(mappedBy = "order")
+    var deliveryList: MutableList<DeliveryEntity>,
+
     @NotNull
     @Min(0)
-    var price: Long,
+    var price: Double,
 
     @NotNull
     var status: OrderStatus,

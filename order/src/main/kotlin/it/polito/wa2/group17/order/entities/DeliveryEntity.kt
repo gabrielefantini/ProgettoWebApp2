@@ -1,4 +1,5 @@
 package it.polito.wa2.group17.order.entities
+
 import it.polito.wa2.group17.common.utils.BaseEntity
 import org.jetbrains.annotations.NotNull
 import javax.persistence.Entity
@@ -7,7 +8,13 @@ import javax.persistence.ManyToOne
 import javax.validation.constraints.Min
 
 @Entity
-class ProductOrderEntity(
+class DeliveryEntity(
+    @NotNull
+    var deliveryAddr: String,
+
+    @NotNull
+    var warehouseId: Long,
+
     @NotNull
     var productId: Long,
 
@@ -15,12 +22,8 @@ class ProductOrderEntity(
     @Min(0)
     var quantity: Long,
 
-    @NotNull
-    @Min(0)
-    var price: Double,
-
     @ManyToOne
     @JoinColumn(name = "order_entity", referencedColumnName = "id")
-    var order: OrderEntity,
+    var order: OrderEntity
 
 ): BaseEntity<Long>()

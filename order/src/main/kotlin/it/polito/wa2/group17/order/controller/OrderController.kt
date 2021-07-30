@@ -1,6 +1,7 @@
 package it.polito.wa2.group17.order.controller
 
 import it.polito.wa2.group17.common.utils.extractErrors
+import it.polito.wa2.group17.order.model.OrderPatchRequest
 import it.polito.wa2.group17.order.model.OrderRequest
 import it.polito.wa2.group17.order.service.OrderService
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,7 +44,7 @@ class OrderController {
     @PatchMapping("/orders/{orderId}")
     fun updateOrder(
         @PathVariable orderId: Long,
-        @RequestBody @Valid orderReq: OrderRequest,
+        @RequestBody @Valid orderReq: OrderPatchRequest,
     ){
         //todo
     }

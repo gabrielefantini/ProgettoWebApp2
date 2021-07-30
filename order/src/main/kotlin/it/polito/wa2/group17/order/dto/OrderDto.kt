@@ -6,9 +6,9 @@ import it.polito.wa2.group17.order.model.ProductOrderModel
 
 data class OrderDto(
     val id: Long,
-    val buyer: String,
+    val buyerId: Long,
     @ConvertibleCollection(ProductOrderModel::class)
     val productOrders: List<ProductOrderModel>,
-    val price: Long,
+    val price: Double,
     val status: OrderStatus = OrderStatus.ISSUED,
 )
