@@ -136,7 +136,7 @@ private open class WarehouseServiceImpl : WarehouseService {
     @Rollback
     private fun rollbackForCreateWarehouse(products: List<StoredProduct>, warehouse: Warehouse) {
         logger.warn("Performing rollback of creation of warehouse {}", warehouse.id)
-        warehouseRepository.deleteById(warehouse.id)
+        deleteWarehouse(warehouse.id)
         logger.warn("Rollback of creation of warehouse {} succeed", warehouse.id)
     }
 

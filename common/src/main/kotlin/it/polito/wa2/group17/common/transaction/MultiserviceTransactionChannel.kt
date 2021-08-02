@@ -1,6 +1,7 @@
 package it.polito.wa2.group17.common.transaction
 
 import it.polito.wa2.group17.common.utils.AbstractSubscribable
+import it.polito.wa2.group17.common.utils.NamedThreadFactory
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -53,10 +54,11 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
 
     @PostConstruct
     private fun init() {
-        initProducer()
-        initConsumer()
-        if (autoRollbackEnabled)
-            rollbackExecutor = Executors.newScheduledThreadPool(10)
+        if (!autoRollbackEnabled) {
+            initProducer()
+            initConsumer()
+        } else
+            rollbackExecutor = Executors.newScheduledThreadPool(10, NamedThreadFactory("Transaction auto rollback"))
     }
 
     private fun initConsumer() {
@@ -68,8 +70,7 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
         props[JsonDeserializer.TRUSTED_PACKAGES] = MultiserviceTransactionMessage::class.java.packageName
         kafkaConsumer = KafkaConsumer(props)
         kafkaConsumer.subscribe(listOf(topic))
-        Executors.newScheduledThreadPool(1)
-        { r -> Thread(r).apply { name = javaClass.simpleName } }
+        Executors.newScheduledThreadPool(1, NamedThreadFactory(javaClass.name))
             .scheduleAtFixedRate(this::pollMessageFromKafka, pollInterval, pollInterval, TimeUnit.SECONDS)
     }
 
@@ -82,11 +83,13 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
     }
 
     fun notifyTransactionStart(transactionID: String) {
-        sendTransactionMessage(MultiserviceTransactionStatus.STARTED, transactionID)
         if (autoRollbackEnabled)
             rollbackExecutor.schedule(
                 { mockTransactionFailure(transactionID) }, autoRollbackTimeout, TimeUnit.SECONDS
             )
+        else
+            sendTransactionMessage(MultiserviceTransactionStatus.STARTED, transactionID)
+
     }
 
     private fun mockTransactionFailure(transactionID: String) {
@@ -100,10 +103,12 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
     }
 
     fun notifyTransactionSuccess(transactionID: String) {
+        if (autoRollbackEnabled) return
         sendTransactionMessage(MultiserviceTransactionStatus.COMPLETED, transactionID)
     }
 
     fun notifyTransactionFailure(transactionID: String) {
+        if (autoRollbackEnabled) return
         sendTransactionMessage(MultiserviceTransactionStatus.FAILED, transactionID)
     }
 
