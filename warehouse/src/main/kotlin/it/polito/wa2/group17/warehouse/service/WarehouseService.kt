@@ -446,7 +446,7 @@ private open class WarehouseServiceImpl : WarehouseService {
                 "Alert threshold is ${product.minimumQuantity}.\n"
 
     private fun sendAlertMessageToAdmins(alertMessage: String) {
-        logger.info("Sending alert {} to admins", alertMessage)
+        logger.info("Sending alert to admins: {}", alertMessage)
         usersConnector.getAdmins().forEach {
             mailService.sendMessage(it.email, "PRODUCTS QUANTITY ALARM", alertMessage)
         }

@@ -78,6 +78,6 @@ class WalletController {
     ): ResponseEntity<Transaction> =
         ResponseEntity.ok(walletService.getTransactionOfWallet(walletId, transactionId))
 
-    @GetMapping("/{userID}")
+    @GetMapping("/users/{userID}")
     fun getWalletFromUser(@PathVariable userID: Long) = ResponseEntity.ok(walletService.getWalletFromUser(userID))
 }

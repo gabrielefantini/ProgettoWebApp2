@@ -1,5 +1,16 @@
 KAFKA_SERVER: localhost:9092
 MAIL_URI: localhost:8080
+USERS_URI: localhost:8081
 server:
   port: 8082
 
+logging:
+  level:
+    com.netflix: OFF
+
+connectors:
+  users:
+    mock:
+      enabled: true
+      emails:
+        - andrei_aldo1996@yahoo.it

@@ -19,8 +19,7 @@ class ConnectorsConfiguration {
     fun retryRegistry() = RetryRegistry.ofDefaults()
 
     @Bean
-    @LoadBalanced
-    fun restTemplate(): RestTemplate = RestTemplateBuilder().build()
+    //@LoadBalanced
     fun restTemplate(multiserviceTransactionRequestInterceptor: MultiserviceTransactionRequestInterceptor): RestTemplate =
         RestTemplateBuilder().interceptors(multiserviceTransactionRequestInterceptor).build()
 

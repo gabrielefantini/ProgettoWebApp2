@@ -149,9 +149,8 @@ class MultiserviceTransactionSynchronizer {
     }
 
     private fun rollbackTransaction(transactionID: String, cleanTransactionCache: Boolean = true) {
-        logger.warn("Performing manual rollback of multiservice transaction $transactionID")
-
         val transactionData = transactionCache[transactionID] ?: return
+        logger.warn("Performing manual rollback of multiservice transaction $transactionID")
         transactionChannel.notifyTransactionFailure(transactionID)
 
         try {

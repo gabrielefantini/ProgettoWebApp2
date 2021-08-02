@@ -15,7 +15,7 @@ connectors:
   users:
     uri: ${USERS_URI:users-service}
     mock:
-      enabled: true
+      enabled: false
   mail:
     uri: ${MAIL_URI:mail-service}
 

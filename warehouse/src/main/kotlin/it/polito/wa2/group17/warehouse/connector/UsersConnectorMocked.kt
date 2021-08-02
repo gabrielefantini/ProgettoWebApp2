@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Primary
+import org.springframework.stereotype.Component
 import java.util.*
 
 @Connector
@@ -19,10 +20,11 @@ class UsersConnectorMocked : UsersConnector() {
     private val random = Random()
 
     override fun getAdmins(): List<UserDto> =
-        usersMockedProperties.testEmails.map { UserDto().apply { email = it; id = random.nextLong() } }
+        usersMockedProperties.emails.map { UserDto().apply { email = it; id = random.nextLong() } }
 }
 
-@ConfigurationProperties("connectors.users.mock")
+@ConfigurationProperties(prefix = "connectors.users.mock")
+@Component
 class UsersMockedProperties {
-    var testEmails = mutableListOf<String>()
+    var emails = mutableListOf<String>()
 }

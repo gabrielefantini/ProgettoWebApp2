@@ -6,8 +6,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -54,21 +52,23 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
     private fun initConsumer() {
         val props = Properties()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServer
-        props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+        props[ConsumerConfig.GROUP_ID_CONFIG] = serviceID
+        props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = JsonDeserializer::class.java
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = JsonDeserializer::class.java
-        props[ConsumerConfig.GROUP_ID_CONFIG] = javaClass.name
+        props[JsonDeserializer.TRUSTED_PACKAGES] = MultiserviceTransactionMessage::class.java.packageName
         kafkaConsumer = KafkaConsumer(props)
+        kafkaConsumer.subscribe(listOf(topic))
+        Executors.newScheduledThreadPool(1)
+        { r -> Thread(r).apply { name = javaClass.simpleName } }
+            .scheduleAtFixedRate(this::pollMessageFromKafka, pollInterval, pollInterval, TimeUnit.SECONDS)
     }
 
     private fun initProducer() {
         val props = Properties()
         props[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServer
-        props[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        props[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
         props[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
         kafkaProducer = KafkaProducer(props)
-        Executors.newScheduledThreadPool(1)
-        { r -> Thread(r).apply { name = javaClass.simpleName + " Kafka Consumer" } }
-            .scheduleAtFixedRate(this::pollMessageFromKafka, pollInterval, pollInterval, TimeUnit.SECONDS)
     }
 
     fun notifyTransactionStart(transactionID: String) {
@@ -102,6 +102,6 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
     private fun pollMessageFromKafka() {
         val records = kafkaConsumer.poll(Duration.ofSeconds(pollTimeout))
         logger.debug("Polled from kafka {} records : {}", records.count(), records)
-        sendToAllListeners(records) { it.value() }
+        sendToAllListeners(records.filter { it.value().serviceID != serviceID }) { it.value() }
     }
 }

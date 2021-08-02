@@ -16,8 +16,9 @@ class MailConnector {
     private lateinit var uri: String
 
     fun sendMail(mailRequestDto: MailRequestDto) {
+        val targetUri = if (uri.startsWith("http")) uri else "http://$uri"
         restTemplate.postForEntity<Any>(
-            "$uri/mail", mailRequestDto
+            "$targetUri/mail", mailRequestDto
         )
     }
 }

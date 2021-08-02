@@ -8,7 +8,7 @@ spring:
     username: group17wa2@gmail.com
     password: Group_17_Wa2_Polito!!
     template:
-      textPlaceholder: "{TEXT}"
+      textPlaceholder: "{TEXT_HERE}"
     properties:
       mail:
         smtp:

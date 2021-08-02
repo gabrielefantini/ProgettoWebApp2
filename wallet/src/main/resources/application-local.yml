@@ -3,3 +3,7 @@ MAIL_URI: localhost:8080
 server:
   port: 8081
 
+logging:
+  level:
+    com.netflix: OFF
+

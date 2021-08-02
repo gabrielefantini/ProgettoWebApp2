@@ -9,6 +9,7 @@ import it.polito.wa2.group17.wallet.connector.UsersConnector
 import it.polito.wa2.group17.wallet.entity.TransactionEntity
 import it.polito.wa2.group17.wallet.entity.WalletEntity
 import it.polito.wa2.group17.wallet.exception.InvalidTransactionException
+import it.polito.wa2.group17.wallet.exception.WalletAlreadyExistException
 import it.polito.wa2.group17.wallet.model.Transaction
 import it.polito.wa2.group17.wallet.model.Wallet
 import it.polito.wa2.group17.wallet.repository.TransactionRepository
@@ -73,6 +74,8 @@ private open class WalletServiceImpl(
     @MultiserviceTransactional
     override fun addWalletToUser(userId: Long): Wallet {
         logger.info("Adding new wallet to user with id {}", userId)
+        if (walletRepository.findByUserId(userId).isPresent)
+            throw WalletAlreadyExistException(userId)
         val wallet = WalletEntity(userId = userId)
         walletRepository.save(wallet)
         logger.info("Wallet added.")
@@ -208,12 +211,10 @@ private open class WalletServiceImpl(
     }
 
     override fun getWalletFromUser(userId: Long): Wallet {
-        logger.info("Retrieving wallet from user {}",userId);
-        return walletRepository.findByUserId(userId)?.let {
-            convert()
-        }?: run{
-            throw EntityNotFoundException(userId)
-        }
+        logger.info("Retrieving wallet from user {}", userId)
+        return walletRepository.findByUserId(userId)
+            .orElseThrow { EntityNotFoundException(userId) }
+            .convert()
     }
 
 }
