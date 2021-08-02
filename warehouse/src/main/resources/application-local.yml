@@ -14,3 +14,8 @@ connectors:
       enabled: true
       emails:
         - andrei_aldo1996@yahoo.it
+
+transaction:
+  debug:
+    auto-rollback:
+      enabled: true

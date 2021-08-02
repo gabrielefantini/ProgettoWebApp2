@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
@@ -42,11 +43,20 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
     @Value("\${transaction.kafka.pollInterval:1}")
     private var pollInterval: Long = 1L
 
+    @Value("\${transaction.debug.auto-rollback.enabled:false}")
+    private var autoRollbackEnabled: Boolean = false
+
+    @Value("\${transaction.debug.auto-rollback.timeout:10}")
+    private var autoRollbackTimeout: Long = 10L
+
+    private lateinit var rollbackExecutor: ScheduledExecutorService
 
     @PostConstruct
     private fun init() {
         initProducer()
         initConsumer()
+        if (autoRollbackEnabled)
+            rollbackExecutor = Executors.newScheduledThreadPool(10)
     }
 
     private fun initConsumer() {
@@ -73,6 +83,20 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
 
     fun notifyTransactionStart(transactionID: String) {
         sendTransactionMessage(MultiserviceTransactionStatus.STARTED, transactionID)
+        if (autoRollbackEnabled)
+            rollbackExecutor.schedule(
+                { mockTransactionFailure(transactionID) }, autoRollbackTimeout, TimeUnit.SECONDS
+            )
+    }
+
+    private fun mockTransactionFailure(transactionID: String) {
+        sendToAllListeners(
+            MultiserviceTransactionMessage(
+                MultiserviceTransactionStatus.FAILED,
+                "rollback test auto failure",
+                transactionID
+            )
+        )
     }
 
     fun notifyTransactionSuccess(transactionID: String) {
