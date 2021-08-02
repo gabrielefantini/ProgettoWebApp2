@@ -187,9 +187,9 @@ private open class WarehouseServiceImpl : WarehouseService {
 
         checkProductLimit(targetProductEntity)
 
-        return SellResponse(sellRequest.productID, sellRequest.quantity, targetProductEntity.getId()!!)
+        return SellResponse(sellRequest.productID, sellRequest.quantity, targetWarehouseEntity.getId()!!)
     }
-
+    @MultiserviceTransactional
     override fun sellProduct(warehouseId: Long, sellRequest: SellRequest): SellResponse {
         val targetProductEntity: StoredProductEntity
         val targetWarehouseEntity: WarehouseEntity
@@ -225,7 +225,7 @@ private open class WarehouseServiceImpl : WarehouseService {
 
         checkProductLimit(targetProductEntity)
 
-        return SellResponse(sellRequest.productID, sellRequest.quantity, targetProductEntity.getId()!!)
+        return SellResponse(sellRequest.productID, sellRequest.quantity, targetWarehouseEntity.getId()!!)
     }
 
     @Rollback
@@ -328,6 +328,7 @@ private open class WarehouseServiceImpl : WarehouseService {
 
     @MultiserviceTransactional
     override fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProduct {
+        logger.info("Adding product to warehouse {} : {}", warehouseId, addProductRequest)
         val warehouse =
             getWarehouseEntity(warehouseId)
 
@@ -348,6 +349,7 @@ private open class WarehouseServiceImpl : WarehouseService {
 
         checkProductLimit(product)
 
+        logger.info("Product {} successfully added to {}", addProductRequest, warehouseId)
         return product.convert()
     }
 
@@ -357,19 +359,31 @@ private open class WarehouseServiceImpl : WarehouseService {
         addProductRequest: AddProductRequest,
         storedProduct: StoredProduct
     ) {
+        logger.warn(
+            "Performing rollback of adding product {} to warehouse {}",
+            addProductRequest.productId,
+            warehouseId
+        )
         val warehouse = getWarehouseEntity(warehouseId)
         val targetProduct = warehouse.products.find { it.product.getId() == storedProduct.productId } ?: return
         storedProductRepository.delete(targetProduct)
+        logger.info(
+            "Successfully performed rollback of adding product {} to warehouse {}",
+            addProductRequest.productId,
+            warehouseId
+        )
     }
 
 
     @MultiserviceTransactional
     override fun removeProductFromWarehouse(warehouseId: Long, productId: Long): StoredProduct {
+        logger.info("Removing product {} from warehouse {}", productId, warehouseId)
         val warehouse = getWarehouseEntity(warehouseId)
         val product =
             warehouse.products.find { it.product.getId() == productId } ?: throw EntityNotFoundException(productId)
         val result: StoredProduct = product.convert()
         storedProductRepository.delete(product)
+        logger.info("Product {} successfully removed from {}", productId, warehouseId)
         return result
     }
 
@@ -379,6 +393,7 @@ private open class WarehouseServiceImpl : WarehouseService {
         productId: Long,
         storedProduct: StoredProduct
     ) {
+        logger.warn("Performing rollback of removing product {} from warehouse {}", productId, warehouseId)
         val warehouse = getWarehouseEntity(warehouseId)
         val product = StoredProductEntity(
             product = productRepository.findById(productId)
@@ -390,21 +405,24 @@ private open class WarehouseServiceImpl : WarehouseService {
         storedProductRepository.save(product)
         warehouse.products.add(product)
         warehouseRepository.save(warehouse)
-
         checkProductLimit(product)
+        logger.info("Rollback of removing product {} from warehouse {} succeed", productId, warehouseId)
     }
 
     @MultiserviceTransactional
     override fun removeAllProductsFromWarehouse(warehouseId: Long): List<StoredProduct> {
+        logger.warn("Removing all products from warehouse {}", warehouseId)
         val warehouse = getWarehouseEntity(warehouseId)
         val products = warehouse.products
         storedProductRepository.deleteAll(products)
+        logger.info("All products removed from {}", warehouseId)
         return products.map { it.convert() }
     }
 
 
     @Rollback
     private fun rollbackForRemoveAllProductsFromWarehouse(warehouseId: Long, products: List<StoredProduct>) {
+        logger.warn("Performing rollback of removing all pruducts from warehouse {}", warehouseId)
         val warehouse = getWarehouseEntity(warehouseId)
         val productsEntities = products.map {
             StoredProductEntity(
@@ -418,6 +436,7 @@ private open class WarehouseServiceImpl : WarehouseService {
         storedProductRepository.saveAll(productsEntities)
         warehouse.products.addAll(productsEntities)
         checkProductLimits(warehouse)
+        logger.info("All products restored in warehouse {}", warehouseId)
     }
 
 
@@ -426,17 +445,21 @@ private open class WarehouseServiceImpl : WarehouseService {
         productId: Long,
         updateProductRequest: UpdateProductRequest
     ): StoredProduct =
-        productUpdater.updateProduct(warehouseId, productId, updateProductRequest).newState!!.convert()
+        productUpdater.updateProduct(warehouseId, productId, updateProductRequest)
+        { checkProductLimit(it) }
+            .newState!!
+            .convert()
 
 
     private fun checkProductLimits(warehouse: WarehouseEntity) {
         logger.info("Checking product limits for warehouse {}", warehouse.getId())
         val mailBuilder = StringBuilder()
         warehouse.products.forEach {
-            if (it.minimumQuantity < it.quantity)
+            if (it.quantity < it.minimumQuantity)
                 mailBuilder.append(createAlertMessageForProduct(it))
         }
-        sendAlertMessageToAdmins(mailBuilder.toString())
+        if (mailBuilder.isNotEmpty())
+            sendAlertMessageToAdmins(mailBuilder.toString())
     }
 
     private fun createAlertMessageForProduct(product: StoredProductEntity) =
@@ -480,7 +503,12 @@ private open class ProductUpdater {
     private lateinit var storedProductRepository: StoredProductRepository
 
     @MultiserviceTransactional
-    fun updateProduct(warehouseId: Long, productId: Long, updateProductRequest: UpdateProductRequest): ProductUpdated {
+    fun updateProduct(
+        warehouseId: Long,
+        productId: Long,
+        updateProductRequest: UpdateProductRequest,
+        andThen: (StoredProductEntity) -> Unit
+    ): ProductUpdated {
         logger.info("Updating product {} from warehouse {}: {}", productId, warehouseId, updateProductRequest)
 
         val warehouse = warehouseRepository.findById(warehouseId).orElseThrow { EntityNotFoundException(warehouseId) }
@@ -501,6 +529,7 @@ private open class ProductUpdater {
         storedProductRepository.save(product)
 
         updateResult.newState = product
+        andThen(updateResult.newState!!)
         logger.info("Updated product {} from warehouse {}: {}", productId, warehouseId, updateResult)
         return updateResult
     }
@@ -510,6 +539,7 @@ private open class ProductUpdater {
         warehouseId: Long,
         productId: Long,
         updateProductRequest: UpdateProductRequest,
+        andThen: (StoredProductEntity) -> Unit,
         updateResult: ProductUpdated
     ) {
         logger.warn(
@@ -524,7 +554,8 @@ private open class ProductUpdater {
         product.quantity += updateResult.deltaQuantity
         product.minimumQuantity += updateResult.deltaMinimumQuantity
         storedProductRepository.save(product)
-        logger.info("Rollback for product updating product {} from warehouse {} succeed.", productId, warehouseId)
+        andThen(product)
+        logger.info("Rollback for product {} updating from warehouse {} succeed.", productId, warehouseId)
     }
 
 }

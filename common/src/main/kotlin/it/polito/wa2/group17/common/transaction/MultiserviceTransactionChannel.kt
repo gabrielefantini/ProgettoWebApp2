@@ -91,10 +91,12 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
         if (autoRollbackEnabled) {
             println("Would you like to avoid rollback transaction?")
             val response = readLine()!!
-            if (response != "y" && response != "yes")
+            if (response != "y" && response != "yes") {
+                logger.info("Will perform rollback of transaction {} in {} seconds", transactionID, autoRollbackTimeout)
                 rollbackExecutor.schedule(
                     { mockTransactionFailure(transactionID) }, autoRollbackTimeout, TimeUnit.SECONDS
                 )
+            }
         } else
             sendTransactionMessage(MultiserviceTransactionStatus.COMPLETED, transactionID)
     }
