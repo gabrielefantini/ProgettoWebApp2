@@ -4,22 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="mocked kafka on autorollback">
-      <change afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/LongIdEntity.kt" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="rollback question">
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/transaction/MultiserviceTransactionChannel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/transaction/MultiserviceTransactionChannel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/transaction/MultiserviceTransactionSynchronizer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/transaction/MultiserviceTransactionSynchronizer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/utils/BaseEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/utils/BaseEntity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/LongIdEntity.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/ProductEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/ProductEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/StoredProductEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/StoredProductEntity.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/WarehouseEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/WarehouseEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/WarehouseService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/WarehouseService.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -230,7 +225,14 @@
       <option name="project" value="LOCAL" />
       <updated>1627929216993</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="rollback question">
+      <created>1627936541222</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1627936541222</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -264,7 +266,8 @@
     <MESSAGE value="Aggiunta possiblità di recuperare e modificare le informazioni del profilo (da testare)" />
     <MESSAGE value="Aggiunta possiblità di mockare transaction failure" />
     <MESSAGE value="mocked kafka on autorollback" />
-    <option name="LAST_COMMIT_MESSAGE" value="mocked kafka on autorollback" />
+    <MESSAGE value="rollback question" />
+    <option name="LAST_COMMIT_MESSAGE" value="rollback question" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -297,8 +300,18 @@
           <option name="temporary" value="true" />
           <option name="timeStamp" value="26" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/WarehouseService.kt</url>
+          <line>331</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="SpringBootApplicationConfigurationType">
+        <watch expression="warehouseRepository.findAll()" language="kotlin" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

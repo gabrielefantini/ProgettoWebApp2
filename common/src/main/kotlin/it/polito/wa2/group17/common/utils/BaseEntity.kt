@@ -3,9 +3,11 @@ package it.polito.wa2.group17.common.utils
 import org.springframework.data.util.ProxyUtils
 import java.io.Serializable
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.MappedSuperclass
+import kotlin.math.abs
 
 @MappedSuperclass
 class BaseEntity<ID : Serializable> : AbstractEntity<ID>() {
@@ -36,6 +38,11 @@ class BaseNotGeneratedEntity<ID : Serializable>(idGenerator: (Random) -> ID) : A
         this.id = id
     }
 }
+
+class SafeLongIdEntity(id: Long? = null) :
+    BaseNotGeneratedEntity<Long>({
+        id ?: abs(ThreadLocalRandom.current().nextLong(9000000000000000L))
+    })
 
 abstract class AbstractEntity<ID : Serializable> {
 
