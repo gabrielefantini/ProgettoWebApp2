@@ -81,9 +81,7 @@ private open class WarehouseServiceImpl : WarehouseService {
         products: List<StoredProduct>
     ): WarehouseEntity {
 
-        var warehouseEntity = WarehouseEntity()
-        if (warehouseId != null)
-            warehouseEntity.setId(warehouseId)
+        var warehouseEntity = WarehouseEntity(id = warehouseId)
 
         warehouseEntity = warehouseRepository.save(warehouseEntity)
 
@@ -94,7 +92,7 @@ private open class WarehouseServiceImpl : WarehouseService {
                         .orElseThrow { EntityNotFoundException(it.productId) },
                     quantity = it.quantity,
                     minimumQuantity = it.minimumQuantity,
-                    warehouse = warehouseEntity
+                    warehouse = warehouseEntity,
                 )
             )
         }

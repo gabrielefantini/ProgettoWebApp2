@@ -83,13 +83,20 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
     }
 
     fun notifyTransactionStart(transactionID: String) {
-        if (autoRollbackEnabled)
-            rollbackExecutor.schedule(
-                { mockTransactionFailure(transactionID) }, autoRollbackTimeout, TimeUnit.SECONDS
-            )
-        else
-            sendTransactionMessage(MultiserviceTransactionStatus.STARTED, transactionID)
+        if (autoRollbackEnabled) return
+        sendTransactionMessage(MultiserviceTransactionStatus.STARTED, transactionID)
+    }
 
+    fun notifyTransactionSuccess(transactionID: String) {
+        if (autoRollbackEnabled) {
+            println("Would you like to avoid rollback transaction?")
+            val response = readLine()!!
+            if (response != "y" && response != "yes")
+                rollbackExecutor.schedule(
+                    { mockTransactionFailure(transactionID) }, autoRollbackTimeout, TimeUnit.SECONDS
+                )
+        } else
+            sendTransactionMessage(MultiserviceTransactionStatus.COMPLETED, transactionID)
     }
 
     private fun mockTransactionFailure(transactionID: String) {
@@ -100,11 +107,6 @@ class MultiserviceTransactionChannel : AbstractSubscribable<MultiserviceTransact
                 transactionID
             )
         )
-    }
-
-    fun notifyTransactionSuccess(transactionID: String) {
-        if (autoRollbackEnabled) return
-        sendTransactionMessage(MultiserviceTransactionStatus.COMPLETED, transactionID)
     }
 
     fun notifyTransactionFailure(transactionID: String) {

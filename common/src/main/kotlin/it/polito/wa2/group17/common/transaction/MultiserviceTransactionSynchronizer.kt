@@ -59,7 +59,6 @@ class MultiserviceTransactionSynchronizer {
         uncompletedTransactionsCache.addVoter { !transactionCache.containsKey(it.first) }
     }
 
-    @Synchronized
     private fun handleTransactionMessage(multiserviceTransactionMessage: MultiserviceTransactionMessage) {
         when (multiserviceTransactionMessage.status) {
             MultiserviceTransactionStatus.STARTED -> {

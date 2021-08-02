@@ -1,6 +1,8 @@
 package it.polito.wa2.group17.warehouse.entity
 
 import it.polito.wa2.group17.common.utils.BaseEntity
+import it.polito.wa2.group17.common.utils.BaseNotGeneratedEntity
+import java.util.*
 import javax.persistence.*
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull

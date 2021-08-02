@@ -2,6 +2,7 @@ package it.polito.wa2.group17.common.utils
 
 import org.springframework.data.util.ProxyUtils
 import java.io.Serializable
+import java.util.*
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.MappedSuperclass
@@ -11,6 +12,25 @@ class BaseEntity<ID : Serializable> : AbstractEntity<ID>() {
     @Id
     @GeneratedValue
     private var id: ID? = null
+    override fun getId(): ID? = id
+    fun setId(id: ID) {
+        this.id = id
+    }
+}
+
+@MappedSuperclass
+class BaseNotGeneratedEntity<ID : Serializable>(idGenerator: (Random) -> ID) : AbstractEntity<ID>() {
+    companion object {
+        private val RANDOM = Random()
+    }
+
+    @Id
+    private var id: ID
+
+    init {
+        id = idGenerator(RANDOM)
+    }
+
     override fun getId(): ID? = id
     fun setId(id: ID) {
         this.id = id
