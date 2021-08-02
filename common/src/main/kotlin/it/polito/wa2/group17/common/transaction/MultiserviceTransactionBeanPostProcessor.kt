@@ -1,6 +1,5 @@
 package it.polito.wa2.group17.common.transaction
 
-import it.polito.wa2.group17.common.utils.reflection.getAllFields
 import it.polito.wa2.group17.common.utils.reflection.getAllMethods
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanPostProcessor
@@ -14,10 +13,15 @@ class MultiserviceTransactionBeanPostProcessor : BeanPostProcessor {
 
     override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
         bean.javaClass.getAllMethods()
-            .filter { it.isAnnotationPresent(Rollback::class.java) }
+            .filter { it.isAnnotationPresent(Rollback::class.java) || it.isAnnotationPresent(MultiserviceTransactional::class.java) }
             .forEach { method ->
-                val transactionName = Rollback.extractTransactionName(method)
-                multiserviceTransactionLinker.registerRollbackFor(transactionName, method)
+                if (method.isAnnotationPresent(Rollback::class.java)) {
+                    val transactionName = Rollback.extractTransactionName(method)
+                    multiserviceTransactionLinker.registerRollbackFor(transactionName, method)
+                } else {
+                    val transactionName = MultiserviceTransactional.extractTransactionName(method)
+                    multiserviceTransactionLinker.registerTransactionFor(transactionName, method)
+                }
             }
         return bean
     }

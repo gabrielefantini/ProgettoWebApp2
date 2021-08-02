@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.common.transaction
 
+import it.polito.wa2.group17.common.utils.reflection.hasReturnType
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
@@ -27,39 +28,15 @@ class MultiserviceTransactionAspect {
                 MultiserviceTransactional.extractTransactionName(invokingMethod)
             )
 
-        val invokingMethodReturnType = invokingMethod.returnType
-        val hasReturnType = !invokingMethodReturnType.equals(Void.TYPE) &&
-                !invokingMethodReturnType.equals(Unit::class.java) &&
-                !invokingMethodReturnType.equals(Void::class.java) &&
-                !invokingMethodReturnType.equals(Nothing::class.java)
-
-        val invokingMethodParamTypes = invokingMethod.parameterTypes
-        val rollbackParamTypes = rollback.parameterTypes
-
-        if ((rollbackParamTypes.size - if (hasReturnType) 1 else 0) != invokingMethodParamTypes.size)
-            incompatibleRollbackException(rollback, invokingMethod)
-
-        for ((i, param) in invokingMethodParamTypes.withIndex()) {
-            if (!param.equals(rollbackParamTypes[i]))
-                incompatibleRollbackException(rollback, invokingMethod)
-        }
-
-        if (hasReturnType && !rollbackParamTypes[invokingMethodParamTypes.size].equals(invokingMethodReturnType))
-            incompatibleRollbackException(rollback, invokingMethod)
-
-
         return multiserviceTransactionSynchronizer.invokeWithinMultiserviceTransaction(
             rollback.apply { isAccessible = true },
             proceedingJoinPoint.args,
             proceedingJoinPoint.target,
             invokingMethod,
-            hasReturnType
+            invokingMethod.hasReturnType()
         ) { proceedingJoinPoint.proceed() }
 
     }
 
-    private fun incompatibleRollbackException(rollback: Method, invokingMethod: Method): Nothing {
-        throw IllegalStateException("Rollback parameters of $rollback does not match with the ones of the transaction $invokingMethod")
 
-    }
 }

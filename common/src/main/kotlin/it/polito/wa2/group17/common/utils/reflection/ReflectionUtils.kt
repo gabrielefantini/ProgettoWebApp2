@@ -11,6 +11,10 @@ import kotlin.reflect.full.primaryConstructor
 
 fun Field.isGenericType(): Boolean = type.typeParameters.isNotEmpty()
 
+fun Method.hasReturnType(): Boolean = !returnType.equals(Void.TYPE) &&
+        !returnType.equals(Unit::class.java) &&
+        !returnType.equals(Void::class.java) &&
+        !returnType.equals(Nothing::class.java)
 
 @Suppress("UNCHECKED_CAST")
 private fun <T> tryInstantiateClass(clazz: Class<T>, vararg args: Any?): T {
