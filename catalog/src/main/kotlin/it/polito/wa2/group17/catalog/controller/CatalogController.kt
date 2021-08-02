@@ -71,8 +71,8 @@ class CatalogController {
 
     @GetMapping("/setAdmin/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun setAdmin(@PathVariable username: String): ResponseEntity<Long>{
-        return ResponseEntity.ok(catalogService.setUserAsAdmin(username))
+    fun setAdmin(@PathVariable username: String, @RequestBody value: Boolean): ResponseEntity<Long>{
+        return ResponseEntity.ok(catalogService.setUserAsAdmin(username, value))
     }
 
     @GetMapping("/cancelOrder/{orderId}")

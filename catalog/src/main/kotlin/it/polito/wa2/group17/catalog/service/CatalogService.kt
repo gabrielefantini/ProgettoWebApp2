@@ -42,7 +42,7 @@ interface CatalogService {
     fun updateUserInformation(username: String, email: String, name: String, surname: String, deliveryAddr:String): Long?
 
     @Throws(EntityNotFoundException::class)
-    fun setUserAsAdmin(username: String): Long?
+    fun setUserAsAdmin(username: String, value: Boolean): Long?
 
     @Throws(EntityNotFoundException::class)
     fun cancelUserOrder(orderId: Long): Long?
@@ -93,9 +93,7 @@ private open class CatalogServiceImpl(
 
     override fun getProduct(productId: Long): StoredProductDto? {
         logger.info("Searching for product with id {}", productId)
-        val prod = warehouseConnector.getProducts().filter { it.productId == productId }
-        return if (prod.isNotEmpty()) prod[0]
-        else null
+        return warehouseConnector.getProductById(productId)
     }
 
     override fun getWallets(): Unit? {
@@ -121,26 +119,34 @@ private open class CatalogServiceImpl(
     }
 
     @MultiserviceTransactional
-    override fun setUserAsAdmin(username: String): Long? {
-        logger.info("Setting the role ADMIN to user {}", username)
+    override fun setUserAsAdmin(username: String, value: Boolean): Long? {
+        if (SecurityContextHolder.getContext().authentication.name == username) {
+            logger.info("You cannot modify your roles!")
+            return null
+        }
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
-        if (user.roles.contains("ADMIN")) {
-            logger.info("The user is already an ADMIN!")
+        if (value == true) {
+            if (user.roles.contains("ADMIN")) {
+                logger.info("The user is already an ADMIN!")
+            } else {
+                user.addRoleName("ADMIN")
+                logger.info("ADMIN added to the roles of the user")
+            }
         }
         else {
-            user.addRoleName("ADMIN")
-            logger.info("ADMIN added to the roles of the user")
+            user.removeRoleName("ADMIN")
+            logger.info("ADMIN removed from the roles of the user")
         }
         return user.getId()
     }
 
     @Rollback
-    private fun rollbackForSetUserAsAdmin(username: String, userId: Long) {
+    private fun rollbackForSetUserAsAdmin(username: String, value: Boolean, userId: Long) {
+        //TODO
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
         user.removeRoleName("ADMIN")
-        logger.info("ADMIN added to the roles of the user")
     }
 
     //TODO: Rollback?

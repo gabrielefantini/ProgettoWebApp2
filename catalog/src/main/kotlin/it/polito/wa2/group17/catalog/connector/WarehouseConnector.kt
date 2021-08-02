@@ -18,7 +18,13 @@ class WarehouseConnector {
 
     fun getProducts(): List<StoredProductDto> {
         return restTemplate.getForEntity(
-            "$uri/warehouses", Array<WarehouseDto>::class.java
-        ).body?.toList()?.flatMap { it.products } ?: listOf()
+            "$uri/products", Array<StoredProductDto>::class.java
+        ).body?.toList() ?: listOf()
+    }
+
+    fun getProductById(productId: Long): StoredProductDto? {
+        return restTemplate.getForEntity(
+            "$uri/products/"+productId, StoredProductDto::class.java
+        ).body
     }
 }
