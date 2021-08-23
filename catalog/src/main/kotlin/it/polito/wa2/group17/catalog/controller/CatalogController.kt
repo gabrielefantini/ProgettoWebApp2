@@ -1,6 +1,6 @@
 package it.polito.wa2.group17.catalog.controller
 
-import it.polito.wa2.group17.catalog.dto.StoredProductDto
+import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.service.CatalogService
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole
 import org.springframework.web.bind.annotation.*
 
 @RestController

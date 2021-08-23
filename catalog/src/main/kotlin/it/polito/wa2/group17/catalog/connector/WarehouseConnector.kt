@@ -1,7 +1,6 @@
 package it.polito.wa2.group17.catalog.connector
 
-import it.polito.wa2.group17.catalog.dto.StoredProductDto
-import it.polito.wa2.group17.catalog.dto.WarehouseDto
+import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.common.connector.Connector
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value

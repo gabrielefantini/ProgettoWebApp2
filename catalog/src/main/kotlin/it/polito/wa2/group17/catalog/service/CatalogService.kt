@@ -3,7 +3,7 @@ package it.polito.wa2.group17.catalog.service
 import it.polito.wa2.group17.catalog.connector.OrderConnector
 import it.polito.wa2.group17.catalog.connector.WarehouseConnector
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
-import it.polito.wa2.group17.catalog.dto.StoredProductDto
+import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
@@ -69,7 +69,7 @@ private open class CatalogServiceImpl(
     override fun getOrders(): Unit? {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
-        val orders = null //metodo order
+        val orders = orderConnector.getOrdersByUsername(username)
         return orders
     }
 
@@ -82,7 +82,7 @@ private open class CatalogServiceImpl(
     //TODO: Rollback?
     override fun addNewOrder(order: String): Long {
         logger.info("Adding a new order...")
-        val orderId = 0L //metodo order
+        val orderId = orderConnector.addOrder(/*order*/)
         return orderId
     }
 
@@ -99,7 +99,7 @@ private open class CatalogServiceImpl(
     override fun getWallets(): Unit? {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the wallets of the user with username {}", username)
-        val wallets = null //metodo order
+        val wallets = orderConnector.getWalletsByUsername(username)
         return wallets
     }
 
@@ -111,9 +111,9 @@ private open class CatalogServiceImpl(
         } else null
     }
 
-    override fun updateUserInformation(username: String, email: String, name: String, surname: String, deliveryAddr:String): Long? {
+    override fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): Long? {
         val username = SecurityContextHolder.getContext().authentication.name
-        val user = userRepository.updateUserInformation(username, email, name, surname, deliveryAddr)
+        val user = userRepository.updateUserInformation(username, new_username, email, name, surname, deliveryAddr)
         return if (!user.isEmpty) user.get().getId()
         else null
     }
@@ -141,13 +141,13 @@ private open class CatalogServiceImpl(
         return user.getId()
     }
 
-    @Rollback
+    /*@Rollback
     private fun rollbackForSetUserAsAdmin(username: String, value: Boolean, userId: Long) {
         //TODO
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
         user.removeRoleName("ADMIN")
-    }
+    }*/
 
     //TODO: Rollback?
     override fun cancelUserOrder(orderId: Long): Long? {

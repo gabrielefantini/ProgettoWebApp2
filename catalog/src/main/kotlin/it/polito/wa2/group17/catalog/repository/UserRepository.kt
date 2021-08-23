@@ -11,6 +11,6 @@ interface UserRepository : CrudRepository<User, Long> {
     fun findByUsername(username: String): Optional<User>
     fun findByEmail(email: String): Optional<User>
 
-    @Query ("UPDATE User set email = :email, name = :name, surname = :surname, deliveryAddr = :deliveryAddr where username = :username")
-    fun updateUserInformation(username: String, email: String, name: String, surname: String, deliveryAddr:String): Optional<User>
+    @Query ("UPDATE User set email = :email, name = :name, surname = :surname, deliveryAddr = :deliveryAddr, username = :new_username where username = :username")
+    fun updateUserInformation(username: String, new_username: String, email: String, name: String, surname: String, deliveryAddr:String): Optional<User>
 }
