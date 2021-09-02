@@ -6,9 +6,9 @@ import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
 import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
+import it.polito.wa2.group17.common.dto.OrderDto
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
-import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional
 interface CatalogService {
 
     @Throws(EntityNotFoundException::class)
-    fun getOrders(): Unit?
+    fun getOrders(): List<OrderDto>
 
     @Throws(EntityNotFoundException::class)
-    fun getOrderById(orderId: Long): Unit?
+    fun getOrderById(orderId: Long): OrderDto?
 
     @Throws(EntityNotFoundException::class)
-    fun addNewOrder(order: String/*OrderDto*/): Long
+    fun addNewOrder(order: OrderDto): Long
 
     @Throws(EntityNotFoundException::class)
     fun listProducts(): List<StoredProductDto>
@@ -39,13 +39,16 @@ interface CatalogService {
     fun getUserInformation(): UserDetailsDto?
 
     @Throws(EntityNotFoundException::class)
-    fun updateUserInformation(username: String, email: String, name: String, surname: String, deliveryAddr:String): Long?
+    fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): Long?
 
     @Throws(EntityNotFoundException::class)
     fun setUserAsAdmin(username: String, value: Boolean): Long?
 
     @Throws(EntityNotFoundException::class)
-    fun cancelUserOrder(orderId: Long): Long?
+    fun cancelUserOrder(orderId: Long)
+
+    @Throws(EntityNotFoundException::class)
+    fun getPicture(productId: Long): StoredProductDto?
 
 
 }
@@ -54,7 +57,6 @@ interface CatalogService {
 @Service
 @Transactional
 private open class CatalogServiceImpl(
-    //val orderController???
     val userRepository: UserRepository
 ) : CatalogService {
 
@@ -66,24 +68,21 @@ private open class CatalogServiceImpl(
     @Autowired
     private lateinit var orderConnector: OrderConnector
 
-    override fun getOrders(): Unit? {
+    override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
-        val orders = orderConnector.getOrdersByUsername(username)
-        return orders
+        return orderConnector.getOrdersByUsername(username)
     }
 
-    override fun getOrderById(orderId: Long): Unit? {
+    override fun getOrderById(orderId: Long): OrderDto? {
         logger.info("Searching for the order with id {}", orderId)
-        val order = null //metodo order
-        return order
+        return orderConnector.getOrderById(orderId)
     }
 
     //TODO: Rollback?
-    override fun addNewOrder(order: String): Long {
+    override fun addNewOrder(order: OrderDto): Long {
         logger.info("Adding a new order...")
-        val orderId = orderConnector.addOrder(/*order*/)
-        return orderId
+        return orderConnector.addOrder(order)
     }
 
     override fun listProducts(): List<StoredProductDto> {
@@ -150,10 +149,13 @@ private open class CatalogServiceImpl(
     }*/
 
     //TODO: Rollback?
-    override fun cancelUserOrder(orderId: Long): Long? {
+    override fun cancelUserOrder(orderId: Long) {
         logger.info("Cancelling order {}", orderId)
-        // metodo orderConnector
-        return orderId
+        return orderConnector.cancelOrder(orderId)
+    }
+
+    override fun getPicture(productId: Long): StoredProductDto? {
+        return warehouseConnector.getProductPicture(productId)
     }
 
 

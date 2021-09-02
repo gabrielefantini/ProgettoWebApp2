@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="struttura addOrder">
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/OrderDto.kt" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="OrderDto in common e OrderStatus e ProductOrderModel copiati">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,6 +119,9 @@
       <recent name="it.polito.wa2.group17.catalog.repository" />
       <recent name="it.polito.wa2.group17.catalog.dto" />
     </key>
+    <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
+      <recent name="it.polito.wa2.group17.common.dto" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="configurationTypes">
@@ -215,7 +221,7 @@
       <workItem from="1629462374212" duration="256000" />
       <workItem from="1629647868710" duration="2562000" />
       <workItem from="1629706485758" duration="3214000" />
-      <workItem from="1630595777641" duration="315000" />
+      <workItem from="1630595777641" duration="3371000" />
     </task>
     <task id="LOCAL-00001" summary="Primo commit">
       <created>1627133893238</created>
@@ -294,7 +300,14 @@
       <option name="project" value="LOCAL" />
       <updated>1629719054635</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="OrderDto in common e OrderStatus e ProductOrderModel copiati">
+      <created>1630596135883</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1630596135883</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -335,7 +348,8 @@
     <MESSAGE value="eager transaction methods checks" />
     <MESSAGE value="restored load balance on connectors" />
     <MESSAGE value="struttura addOrder" />
-    <option name="LAST_COMMIT_MESSAGE" value="struttura addOrder" />
+    <MESSAGE value="OrderDto in common e OrderStatus e ProductOrderModel copiati" />
+    <option name="LAST_COMMIT_MESSAGE" value="OrderDto in common e OrderStatus e ProductOrderModel copiati" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

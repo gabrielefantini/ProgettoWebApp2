@@ -1,7 +1,10 @@
 package it.polito.wa2.group17.catalog.connector
 
 import it.polito.wa2.group17.common.connector.Connector
-import it.polito.wa2.group17.common.dto.StoredProductDto
+import it.polito.wa2.group17.common.dto.OrderDto
+import it.polito.wa2.group17.common.dto.OrderStatus
+import it.polito.wa2.group17.common.exception.EntityNotFoundException
+import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -9,7 +12,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.postForEntity
 
 @Connector
 class OrderConnector {
@@ -20,30 +22,49 @@ class OrderConnector {
     @Value("\${connectors.orders}")
     private lateinit var uri: String
 
-    fun getOrdersByUsername(username: String?): Unit? {
-        return null
+    fun getOrdersByUsername(username: String?): List<OrderDto> {
+        // TODO: qual è l'endpoint da chiamare?
+        return listOf()
     }
 
     fun getWalletsByUsername(username: String?): Unit? {
+        // TODO /users/{userID}
         return null
     }
 
-    fun addOrder(/*order: OrderDto*/): Long {
+    fun addOrder(order: OrderDto): Long {
         val headers = HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
 
-        val order = null
-        // order è un OrderDto, va popolato
-        val requestEntity: HttpEntity</*OrderDto*/Unit> = HttpEntity(order, headers)
+        val requestEntity: HttpEntity<OrderDto> = HttpEntity(order, headers)
 
         val restTemplate = RestTemplate()
-        val responseEntity: ResponseEntity<Unit> =
-            restTemplate.postForEntity("$uri/orders", requestEntity, Unit::class.java/*OrderDto::class.java*/)
+        val responseEntity: ResponseEntity<OrderDto> =
+            restTemplate.postForEntity("$uri/orders", requestEntity, OrderDto::class.java)
 
         System.out.println("Status Code: " + responseEntity.statusCode)
-        val id = responseEntity.body // prendere l'id
 
-        return 0L
+        return responseEntity.body?.id?:0L
+    }
+
+    fun getOrderById(orderId: Long): OrderDto? {
+        return restTemplate.getForEntity(
+            "$uri/orders/$orderId", OrderDto::class.java
+        ).body
+    }
+
+    fun cancelOrder(orderId: Long) {
+        val order = restTemplate.getForEntity(
+            "$uri/orders/{orderId}", OrderDto::class.java
+        ).body
+        if (order != null) {
+            if (order.status == OrderStatus.ISSUED) {
+                restTemplate.delete("$uri/orders/$orderId", null)
+            }
+            throw GenericBadRequestException("The shipping is started!")
+        }
+        throw EntityNotFoundException("Order with id $orderId")
+
     }
 
 

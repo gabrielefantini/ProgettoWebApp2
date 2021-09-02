@@ -4,6 +4,7 @@ import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.service.CatalogService
+import it.polito.wa2.group17.common.dto.OrderDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -22,21 +23,20 @@ class CatalogController {
 
     @GetMapping ("/myorders")
     @OnlyEnabledUsers
-    fun getOrdersByUsername(): ResponseEntity<Unit>/*OrderDto*/ {
+    fun getOrdersByUsername(): ResponseEntity<List<OrderDto>> {
         return ResponseEntity.ok(catalogService.getOrders())
     }
 
     @GetMapping ("/order/{orderId}")
     @OnlyEnabledUsers
-    fun getOrderById(@PathVariable orderId: Long): ResponseEntity<Unit>/*OrderDto*/ {
+    fun getOrderById(@PathVariable orderId: Long): ResponseEntity<OrderDto> {
         return ResponseEntity.ok(catalogService.getOrderById(orderId))
     }
 
-    @PostMapping ("/order")
+    @PostMapping("/order")
     @OnlyEnabledUsers
-    fun addOrder(@RequestBody order: String/*OrderDto*/): Long {
-        val orderId = catalogService.addNewOrder(order)
-        return orderId
+    fun addOrder(@RequestBody order: OrderDto): Long {
+        return catalogService.addNewOrder(order)
     }
 
     // tutti possono elencare i prodotti
@@ -48,6 +48,11 @@ class CatalogController {
     @GetMapping("/product/{productId}")
     fun getProductById(@PathVariable productId: Long): ResponseEntity<StoredProductDto> {
         return ResponseEntity.ok(catalogService.getProduct(productId))
+    }
+
+    @GetMapping("/product/{productId}/picture")
+    fun getPicture(@PathVariable productId: Long): ResponseEntity<StoredProductDto> {
+        return ResponseEntity.ok(catalogService.getPicture(productId))
     }
 
     @GetMapping("/mywallets")
@@ -70,13 +75,13 @@ class CatalogController {
 
     @GetMapping("/setAdmin/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun setAdmin(@PathVariable username: String, @RequestBody value: Boolean): ResponseEntity<Long>{
+    fun setAdmin(@RequestBody username: String, @RequestBody value: Boolean): ResponseEntity<Long>{
         return ResponseEntity.ok(catalogService.setUserAsAdmin(username, value))
     }
 
     @GetMapping("/cancelOrder/{orderId}")
     @OnlyEnabledUsers
-    fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Long> {
+    fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Unit> {
         return ResponseEntity.ok(catalogService.cancelUserOrder(orderId))
     }
 }

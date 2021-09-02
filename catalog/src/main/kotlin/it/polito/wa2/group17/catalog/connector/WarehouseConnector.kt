@@ -23,7 +23,14 @@ class WarehouseConnector {
 
     fun getProductById(productId: Long): StoredProductDto? {
         return restTemplate.getForEntity(
-            "$uri/products/"+productId, StoredProductDto::class.java
+            "$uri/products/$productId", StoredProductDto::class.java
+        ).body
+    }
+
+    fun getProductPicture(productId: Long): StoredProductDto? {
+        // TODO: cosa ritorna?
+        return restTemplate.getForEntity(
+            "$uri/products/$productId/picture", StoredProductDto::class.java
         ).body
     }
 }
