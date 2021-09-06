@@ -42,15 +42,16 @@ class OrderServiceImpl: OrderService {
     // 1. calcolo del prezzo totale estrando i prezzi da ogni singolo prodotto nell'ordine -> GET warehouse-service/products/{productID}
     // 2. controllo del wallet del cliente per verificare che abbia abbastanza denaro per l'acquisto -> GET wallet-service/wallets/{userID}
     // 3. controllo la disponibilità dei prodotti nei warehouses -> GET warehouse-service/products/{productID}/warehouses
-    //      -> per ogni warehouse che ha il prodotto, controllo la quantità disponibile e la inserisco in una lista
-    //      -> per ogni elemento della lista, controllo se ci sia un delivery pendente e in caso sottraggo quella quantità alla lista
-    //      -> inserisco nella delivery list la quantità di prodotto richiesta
+    //      -> per ogni warehouse che ha il prodotto, controllo la quantità disponibile (GET warehouse-service/warehouse/{warehouseId}/products/{productId}) e la INSERISCO in una lista
+    //      -> per ogni elemento della lista, controllo se ci sia un delivery pendente e in caso SOTTRAGGO quella quantità alla lista
+    //      -> INSERISCO nella delivery list la quantità di prodotto richiesta
     // 4. viene detratto il prezzo dal wallet -> POST wallet-service/wallets/{walletID}/transactions
     //      e sia utente che admin vanno notificati via email
     @MultiserviceTransactional
     override fun addOrder(orderReq: OrderRequest): OrderDto {
         TODO("Not yet implemented")
     }
+
 
     @Rollback
     private fun rollbackForAddOrder(order: OrderDto){}

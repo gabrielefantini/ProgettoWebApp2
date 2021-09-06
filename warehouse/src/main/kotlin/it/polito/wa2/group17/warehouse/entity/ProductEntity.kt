@@ -1,11 +1,23 @@
 package it.polito.wa2.group17.warehouse.entity
 
+import it.polito.wa2.group17.common.utils.BaseEntity
 import it.polito.wa2.group17.common.utils.SafeLongIdEntity
+import java.util.*
 import javax.persistence.Entity
+import javax.persistence.OneToOne
 
 @Entity
 class ProductEntity(
-    id: Long? = null
+    id: Long? = null,
+    var name: String? = null,
+    var description: String? = null,
+    var pictureURL: String? = null,
+    var category: String? = null,
+    var price: Double? = 0.0,
+    var avgRating: Double? = 0.0,
+    var creationDate: Date? = null,
+    @OneToOne
+    var storedProductEntity: StoredProductEntity
 ) : SafeLongIdEntity(id)
 
 
