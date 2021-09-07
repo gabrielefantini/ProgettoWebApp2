@@ -5,7 +5,7 @@ import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 
 data class PutProductRequest (
-    @field:NotNull val id: Long,
+    var id: Long,
     @field:NotNull val name: String,
     val description: String,
     val pictureURL: String,

@@ -1,6 +1,6 @@
 package it.polito.wa2.group17.warehouse.controller
 
-import it.polito.wa2.group17.warehouse.dto.ProductDto
+import it.polito.wa2.group17.warehouse.dto.PatchProductRequest
 import it.polito.wa2.group17.warehouse.dto.PutProductRequest
 import it.polito.wa2.group17.warehouse.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,39 +26,47 @@ class ProductController {
 
     @GetMapping("/{productId}")
     fun getProductById(@PathVariable productId: Long) =
-        ResponseEntity.ok(productService.getProductsById(productId))
+        ResponseEntity.ok(productService.getProductById(productId))
 
     @PutMapping("/{productId}")
     fun putProductById(
         @PathVariable productId: Long,
         @RequestBody @Valid product: PutProductRequest
-    ) = ResponseEntity.ok(productService.putProductById(productId, product))
+    ) = ResponseEntity.ok(
+        productService.putProductById(
+            productId,
+            product,
+            productService.getProductById(productId)
+        )
+    )
 
     @PatchMapping("/{productId}")
     fun patchProductById(
         @PathVariable productId: Long,
-        @RequestBody
-    ){
-
-    }
+        @RequestBody @Valid product: PatchProductRequest
+    ) = ResponseEntity.ok(
+        productService.patchProductById(
+            productId,
+            product,
+            productService.getProductById(productId)
+        )
+    )
 
     @DeleteMapping("/{productId}")
-    fun deleteProductById(@PathVariable productId: Long){
+    fun deleteProductById(
+        @PathVariable productId: Long
+    ) = ResponseEntity.ok(productService.deleteProductById(productId))
 
-    }
 
     @GetMapping("/{productID}/picture")
-    fun getProductPicture(@PathVariable productId: Long){
-
-    }
+    fun getProductPicture(@PathVariable productId: Long)
+    = ResponseEntity.ok(productService.getProductPictureById(productId))
 
     @PostMapping("/{productID}/picture")
     fun addProductPicture(
         @PathVariable productId: Long,
         @RequestBody @Valid picture: String
-    ){
-
-    }
+    ) = ResponseEntity.ok(productService.addProductPicture(productId, picture))
 
     @GetMapping("/{productID}/warehouses")
     fun getWarehouseByProductId(
