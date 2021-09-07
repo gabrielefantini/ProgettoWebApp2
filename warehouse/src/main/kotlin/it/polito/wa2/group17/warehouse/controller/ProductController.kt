@@ -35,9 +35,8 @@ class ProductController {
     ) = ResponseEntity.ok(
         productService.putProductById(
             productId,
-            product,
-            productService.getProductById(productId)
-        )
+            product
+        ).first
     )
 
     @PatchMapping("/{productId}")

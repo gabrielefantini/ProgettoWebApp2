@@ -1,5 +1,7 @@
 package it.polito.wa2.group17.warehouse.service
 
+import it.polito.wa2.group17.common.exception.EntitiesNotFoundException
+import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.common.utils.converter.convert
@@ -9,15 +11,16 @@ import it.polito.wa2.group17.warehouse.dto.ProductDto
 import it.polito.wa2.group17.warehouse.dto.PutProductRequest
 import it.polito.wa2.group17.warehouse.entity.ProductEntity
 import it.polito.wa2.group17.warehouse.repository.ProductRepository
+import org.hibernate.annotations.NotFound
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 interface ProductService {
-    fun getProductsByCategory(category: String?): List<ProductDto>
+    fun getProductsByCategory(category: String): List<ProductDto>
     fun getProductById(id: Long): ProductDto
-    fun putProductById(productId: Long, productRequest: PutProductRequest, oldProduct: ProductDto): ProductDto
+    fun putProductById(productId: Long, productRequest: PutProductRequest): Pair<ProductDto, ProductDto?>
     fun patchProductById(productId: Long, productRequest: PatchProductRequest, oldProduct: ProductDto): ProductDto
     fun deleteProductById(productId: Long): ProductDto
     fun getProductPictureById(productId: Long): String
@@ -34,43 +37,43 @@ private open class ProductServiceImpl: ProductService {
     @Autowired
     private lateinit var productRepository: ProductRepository
 
-    override fun getProductsByCategory(category: String?): List<ProductDto> {
+    override fun getProductsByCategory(category: String): List<ProductDto> {
         logger.info("Getting products by category")
-        return productRepository.findProductEntitiesByCategory(category)
-            .map{ it -> it.convert() }
+        val result = productRepository.findProductEntitiesByCategory(category)
+        if(result.isEmpty()) throw EntitiesNotFoundException(category)
+        else return result.map{ it -> it.convert() }
     }
 
     override fun getProductById(productId: Long): ProductDto {
         logger.info("Getting product by Id")
         return productRepository
             .findById(productId)
+            .orElseThrow { EntityNotFoundException(productId) }
             .convert()
     }
 
-    //TODO riprendere da qua domani
     @MultiserviceTransactional
     override fun putProductById(
         productId: Long,
-        putProductRequest: PutProductRequest,
-        oldProduct: ProductDto
-    ): ProductDto {
+        putProductRequest: PutProductRequest
+    ): Pair<ProductDto, ProductDto?> {
         logger.info("Putting product by Id")
         putProductRequest.id = productId
-        //TODO vedere che capita
-        return productRepository
+        val oldProduct = productRepository.findById(productId)
+        return Pair(productRepository
             .save(putProductRequest.convert())
-            .convert()
+            .convert(), oldProduct?.get().convert()
+        )
     }
 
     @Rollback
     private fun rollbackForPutProductById(
         productId: Long,
         putProductRequest: PutProductRequest,
-        oldProduct: ProductDto,
-        newProduct: ProductDto
+        products: Pair<ProductDto, ProductDto>
     ){
         logger.warn("Rollback for PutProductById")
-        productRepository.save(oldProduct.convert())
+        products.second?.let { productRepository.save(it.convert()) }
     }
 
     @MultiserviceTransactional
@@ -98,7 +101,8 @@ private open class ProductServiceImpl: ProductService {
     private fun rollbackForPatchProductById(
         productId: Long,
         productRequest: PatchProductRequest,
-        oldProduct: ProductDto
+        oldProduct: ProductDto,
+        newProduct: ProductDto
     ){
         logger.warn("Rollback of PatchProductById")
         productRepository.save(oldProduct.convert())
@@ -124,7 +128,7 @@ private open class ProductServiceImpl: ProductService {
     override fun getProductPictureById(
         productId: Long
     ): String {
-        return productRepository.findById(productId)?.convert<ProductDto>().pictureURL
+        return productRepository.findById(productId)?.convert<ProductDto>().pictureURL ?: ""
     }
 
     //TODO vedere se fare rollback o no
