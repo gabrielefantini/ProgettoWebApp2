@@ -6,3 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class EntityNotFoundException(entityId: Any) : AutoLoggableException("Entity $entityId was not found")
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+class EntitiesNotFoundException(category: Any) : AutoLoggableException("Entity of category $category were not found")
