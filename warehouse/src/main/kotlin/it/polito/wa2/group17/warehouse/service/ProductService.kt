@@ -7,16 +7,22 @@ import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.common.utils.converter.convert
 import it.polito.wa2.group17.common.utils.converter.convertTo
 import it.polito.wa2.group17.warehouse.dto.PatchProductRequest
+import it.polito.wa2.group17.warehouse.dto.PostPicture
 import it.polito.wa2.group17.warehouse.dto.ProductDto
 import it.polito.wa2.group17.warehouse.dto.PutProductRequest
 import it.polito.wa2.group17.warehouse.entity.ProductEntity
 import it.polito.wa2.group17.warehouse.entity.StoredProductEntity
+import it.polito.wa2.group17.warehouse.model.Warehouse
 import it.polito.wa2.group17.warehouse.repository.ProductRepository
+import it.polito.wa2.group17.warehouse.repository.StoredProductRepository
+import it.polito.wa2.group17.warehouse.repository.WarehouseRepository
 import org.hibernate.annotations.NotFound
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import javax.mail.Store
 
 interface ProductService {
     fun getProductsByCategory(category: String): List<ProductDto>
@@ -24,8 +30,9 @@ interface ProductService {
     fun putProductById(productId: Long, productRequest: PutProductRequest): ProductDto
     fun patchProductById(productId: Long, patchProductRequest: PatchProductRequest): ProductDto
     fun deleteProductById(productId: Long): ProductDto
-    fun getProductPictureById(productId: Long): String
-    fun addProductPicture(productId: Long, picture: String): ProductDto
+    fun getProductPictureById(productId: Long): PostPicture
+    fun addProductPicture(productId: Long, picture: PostPicture): ProductDto
+    fun getWarehousesContainingProductById(productId: Long): List<Warehouse>
 
 }
 
@@ -37,6 +44,9 @@ private open class ProductServiceImpl: ProductService {
     }
     @Autowired
     private lateinit var productRepository: ProductRepository
+
+    @Autowired
+    private lateinit var storedProductRepository: StoredProductRepository
 
     @Autowired
     private lateinit var productEntityUpdater: ProductEntityUpdater
@@ -90,15 +100,22 @@ private open class ProductServiceImpl: ProductService {
 
     override fun getProductPictureById(
         productId: Long
-    ): String {
-        return getProductOrThrow(productId).convert<ProductDto>().pictureURL ?: ""
+    ): PostPicture {
+        return PostPicture(getProductOrThrow(productId).convert<ProductDto>().pictureURL ?: "")
     }
 
-    //TODO vedere se fare rollback o no
-    override fun addProductPicture(productId: Long, picture: String): ProductDto {
+
+    override fun addProductPicture(productId: Long, picture: PostPicture): ProductDto {
         var product = getProductOrThrow(productId)
-        product.pictureURL = picture
+        product.pictureURL = picture.picture
         return productRepository.save(product).convert()
+    }
+
+    override fun getWarehousesContainingProductById(productId: Long): List<Warehouse> {
+        val product = getProductOrThrow(productId)
+        return storedProductRepository
+            .findAllByProduct(product)
+            .map { it -> it.warehouse.convert() }
     }
 
 }
@@ -126,31 +143,32 @@ private open class ProductEntityUpdater {
         logger.info("")
         val update = UpdateTransaction()
 
-        val oldProduct = productRepository.findById(productId).get()
-        update.oldState = oldProduct
+        val oldProduct = productRepository.findByIdOrNull(productId)
+        update.oldState = oldProduct?.convert<ProductDto>()?.convert()
+
+
 
         val newProduct : ProductEntity = putProductRequest.convert()
-        update.newState = newProduct
+
+        update.newState = newProduct.convert<ProductDto>().convert()
 
         productRepository.save(newProduct)
+
         return update
     }
 
     @Rollback
-    fun rollBackForPutProduct(
+    fun rollbackForPutProduct(
         productId: Long,
         putProductRequest: PutProductRequest,
         update: UpdateTransaction,
     ){
-        logger.info("")
+        logger.info("Rollback Of PutProduct")
+
         update.oldState?.let {
-            //entity modified -> save older status
             productRepository.save(it)
-        }?: run{
-            //entity created -> remove new status
-            productRepository.delete(update.newState!!)
-        }
-    }
+        } ?: productRepository.deleteById(productId)
+}
 
     @MultiserviceTransactional
     fun patchProduct(
@@ -163,7 +181,7 @@ private open class ProductEntityUpdater {
         val newProduct : ProductEntity = productRequest.convert()
 
         val oldProduct = productRepository.findById(productId).orElseThrow { EntityNotFoundException(productId) }
-        update.oldState = oldProduct
+        update.oldState = oldProduct.convert<ProductDto>().convert()
 
         newProduct.name?.let { oldProduct.name = it }
         newProduct.description?.let { oldProduct.description = it }
@@ -173,12 +191,13 @@ private open class ProductEntityUpdater {
         newProduct.avgRating?.let { oldProduct.avgRating = it }
         newProduct.creationDate?.let { oldProduct.creationDate = it }
 
+        update.newState = oldProduct
         productRepository.save(oldProduct)
         return update
     }
 
     @Rollback
-    fun rollBackForPatchProduct(
+    fun rollbackForPatchProduct(
         productId: Long,
         productRequest: PatchProductRequest,
         update: UpdateTransaction,

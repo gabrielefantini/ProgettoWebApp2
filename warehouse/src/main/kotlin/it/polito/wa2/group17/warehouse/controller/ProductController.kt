@@ -1,6 +1,7 @@
 package it.polito.wa2.group17.warehouse.controller
 
 import it.polito.wa2.group17.warehouse.dto.PatchProductRequest
+import it.polito.wa2.group17.warehouse.dto.PostPicture
 import it.polito.wa2.group17.warehouse.dto.PutProductRequest
 import it.polito.wa2.group17.warehouse.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +37,7 @@ class ProductController {
         productService.putProductById(
             productId,
             product
-        ).first
+        )
     )
 
     @PatchMapping("/{productId}")
@@ -46,8 +47,7 @@ class ProductController {
     ) = ResponseEntity.ok(
         productService.patchProductById(
             productId,
-            product,
-            productService.getProductById(productId)
+            product
         )
     )
 
@@ -57,20 +57,18 @@ class ProductController {
     ) = ResponseEntity.ok(productService.deleteProductById(productId))
 
 
-    @GetMapping("/{productID}/picture")
+    @GetMapping("/{productId}/picture")
     fun getProductPicture(@PathVariable productId: Long)
     = ResponseEntity.ok(productService.getProductPictureById(productId))
 
-    @PostMapping("/{productID}/picture")
+    @PostMapping("/{productId}/picture")
     fun addProductPicture(
         @PathVariable productId: Long,
-        @RequestBody @Valid picture: String
+        @RequestBody @Valid picture: PostPicture
     ) = ResponseEntity.ok(productService.addProductPicture(productId, picture))
 
-    @GetMapping("/{productID}/warehouses")
+    @GetMapping("/{productId}/warehouses")
     fun getWarehouseByProductId(
         @PathVariable productId: Long
-    ){
-
-    }
+    ) = ResponseEntity.ok(productService.getWarehousesContainingProductById(productId))
 }
