@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Primary
 
 @Connector
 @Primary
-@ConditionalOnProperty(prefix = "connectors.users.mock", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "connectors.warehouse.mock", name = ["enabled"], havingValue = "true")
 class WarehouseConnectorMocked: WarehouseConnector() {
     override fun getProduct(productId: Long): ProductModel?
     = ProductModel("p1",10.0)

@@ -9,6 +9,7 @@ data class OrderDto(
     val buyerId: Long,
     @ConvertibleCollection(ProductOrderModel::class)
     val productOrders: List<ProductOrderModel>,
+    //TODO fare il model, il dto del delivery e mettere una lista qui
     val price: Double,
     val status: OrderStatus = OrderStatus.ISSUED,
 )

@@ -1,20 +1,29 @@
 package it.polito.wa2.group17.order.service
 
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
+import it.polito.wa2.group17.common.mail.MailService
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.common.utils.converter.convert
+import it.polito.wa2.group17.order.connector.CatalogConnector
 import it.polito.wa2.group17.order.connector.WalletConnector
 import it.polito.wa2.group17.order.connector.WarehouseConnector
 import it.polito.wa2.group17.order.dto.OrderDto
+import it.polito.wa2.group17.order.entities.DeliveryEntity
+import it.polito.wa2.group17.order.entities.OrderEntity
+import it.polito.wa2.group17.order.entities.OrderStatus
 import it.polito.wa2.group17.order.exception.CostNotCorrespondingException
 import it.polito.wa2.group17.order.model.OrderRequest
+import it.polito.wa2.group17.order.model.ProductModel
+import it.polito.wa2.group17.order.model.ProductOrderModel
+import it.polito.wa2.group17.order.model.WarehouseModel
 import it.polito.wa2.group17.order.repositories.DeliveryRepository
 import it.polito.wa2.group17.order.repositories.OrderRepository
-import it.polito.wa2.group17.warehouse.exception.MoneyNotEnoughException
+import it.polito.wa2.group17.warehouse.exception.NotEnoughMoneyException
+import it.polito.wa2.group17.warehouse.exception.NotEnoughProductException
+import it.polito.wa2.group17.warehouse.exception.UserNotFoundException
 import it.polito.wa2.group17.warehouse.exception.WalletException
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 interface OrderService{
@@ -40,8 +49,11 @@ class OrderServiceImpl: OrderService {
      @Autowired
      lateinit var walletConnector: WalletConnector
 
-    /*@Autowired
-    private lateinit var mailService: MailService*/
+     @Autowired
+     lateinit var catalogConnector: CatalogConnector
+
+     /*@Autowired
+     private lateinit var mailService: MailService*/
 
     //rollback not needed
     override fun getOrders(): List<OrderDto> {
@@ -62,6 +74,7 @@ class OrderServiceImpl: OrderService {
     //      -> INSERISCO nella delivery list la quantità di prodotto richiesta
     // 4. viene detratto il prezzo dal wallet -> POST wallet-service/wallets/{walletID}/transactions
     //      e sia utente che admin vanno notificati via email
+
     @MultiserviceTransactional
     override fun addOrder(orderReq: OrderRequest): OrderDto {
         //calcolo del costo totale
@@ -83,33 +96,115 @@ class OrderServiceImpl: OrderService {
         //controllo che il cliente non sia un poraccio
         val moneyAvailable = walletConnector.getUserWallet(orderReq.userId)?.amount ?: throw WalletException(orderReq.userId)
 
-        if(moneyAvailable < totalCost) throw MoneyNotEnoughException()
+        if(moneyAvailable < totalCost) throw NotEnoughMoneyException()
 
         //controllo la disponibilità nei warehouses
         orderReq
             .productOrders
             .forEach {
                 product ->
-                    val warehousesWithProductAvailable = warehouseConnector.getProductWarehouses(product.productId)
-                    warehousesWithProductAvailable
-                        ?.forEach {
-                            warehouse ->
-                                warehouse.productList.forEach {
-                                        warehouseProduct ->
-                                        if(warehouseProduct.productId == product.productId){
-                                            deliveryRepository.findByWarehouseIdAndProductId(warehouse.id, product.productId)
-                                                .map {
-                                                    delivery -> warehouseProduct.quantity = (warehouseProduct.quantity - delivery.quantity).toInt()
-                                                }
-                                        }
-                                }
-                        }
+                val warehousesWithProductAvailable =
+                    warehouseConnector.getProductWarehouses(product.productId)
+                    ?: throw NotEnoughProductException(product.productId)
+                val warehousesWithProductUpdated = warehousesWithProductQuantitiesUpdated(warehousesWithProductAvailable, product.productId)
+                if(!checkIfProductIsAvailable(warehousesWithProductUpdated, product)) throw NotEnoughProductException(product.productId)
 
-                    val productQuantityAvailableFromWarehouses = warehousesWithProductAvailable
-                        ?.reduce { acc, warehouseModel -> acc + warehouseModel. }
+
             }
+        //creo oggetto order
+        val orderEntity = OrderEntity(
+            buyerId = orderReq.userId,
+            price = totalCost,
+            status = OrderStatus.ISSUED
+        )
+        //todo--> vedere se si puo fare anche senza save
+        orderRepo.save(orderEntity)
+        //aggiungo le delivery list
+        orderReq
+            .productOrders
+            .forEach {
+                product ->
+                    val warehousesWithProductAvailable = warehouseConnector.getProductWarehouses(product.productId)!!
+                    val warehousesWithProductUpdated = warehousesWithProductQuantitiesUpdated(warehousesWithProductAvailable, product.productId)
+                    var productQuantity = product.quantity
+                    val user = catalogConnector.getUserInfo(orderReq.userId)?: throw UserNotFoundException(orderReq.userId)
+                    warehousesWithProductUpdated
+                        .forEach {
+                                warehouse ->
+                            if(productQuantity > 0){
+                                val amountAvailable = warehouse.productList.find { it.productId == product.productId }?.quantity ?: 0
+                                if(amountAvailable - productQuantity >= 0){
+                                    val delivery = DeliveryEntity(
+                                        user.deliveryAddr,
+                                        warehouse.id,
+                                        product.productId,
+                                        productQuantity,
+                                        orderEntity
+                                    )
+                                    productQuantity = 0
+                                    deliveryRepository.save(delivery)
+                                } else {
+                                    val delivery = DeliveryEntity(
+                                        user.deliveryAddr,
+                                        warehouse.id,
+                                        product.productId,
+                                        amountAvailable.toLong(),
+                                        orderEntity
+                                    )
+                                    productQuantity -= amountAvailable
+                                    deliveryRepository.save(delivery)
+                                }
+                            }
+                        }
+            }
+        //notifico via email
+        //TODO
+        //post per detrarre il prezzo
+        /*
+        usersConnector.getAdmins().forEach {
+            mailService.sendMessage(it.email, "PRODUCTS QUANTITY ALARM", alertMessage)
+
+        }*/
+        return orderEntity.convert()
     }
 
+    private fun checkIfProductIsAvailable(warehouses: List<WarehouseModel>, product: ProductOrderModel): Boolean {
+        val totalProductQuantityAvailable =
+            warehouses
+                .map{
+                    warehouse ->
+                        warehouse.productList
+                            .map {
+                                warehouseProduct ->
+                                    if(warehouseProduct.productId == product.productId){
+                                        warehouseProduct.quantity
+                                    } else  0
+                            }
+                            .reduce{ acc, it -> acc + it}
+                }
+                .reduce {
+                    acc,
+                    productQuantity -> acc + productQuantity
+                }
+
+        if(totalProductQuantityAvailable < product.quantity)    return false
+        return true
+    }
+
+    private fun warehousesWithProductQuantitiesUpdated(warehouses: List<WarehouseModel>, productId: Long) : List<WarehouseModel> {
+            return  warehouses
+                .map {
+                        warehouse ->
+                        warehouse.productList.forEach { warehouseProduct ->
+                            if (warehouseProduct.productId == productId)
+                                deliveryRepository.findByWarehouseIdAndProductId(warehouse.id, productId)
+                                    .forEach { delivery ->
+                                        warehouseProduct.quantity -= delivery.quantity.toInt()
+                                    }
+                        }
+                        warehouse
+                }
+    }
 
     @Rollback
     private fun rollbackForAddOrder(order: OrderDto){}

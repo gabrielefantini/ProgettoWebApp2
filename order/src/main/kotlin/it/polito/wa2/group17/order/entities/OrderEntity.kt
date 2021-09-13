@@ -2,6 +2,7 @@ package it.polito.wa2.group17.order.entities
 
 import it.polito.wa2.group17.common.utils.BaseEntity
 import org.jetbrains.annotations.NotNull
+import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.OneToMany
 import javax.validation.constraints.Min
@@ -12,10 +13,13 @@ class OrderEntity(
     var buyerId: Long,
 
     @OneToMany(mappedBy = "order")
-    var productOrders: MutableList<ProductOrderEntity>,
+    var productOrders: MutableList<ProductOrderEntity>? = mutableListOf<ProductOrderEntity>(),
 
-    @OneToMany(mappedBy = "order")
-    var deliveryList: MutableList<DeliveryEntity>,
+    @OneToMany(
+        mappedBy = "order",
+        cascade = [CascadeType.REMOVE]
+    )
+    var deliveryList: MutableList<DeliveryEntity>? =  mutableListOf<DeliveryEntity>(),
 
     @NotNull
     @Min(0)
