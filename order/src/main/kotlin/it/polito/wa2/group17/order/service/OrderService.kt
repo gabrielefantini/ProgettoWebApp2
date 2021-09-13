@@ -1,14 +1,20 @@
 package it.polito.wa2.group17.order.service
 
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
-import it.polito.wa2.group17.common.mail.MailService
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.common.utils.converter.convert
+import it.polito.wa2.group17.order.connector.WalletConnector
+import it.polito.wa2.group17.order.connector.WarehouseConnector
 import it.polito.wa2.group17.order.dto.OrderDto
+import it.polito.wa2.group17.order.exception.CostNotCorrespondingException
 import it.polito.wa2.group17.order.model.OrderRequest
+import it.polito.wa2.group17.order.repositories.DeliveryRepository
 import it.polito.wa2.group17.order.repositories.OrderRepository
+import it.polito.wa2.group17.warehouse.exception.MoneyNotEnoughException
+import it.polito.wa2.group17.warehouse.exception.WalletException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 interface OrderService{
@@ -24,6 +30,15 @@ class OrderServiceImpl: OrderService {
 
     @Autowired
     lateinit var orderRepo: OrderRepository
+
+    @Autowired
+    lateinit var deliveryRepository: DeliveryRepository
+
+     @Autowired
+     lateinit var warehouseConnector: WarehouseConnector
+
+     @Autowired
+     lateinit var walletConnector: WalletConnector
 
     /*@Autowired
     private lateinit var mailService: MailService*/
@@ -49,7 +64,50 @@ class OrderServiceImpl: OrderService {
     //      e sia utente che admin vanno notificati via email
     @MultiserviceTransactional
     override fun addOrder(orderReq: OrderRequest): OrderDto {
-        TODO("Not yet implemented")
+        //calcolo del costo totale
+        val totalCost =
+        orderReq
+            .productOrders
+            .map {
+                product -> warehouseConnector.getProduct(product.productId)?.price ?: 0.0
+            }.reduce { acc, productPrice -> productPrice + acc}
+
+        val totalEstimedCost =
+        orderReq
+            .productOrders
+            .map{ product -> product.price }
+            .reduce{ acc, price -> price + acc }
+
+        if(totalCost != totalEstimedCost) throw CostNotCorrespondingException()
+
+        //controllo che il cliente non sia un poraccio
+        val moneyAvailable = walletConnector.getUserWallet(orderReq.userId)?.amount ?: throw WalletException(orderReq.userId)
+
+        if(moneyAvailable < totalCost) throw MoneyNotEnoughException()
+
+        //controllo la disponibilità nei warehouses
+        orderReq
+            .productOrders
+            .forEach {
+                product ->
+                    val warehousesWithProductAvailable = warehouseConnector.getProductWarehouses(product.productId)
+                    warehousesWithProductAvailable
+                        ?.forEach {
+                            warehouse ->
+                                warehouse.productList.forEach {
+                                        warehouseProduct ->
+                                        if(warehouseProduct.productId == product.productId){
+                                            deliveryRepository.findByWarehouseIdAndProductId(warehouse.id, product.productId)
+                                                .map {
+                                                    delivery -> warehouseProduct.quantity = (warehouseProduct.quantity - delivery.quantity).toInt()
+                                                }
+                                        }
+                                }
+                        }
+
+                    val productQuantityAvailableFromWarehouses = warehousesWithProductAvailable
+                        ?.reduce { acc, warehouseModel -> acc + warehouseModel. }
+            }
     }
 
 

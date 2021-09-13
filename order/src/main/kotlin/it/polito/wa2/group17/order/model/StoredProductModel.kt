@@ -9,5 +9,5 @@ data class StoredProductModel(
     val productId: Long,
     @field: NotNull
     @field: Min(0)
-    val quantity: Int,
+    var quantity: Int,
 )
