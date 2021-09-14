@@ -36,8 +36,7 @@ class OrderController {
     ): ResponseEntity<*> {
         if(bindingResult.hasErrors())
             return ResponseEntity.badRequest().body(bindingResult.extractErrors())
-        //todo
-        return ResponseEntity.ok(null) //provvisorio
+        return ResponseEntity.ok(orderService.addOrder(orderReq))
     }
 
     //PATCH
@@ -45,13 +44,11 @@ class OrderController {
     fun updateOrder(
         @PathVariable orderId: Long,
         @RequestBody @Valid orderReq: OrderPatchRequest,
-    ){
-        //todo
-    }
+    ) = ResponseEntity.ok(orderService.updateOrder(orderId, orderReq).newOrder)
+
 
     //DELETE
     @DeleteMapping("/orders/{orderId}")
-    fun deleteOrder(@PathVariable orderId: Long) {
-        //todo
-    }
+    fun deleteOrder(@PathVariable orderId: Long) =
+        ResponseEntity.ok(orderService.deleteOrder(orderId))
 }

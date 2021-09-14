@@ -1,9 +1,8 @@
 package it.polito.wa2.group17.order.connector
 
+import BuyProductResponse
 import it.polito.wa2.group17.common.connector.Connector
-import it.polito.wa2.group17.order.model.ProductModel
-import it.polito.wa2.group17.order.model.StoredProductModel
-import it.polito.wa2.group17.order.model.WarehouseModel
+import it.polito.wa2.group17.order.model.*
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
 
@@ -26,4 +25,15 @@ class WarehouseConnectorMocked: WarehouseConnector() {
         )
     )
 
+    override fun buyProduct(warehouseId: Long, productBuyRequest: ProductBuyRequest): BuyProductResponse? =
+        BuyProductResponse(
+            productBuyRequest.productID,
+            20 - productBuyRequest.quantity,
+            warehouseId
+        )
+    override fun updateProductQuantity(warehouseId: Long, productId: Long, updateProductRequest: UpdateProductRequest): StoredProductModel? =
+        StoredProductModel(
+            productId,
+            updateProductRequest.quantity ?: 0
+        )
 }

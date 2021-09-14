@@ -4,6 +4,7 @@ import java.time.Instant
 import javax.validation.constraints.NotNull
 
 data class TransactionModel(
+    var id: Long? = null,
     @field:NotNull val reason: String,
     @field:NotNull val amount: Double,
     @field:NotNull val userId: Long,
