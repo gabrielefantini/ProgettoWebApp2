@@ -14,10 +14,12 @@ import it.polito.wa2.group17.order.dto.OrderUpdate
 import it.polito.wa2.group17.order.entities.DeliveryEntity
 import it.polito.wa2.group17.order.entities.OrderEntity
 import it.polito.wa2.group17.order.entities.OrderStatus
+import it.polito.wa2.group17.order.entities.ProductOrderEntity
 import it.polito.wa2.group17.order.exception.CostNotCorrespondingException
 import it.polito.wa2.group17.order.model.*
 import it.polito.wa2.group17.order.repositories.DeliveryRepository
 import it.polito.wa2.group17.order.repositories.OrderRepository
+import it.polito.wa2.group17.order.repositories.ProductOrderRepository
 import it.polito.wa2.group17.warehouse.exception.*
 import org.hibernate.criterion.Order
 import org.slf4j.Logger
@@ -46,6 +48,9 @@ class OrderServiceImpl: OrderService {
     lateinit var orderRepo: OrderRepository
 
     @Autowired
+    lateinit var productOrderRepository: ProductOrderRepository
+
+    @Autowired
     lateinit var deliveryRepository: DeliveryRepository
 
      @Autowired
@@ -66,7 +71,7 @@ class OrderServiceImpl: OrderService {
     }
 
     override fun getOrder(orderId: Long): OrderDto {
-        return orderRepo.findById(orderId).orElseThrow{ EntityNotFoundException(orderId) }.convert()
+        return orderRepo.findByIdOrNull(orderId)?.convert() ?: throw EntityNotFoundException(orderId)
     }
 
     //rollback needed
@@ -88,13 +93,13 @@ class OrderServiceImpl: OrderService {
         orderReq
             .productOrders
             .map {
-                product -> warehouseConnector.getProduct(product.productId)?.price ?: 0.0
+                product -> warehouseConnector.getProduct(product.productId)?.price?.times(product.quantity) ?: 0.0
             }.reduce { acc, productPrice -> productPrice + acc}
 
         val totalEstimedCost =
         orderReq
             .productOrders
-            .map{ product -> product.price }
+            .map{ product -> product.price * product.quantity }
             .reduce{ acc, price -> price + acc }
 
         if(totalCost != totalEstimedCost) throw CostNotCorrespondingException()
@@ -124,7 +129,13 @@ class OrderServiceImpl: OrderService {
             price = totalCost,
             status = OrderStatus.ISSUED
         )
-        //orderReq.productOrders.forEach { it -> orderEntity.productOrders?.add(it.convert()) }
+        orderReq.productOrders.forEach {
+            productOrder ->
+                productOrderRepository
+                    .save(
+                        productOrder.convert<ProductOrderEntity>()
+                        .also{ it.order = orderEntity })
+        }
 
         //todo--> vedere se si puo fare anche senza save
         orderEntity = orderRepo.save(orderEntity)
@@ -143,7 +154,7 @@ class OrderServiceImpl: OrderService {
                         .forEach {
                                 warehouse ->
                             if(productQuantity > 0){
-                                val amountAvailable = warehouse.productList.find { it.productId == product.productId }?.quantity ?: 0
+                                val amountAvailable = warehouse.productList.find { it.productId == product.productId }?.quantity!!
                                 if(amountAvailable - productQuantity >= 0){
                                     val delivery = DeliveryEntity(
                                         user.deliveryAddr,
@@ -154,7 +165,7 @@ class OrderServiceImpl: OrderService {
                                     )
                                     productQuantity = 0
                                     deliveryRepository.save(delivery)
-                                } else {
+                                } else if( amountAvailable != 0 ){
                                     val delivery = DeliveryEntity(
                                         user.deliveryAddr,
                                         warehouse.id,
@@ -225,7 +236,7 @@ class OrderServiceImpl: OrderService {
                                 deliveryRepository.findByWarehouseIdAndProductId(warehouse.id, productId)
                                     .forEach { delivery ->
                                         //fai la sottrazione solo se gli ordini non sono ancora partiti
-                                        if (delivery.order.status == OrderStatus.ISSUED)
+                                        if (delivery.order!!.status == OrderStatus.ISSUED)
                                         warehouseProduct.quantity -= delivery.quantity.toInt()
                                     }
                         }
@@ -252,8 +263,8 @@ class OrderServiceImpl: OrderService {
                         deliveryEntity ->
                             warehouseConnector
                                 .buyProduct(
-                                    deliveryEntity.warehouseId,
-                                    ProductBuyRequest(deliveryEntity.productId, deliveryEntity.quantity.toInt())
+                                    deliveryEntity.warehouseId!!,
+                                    ProductBuyRequest(deliveryEntity.productId!!, deliveryEntity.quantity.toInt())
                                 )
                     }
                     order.status = OrderStatus.DELIVERING
@@ -294,19 +305,19 @@ class OrderServiceImpl: OrderService {
             delivery ->
                 warehouseConnector
                     .updateProductQuantity(
-                        delivery.warehouseId,
-                        delivery.productId,
+                        delivery.warehouseId!!,
+                        delivery.productId!!,
                         UpdateProductRequest(delivery.quantity.toInt())
                     )
         }
     }
     private fun refundCustomer(order: OrderEntity){
-        val wallet = walletConnector.getUserWallet(order.buyerId) ?: throw WalletException(order.buyerId)
+        val wallet = walletConnector.getUserWallet(order.buyerId!!) ?: throw WalletException(order.buyerId!!)
         walletConnector
             .addWalletTransaction(
                 TransactionModel(
                     reason = "refund of order with ID ${order.getId()}",
-                    userId = order.buyerId,
+                    userId = order.buyerId!!,
                     amount = order.price,
                     timeInstant = Calendar.getInstance().toInstant(),
                 ),
@@ -324,6 +335,7 @@ class OrderServiceImpl: OrderService {
 
     @MultiserviceTransactional
     override fun deleteOrder(orderId: Long): OrderDto {
+        logger.info("Deleting order with Id: $orderId")
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
         if(order.status != OrderStatus.ISSUED) throw GenericBadRequestException("Too late to delete the order")
         refundCustomer(order)
@@ -333,6 +345,7 @@ class OrderServiceImpl: OrderService {
 
     @Rollback
     private fun rollbackForDeleteOrder(orderId: Long, order: OrderDto ){
+        logger.warn("Rollback for delete of order $orderId")
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
         order.status = OrderStatus.ISSUED
         orderRepo.save(order)

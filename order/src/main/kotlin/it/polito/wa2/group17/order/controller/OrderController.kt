@@ -25,7 +25,7 @@ class OrderController {
     @GetMapping
     fun getOrders() = ResponseEntity.ok(orderService.getOrders())
 
-    @GetMapping("/orders/{orderId}")
+    @GetMapping("/{orderId}")
     fun getOrder(@PathVariable orderId: Long) = ResponseEntity.ok(orderService.getOrder(orderId))
 
     //POST
@@ -40,7 +40,7 @@ class OrderController {
     }
 
     //PATCH
-    @PatchMapping("/orders/{orderId}")
+    @PatchMapping("/{orderId}")
     fun updateOrder(
         @PathVariable orderId: Long,
         @RequestBody @Valid orderReq: OrderPatchRequest,
@@ -48,7 +48,7 @@ class OrderController {
 
 
     //DELETE
-    @DeleteMapping("/orders/{orderId}")
+    @DeleteMapping("/{orderId}")
     fun deleteOrder(@PathVariable orderId: Long) =
         ResponseEntity.ok(orderService.deleteOrder(orderId))
 }

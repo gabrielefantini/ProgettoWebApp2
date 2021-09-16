@@ -10,20 +10,20 @@ import javax.validation.constraints.Min
 @Entity
 class DeliveryEntity(
     @NotNull
-    var deliveryAddr: String,
+    var deliveryAddr: String = "",
 
     @NotNull
-    var warehouseId: Long,
+    var warehouseId: Long? = null,
 
     @NotNull
-    var productId: Long,
+    var productId: Long? = null,
 
     @NotNull
     @Min(0)
-    var quantity: Long,
+    var quantity: Long = 0,
 
     @ManyToOne
     @JoinColumn(name = "order_entity", referencedColumnName = "id")
-    var order: OrderEntity
+    var order: OrderEntity? = null
 
 ): BaseEntity<Long>()

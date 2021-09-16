@@ -10,6 +10,6 @@ import org.springframework.context.annotation.Primary
 @Primary
 @ConditionalOnProperty(prefix = "connectors.wallet.mock", name = ["enabled"], havingValue = "true")
 class WalletConnectorMocked: WalletConnector() {
-    override fun getUserWallet(userId: Long): WalletModel? = WalletModel(1,userId,20.0)
+    override fun getUserWallet(userId: Long): WalletModel? = WalletModel(1,userId,20000.0)
     override fun addWalletTransaction(transaction: TransactionModel, walletId: Long): TransactionModel? = transaction
 }

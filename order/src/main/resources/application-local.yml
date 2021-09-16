@@ -6,8 +6,9 @@ server:
 logging:
   level:
     com.netflix: OFF
+    org.apache.kafka.clients.NetworkClient: OFF
 
 transaction:
-  kafka:
+  debug:
     auto-rollback:
-      enabled: true
+      enabled: false

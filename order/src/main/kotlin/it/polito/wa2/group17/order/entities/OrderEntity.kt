@@ -10,23 +10,28 @@ import javax.validation.constraints.Min
 @Entity
 class OrderEntity(
     @NotNull
-    var buyerId: Long,
+    var buyerId: Long? = null,
 
-    @OneToMany(mappedBy = "order")
-    var productOrders: MutableList<ProductOrderEntity>? = mutableListOf<ProductOrderEntity>(),
+    @NotNull
+    @Min(0)
+    var price: Double = 0.0,
+
+    @NotNull
+    var status: OrderStatus? = null,
 
     @OneToMany(
         mappedBy = "order",
         cascade = [CascadeType.REMOVE]
     )
-    var deliveryList: MutableList<DeliveryEntity>? =  mutableListOf<DeliveryEntity>(),
+    val productOrders: MutableList<ProductOrderEntity> = mutableListOf<ProductOrderEntity>(),
 
-    @NotNull
-    @Min(0)
-    var price: Double,
+    @OneToMany(
+        mappedBy = "order",
+        cascade = [CascadeType.REMOVE]
+    )
+    val deliveryList: MutableList<DeliveryEntity> =  mutableListOf<DeliveryEntity>(),
 
-    @NotNull
-    var status: OrderStatus,
+
 ) : BaseEntity<Long>()
 
 enum class OrderStatus {

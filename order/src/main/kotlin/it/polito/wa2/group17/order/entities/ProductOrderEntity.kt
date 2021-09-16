@@ -9,18 +9,18 @@ import javax.validation.constraints.Min
 @Entity
 class ProductOrderEntity(
     @NotNull
-    var productId: Long,
+    var productId: Long? = null,
 
     @NotNull
     @Min(0)
-    var quantity: Long,
+    var quantity: Long = 0,
 
     @NotNull
     @Min(0)
-    var price: Double,
+    var price: Double = 0.0,
 
     @ManyToOne
     @JoinColumn(name = "order_entity", referencedColumnName = "id")
-    var order: OrderEntity,
+    var order: OrderEntity? = null,
 
 ): BaseEntity<Long>()

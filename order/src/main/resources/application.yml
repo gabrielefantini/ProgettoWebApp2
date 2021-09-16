@@ -13,10 +13,16 @@ spring:
 connectors:
   wallet:
     uri: http://localhost:wallet-service
-    mock: true
+    mock:
+      enabled: false
   warehouse:
     uri: http://localhost:warehouse-service
-    mock: true
+    mock:
+      enabled: false
+  catalog:
+    uri: http://localhost:catalog-service
+    mock:
+      enabled: false
   mail:
     uri: http://localhost:mail-service
 
