@@ -32,7 +32,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    
+
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
     implementation("io.springfox:springfox-boot-starter:3.0.0")
@@ -48,6 +48,23 @@ dependencies {
 
     implementation("org.hibernate.validator:hibernate-validator")
     implementation("javax.validation:validation-api")
+
+
+    //implementation("org.openjdk.jol:jol-core:0.10")
+    //implementation("org.apache.commons:commons-jcs-core:2.2.1")
+    //implementation("org.springframework.hateoas:spring-hateoas")
+    //implementation("org.springframework.boot:spring-boot-starter-mail")
+    //implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    //runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+    //runtimeOnly("com.h2database:h2")
+
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation ("junit:junit:4.13.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:3.1.0")
+    testImplementation("org.powermock:powermock-core:1.7.3")
+    testImplementation("org.powermock:powermock-module-junit4:1.7.3")
+    testImplementation("org.powermock:powermock-api-mockito2:1.7.3")
 }
 
 tasks.withType<KotlinCompile> {

@@ -1,0 +1,20 @@
+KAFKA_SERVER: localhost:9092
+MAIL_URI: localhost:8080
+server:
+  port: 8083
+
+connectors:
+  wallet:
+    uri: http://localhost:wallet-service
+    mock:
+      enabled: true
+  warehouse:
+    uri: http://localhost:warehouse-service
+    mock:
+      enabled: true
+  orders:
+    uri: http://localhost:orders-service
+    mock:
+      enabled: true
+  mail:
+    uri: http://localhost:mail-service

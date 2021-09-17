@@ -9,3 +9,24 @@ application.jwt:
   jwtExpirationMs: 108000000 #3 hours
   jwtHeader: Authorization
   jwtHeaderStart: Bearer
+
+connectors:
+  wallet:
+    uri: http://localhost:wallet-service
+    mock:
+      enabled: true
+  warehouse:
+    uri: http://localhost:warehouse-service
+    mock:
+      enabled: true
+  orders:
+    uri: http://localhost:orders-service
+    mock:
+      enabled: true
+  mail:
+    uri: http://localhost:mail-service
+
+
+transaction:
+  kafka:
+    bootstrapServer: ${KAFKA_SERVER:transaction-kafka}

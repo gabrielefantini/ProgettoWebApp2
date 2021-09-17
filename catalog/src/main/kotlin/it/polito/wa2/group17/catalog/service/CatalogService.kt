@@ -125,7 +125,7 @@ private open class CatalogServiceImpl(
         }
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
-        if (value == true) {
+        if (value) {
             if (user.roles.contains("ADMIN")) {
                 logger.info("The user is already an ADMIN!")
             } else {
