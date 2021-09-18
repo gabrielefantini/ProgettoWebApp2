@@ -19,7 +19,7 @@ class OrderConnector {
     @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @Value("\${connectors.orders}")
+    @Value("\${connectors.order.uri}")
     private lateinit var uri: String
 
     fun getOrdersByUsername(username: String?): List<OrderDto> {

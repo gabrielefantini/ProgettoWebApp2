@@ -16,7 +16,9 @@ private class MailServiceImpl : MailService {
 
     override fun sendMessage(destination: String, subject: String, body: String) {
         logger.info("Sending email with subject '{}' to {}", subject, destination)
-        mailConnector.sendMail(MailRequestDto(destination, subject, body))
+        mailConnector.sendMail(MailRequestDto(destination,
+            subject,
+            body))
         logger.info("Email '{}' successfully sent to {}.", subject, destination)
     }
 

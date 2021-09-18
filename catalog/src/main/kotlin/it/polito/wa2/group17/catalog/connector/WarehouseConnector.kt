@@ -12,7 +12,7 @@ class WarehouseConnector {
     @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @Value("\${connectors.warehouse}")
+    @Value("\${connectors.warehouse.uri}")
     private lateinit var uri: String
 
     fun getProducts(): List<StoredProductDto> {

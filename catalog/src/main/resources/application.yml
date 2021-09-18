@@ -1,3 +1,16 @@
+spring:
+  application:
+    name: catalog-service
+  datasource:
+    url: jdbc:mariadb://localhost:3306/final_project
+    username: root
+    password: password
+  jpa:
+    #show-sql: true
+    generate-ddl: true
+    properties.hibernate.dialect: org.hibernate.dialect.MariaDBDialect
+    hibernate.ddl-auto: update
+
 notifications:
   tokenVerification:
     subject: "Verify your email address"
@@ -11,22 +24,27 @@ application.jwt:
   jwtHeaderStart: Bearer
 
 connectors:
-  wallet:
-    uri: http://localhost:wallet-service
+  order:
+    uri: http://localhost:order-service
     mock:
       enabled: true
   warehouse:
     uri: http://localhost:warehouse-service
     mock:
       enabled: true
-  orders:
-    uri: http://localhost:orders-service
-    mock:
-      enabled: true
   mail:
     uri: http://localhost:mail-service
+    mock:
+      enabled: true
 
 
 transaction:
   kafka:
     bootstrapServer: ${KAFKA_SERVER:transaction-kafka}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

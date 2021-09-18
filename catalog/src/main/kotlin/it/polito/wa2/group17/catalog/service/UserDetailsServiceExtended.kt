@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.catalog.service
 
+import it.polito.wa2.group17.catalog.connector.OrderConnector
 import it.polito.wa2.group17.catalog.domain.EmailVerificationToken
 import it.polito.wa2.group17.catalog.domain.User
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
@@ -9,6 +10,8 @@ import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyVerifiedException
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.catalog.security.RoleName
+import it.polito.wa2.group17.common.mail.MailConnector
+import it.polito.wa2.group17.common.mail.MailRequestDto
 import it.polito.wa2.group17.common.mail.MailService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -70,6 +73,8 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
     private companion object {
         val localAddress: String = Inet4Address.getLocalHost().hostName
     }
+    @Autowired
+    private lateinit var mailConnector: MailConnector
 
     private fun computeTokenEndpoint(token: EmailVerificationToken) =
         "http://$localAddress:$localPort/auth/registrationConfirm?token=${
@@ -89,7 +94,7 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         logger.info("Creating user {}", username)
         val user = userRepository.save(User(username, password, email, name, surname, address, false))
         logger.info("User {} created", username)
-        logger.info("Creating customer for user {}", username)
+        //logger.info("Creating customer for user {}", username)
         //val customer = customerRepository.save(Customer(name, surname, address, email, user = user))
         //logger.info("Created customer with id {} for user {}", customer.getId(), username)
         //user.customer = customer
@@ -105,10 +110,10 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
 
         logger.info("Creating token for user $username sending it to $existingEmail")
         val token = notificationService.createTokenForUser(username)
-        mailService.sendMessage(
+        mailConnector.sendMail(MailRequestDto(
             existingEmail,
             tokenMessageSubject,
-            String.format(tokenMessageBody, computeTokenEndpoint(token), token.expireDate)
+            String.format(tokenMessageBody, computeTokenEndpoint(token), token.expireDate))
         )
     }
 
