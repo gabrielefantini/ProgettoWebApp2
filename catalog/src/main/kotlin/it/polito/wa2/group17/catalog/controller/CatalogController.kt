@@ -73,13 +73,13 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.updateUserInformation(username, email, name, surname, deliveryAddr))
     }
 
-    @GetMapping("/setAdmin/{userId}")
+    @PutMapping("/setAdmin/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun setAdmin(@RequestBody username: String, @RequestBody value: Boolean): ResponseEntity<Long>{
         return ResponseEntity.ok(catalogService.setUserAsAdmin(username, value))
     }
 
-    @GetMapping("/cancelOrder/{orderId}")
+    @PutMapping("/cancelOrder/{orderId}")
     @OnlyEnabledUsers
     fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Unit> {
         return ResponseEntity.ok(catalogService.cancelUserOrder(orderId))

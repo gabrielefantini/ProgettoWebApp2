@@ -99,6 +99,7 @@ class AuthController {
             )
         } catch (e: Exception) {
             logger.error("Log in failed.")
+            logger.error(e.toString())
             ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(BadLoginResponse("Log in failed. Please try again."))
         }
