@@ -5,6 +5,7 @@ import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.service.CatalogService
 import it.polito.wa2.group17.common.dto.OrderDto
+import it.polito.wa2.group17.common.dto.PostPicture
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -51,7 +52,7 @@ class CatalogController {
     }
 
     @GetMapping("/product/{productId}/picture")
-    fun getPicture(@PathVariable productId: Long): ResponseEntity<StoredProductDto> {
+    fun getPicture(@PathVariable productId: Long): ResponseEntity<PostPicture> {
         return ResponseEntity.ok(catalogService.getPicture(productId))
     }
 

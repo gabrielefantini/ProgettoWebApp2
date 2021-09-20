@@ -14,18 +14,18 @@ class User(
     @NotNull
     @NotEmpty
     @Validated
-    var username: String,
+    var username: String = "",
 
-    var password: String,
+    var password: String = "",
 
     @Column(unique = true)
     @Validated
-    var email: String,
+    var email: String = "",
 
 
-    val name: String,
-    val surname: String,
-    val deliveryAddr: String,
+    val name: String = "",
+    val surname: String = "",
+    val deliveryAddr: String = "",
 
     var isEnabled: Boolean = false,
 

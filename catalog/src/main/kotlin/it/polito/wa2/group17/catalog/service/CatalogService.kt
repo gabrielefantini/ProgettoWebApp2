@@ -1,12 +1,15 @@
 package it.polito.wa2.group17.catalog.service
 
 import it.polito.wa2.group17.catalog.connector.OrderConnector
+import it.polito.wa2.group17.catalog.connector.OrderConnectorMocked
 import it.polito.wa2.group17.catalog.connector.WarehouseConnector
+import it.polito.wa2.group17.catalog.connector.WarehouseConnectorMocked
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
 import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.common.dto.OrderDto
+import it.polito.wa2.group17.common.dto.PostPicture
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import org.slf4j.LoggerFactory
@@ -48,7 +51,7 @@ interface CatalogService {
     fun cancelUserOrder(orderId: Long)
 
     @Throws(EntityNotFoundException::class)
-    fun getPicture(productId: Long): StoredProductDto?
+    fun getPicture(productId: Long): PostPicture?
 
 
 }
@@ -63,10 +66,10 @@ private open class CatalogServiceImpl(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
-    private lateinit var warehouseConnector: WarehouseConnector
+    private lateinit var warehouseConnector: WarehouseConnectorMocked
 
     @Autowired
-    private lateinit var orderConnector: OrderConnector
+    private lateinit var orderConnector: OrderConnectorMocked
 
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
@@ -154,7 +157,7 @@ private open class CatalogServiceImpl(
         return orderConnector.cancelOrder(orderId)
     }
 
-    override fun getPicture(productId: Long): StoredProductDto? {
+    override fun getPicture(productId: Long): PostPicture? {
         return warehouseConnector.getProductPicture(productId)
     }
 

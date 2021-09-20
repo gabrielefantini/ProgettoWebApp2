@@ -2,6 +2,7 @@ package it.polito.wa2.group17.catalog.connector
 
 import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.common.connector.Connector
+import it.polito.wa2.group17.common.dto.PostPicture
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.client.RestTemplate
@@ -27,10 +28,9 @@ class WarehouseConnector {
         ).body
     }
 
-    fun getProductPicture(productId: Long): StoredProductDto? {
-        // TODO: cosa ritorna?
+    fun getProductPicture(productId: Long): PostPicture? {
         return restTemplate.getForEntity(
-            "$uri/products/$productId/picture", StoredProductDto::class.java
+            "$uri/products/$productId/picture", PostPicture::class.java
         ).body
     }
 }
