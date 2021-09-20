@@ -22,5 +22,5 @@ class OrderConnectorMocked: OrderConnector() {
         return order.id
     }
 
-    override fun getOrdersByUsername(username: String?): List<OrderDto> = listOf(OrderDto(0, 1, listOf(ProductOrderModel(0, 10, 15.0), ProductOrderModel(1, 20, 100.0)), 2150.0, OrderStatus.ISSUED))
+    override fun getOrdersByUsername(userId: Long?): List<OrderDto> = listOf(OrderDto(0, 1, listOf(ProductOrderModel(0, 10, 15.0), ProductOrderModel(1, 20, 100.0)), 2150.0, OrderStatus.ISSUED))
 }

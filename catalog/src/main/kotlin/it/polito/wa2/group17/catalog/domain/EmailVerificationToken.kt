@@ -13,9 +13,9 @@ import javax.persistence.Id
 @Entity
 class EmailVerificationToken(
     @NotNull
-    val username: String,
+    val username: String = "",
     @NotNull
-    val expireDate: Instant
+    val expireDate: Instant = Instant.now()
 ) : AbstractEntity<UUID>() {
 
     @Id

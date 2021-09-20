@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.catalog.service
 
+import it.polito.wa2.group17.catalog.connector.MailConnectorMocked
 import it.polito.wa2.group17.catalog.connector.OrderConnector
 import it.polito.wa2.group17.catalog.domain.EmailVerificationToken
 import it.polito.wa2.group17.catalog.domain.User
@@ -8,15 +9,20 @@ import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.exceptions.auth.EmailAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyVerifiedException
+import it.polito.wa2.group17.catalog.exceptions.security.UserNotAllowedException
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.catalog.security.RoleName
+import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import it.polito.wa2.group17.common.mail.MailConnector
 import it.polito.wa2.group17.common.mail.MailRequestDto
 import it.polito.wa2.group17.common.mail.MailService
+import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
+import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -47,6 +53,12 @@ interface UserDetailsServiceExtended : UserDetailsService {
 
     @Throws(EntityNotFoundException::class)
     fun getCustomerIdForUser(username: String): Long?
+
+    //@PreAuthorize("hasRole('ADMIN')")
+    @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
+    fun setUserAsAdmin(username: String/*, value: Boolean*/): Long?
+
+    fun getAdmins(): List<UserDetailsDto>
 }
 
 @Service
@@ -74,13 +86,14 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         val localAddress: String = Inet4Address.getLocalHost().hostName
     }
     @Autowired
-    private lateinit var mailConnector: MailConnector
+    private lateinit var mailConnector: MailConnectorMocked
 
     private fun computeTokenEndpoint(token: EmailVerificationToken) =
         "http://$localAddress:$localPort/auth/registrationConfirm?token=${
             token.getId().toString()
         }"
 
+    // TODO: Rollback
     override fun createUser(
         username: String, password: String, email: String,
         name: String, surname: String, address: String,
@@ -94,10 +107,6 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         logger.info("Creating user {}", username)
         val user = userRepository.save(User(username, password, email, name, surname, address, false))
         logger.info("User {} created", username)
-        //logger.info("Creating customer for user {}", username)
-        //val customer = customerRepository.save(Customer(name, surname, address, email, user = user))
-        //logger.info("Created customer with id {} for user {}", customer.getId(), username)
-        //user.customer = customer
         createTokenForUser(username, email)
     }
 
@@ -135,6 +144,10 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
                 else null
             }
 
+    override fun getAdmins(): List<UserDetailsDto> {
+        return userRepository.findAdmin(listOf("ADMIN", "CUSTOMER ADMIN", "ADMIN CUSTOMER")).map { it -> UserDetailsDto(it.getId(), it.username, it.password, it.email, it.isEnabled, it.getRoleNames(), it.name, it.surname, it.deliveryAddr) }
+    }
+
 
     override fun addRoleToUser(username: String, role: String) {
         logger.info("Adding role {} to {}", role, username)
@@ -158,6 +171,42 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
             .isEnabled = enabled
+    }
+
+    @MultiserviceTransactional
+    override fun setUserAsAdmin(username: String): Long? {
+        val caller = userRepository.findByUsername(SecurityContextHolder.getContext().authentication.name)
+        if (caller.get().name == username) {
+            throw UserNotAllowedException("You cannot modify your roles!")
+        }
+        if (!caller.get().roles.contains("ADMIN")) {
+            throw UserNotAllowedException("You are not an admin!")
+        }
+        print("inside UserDetails")
+        val user = userRepository.findByUsername(username)
+            .orElseThrow { it.polito.wa2.group17.common.exception.EntityNotFoundException("username $username") }
+        // TODO: trattare vari casi
+        /*if (value) {
+            if (user.roles.contains("ADMIN")) {
+                logger.info("The user is already an ADMIN!")
+            } else {
+                user.addRoleName("ADMIN")
+                logger.info("ADMIN added to the roles of the user")
+            }
+        }
+        else {
+            user.removeRoleName("ADMIN")
+            logger.info("ADMIN removed from the roles of the user")
+        }*/
+        user.addRoleName("ADMIN")
+        return user.getId()
+    }
+
+    @Rollback
+    private fun rollbackForSetUserAsAdmin(username: String,  userId: Long?) {
+        val user = userRepository.findByUsername(username)
+            .orElseThrow { EntityNotFoundException("username $username") }
+        user.removeRoleName("ADMIN")
     }
 
 }

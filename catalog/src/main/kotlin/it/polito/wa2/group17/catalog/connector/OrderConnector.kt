@@ -3,6 +3,7 @@ package it.polito.wa2.group17.catalog.connector
 import it.polito.wa2.group17.common.connector.Connector
 import it.polito.wa2.group17.common.dto.OrderDto
 import it.polito.wa2.group17.common.dto.OrderStatus
+import it.polito.wa2.group17.common.dto.Wallet
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,14 +23,10 @@ class OrderConnector {
     @Value("\${connectors.order.uri}")
     private lateinit var uri: String
 
-    fun getOrdersByUsername(username: String?): List<OrderDto> {
-        // TODO: qual è l'endpoint da chiamare?
-        return listOf()
-    }
-
-    fun getWalletsByUsername(username: String?): Unit? {
-        // TODO /users/{userID}
-        return null
+    fun getOrdersByUsername(userId: Long?): List<OrderDto>? {
+        return restTemplate.getForEntity(
+            "$uri/orders", Array<OrderDto>::class.java
+        ).body?.toList()?.filter { it.buyerId == userId }
     }
 
     fun addOrder(order: OrderDto): Long {

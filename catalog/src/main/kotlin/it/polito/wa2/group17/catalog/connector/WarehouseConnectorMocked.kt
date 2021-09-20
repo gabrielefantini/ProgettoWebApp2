@@ -3,6 +3,7 @@ package it.polito.wa2.group17.catalog.connector
 import it.polito.wa2.group17.common.connector.Connector
 import it.polito.wa2.group17.common.dto.PostPicture
 import it.polito.wa2.group17.common.dto.StoredProductDto
+import it.polito.wa2.group17.common.dto.Wallet
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
 
@@ -16,4 +17,6 @@ class WarehouseConnectorMocked: WarehouseConnector() {
     override fun getProductById(productId: Long): StoredProductDto? = StoredProductDto(productId, 10, 3)
 
     override fun getProductPicture(productId: Long): PostPicture? = PostPicture("URL")
+
+    override fun getWalletsByUsername(username: String?) = Wallet(0, 1, mutableSetOf(1, 2, 3), 10.0)
 }

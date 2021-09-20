@@ -10,8 +10,10 @@ import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.common.dto.OrderDto
 import it.polito.wa2.group17.common.dto.PostPicture
+import it.polito.wa2.group17.common.dto.Wallet
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
+import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
@@ -36,16 +38,13 @@ interface CatalogService {
     fun getProduct(productId: Long): StoredProductDto?
 
     @Throws(EntityNotFoundException::class)
-    fun getWallets(): Unit?
+    fun getWallets(): Wallet?
 
     @Throws(EntityNotFoundException::class)
     fun getUserInformation(): UserDetailsDto?
 
     @Throws(EntityNotFoundException::class)
     fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): Long?
-
-    @Throws(EntityNotFoundException::class)
-    fun setUserAsAdmin(username: String, value: Boolean): Long?
 
     @Throws(EntityNotFoundException::class)
     fun cancelUserOrder(orderId: Long)
@@ -74,7 +73,12 @@ private open class CatalogServiceImpl(
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
-        return orderConnector.getOrdersByUsername(username)
+        val user = userRepository.findByUsername(username)
+        if (!user.isEmpty) {
+            val userId = user.get().getId()
+            return orderConnector.getOrdersByUsername(userId)
+        }
+        return listOf()
     }
 
     override fun getOrderById(orderId: Long): OrderDto? {
@@ -82,10 +86,15 @@ private open class CatalogServiceImpl(
         return orderConnector.getOrderById(orderId)
     }
 
-    //TODO: Rollback?
+    @MultiserviceTransactional
     override fun addNewOrder(order: OrderDto): Long {
         logger.info("Adding a new order...")
         return orderConnector.addOrder(order)
+    }
+
+    @Rollback
+    private fun rollbackForAddOrder(order: OrderDto, id: Long){
+        logger.warn("Rollback of order with ID ${order.id}")
     }
 
     override fun listProducts(): List<StoredProductDto> {
@@ -98,10 +107,10 @@ private open class CatalogServiceImpl(
         return warehouseConnector.getProductById(productId)
     }
 
-    override fun getWallets(): Unit? {
+    override fun getWallets(): Wallet? {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the wallets of the user with username {}", username)
-        val wallets = orderConnector.getWalletsByUsername(username)
+        val wallets = warehouseConnector.getWalletsByUsername(username)
         return wallets
     }
 
@@ -113,6 +122,7 @@ private open class CatalogServiceImpl(
         } else null
     }
 
+    // TODO: Rollback
     override fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): Long? {
         val username = SecurityContextHolder.getContext().authentication.name
         val user = userRepository.updateUserInformation(username, new_username, email, name, surname, deliveryAddr)
@@ -121,40 +131,14 @@ private open class CatalogServiceImpl(
     }
 
     @MultiserviceTransactional
-    override fun setUserAsAdmin(username: String, value: Boolean): Long? {
-        if (SecurityContextHolder.getContext().authentication.name == username) {
-            logger.info("You cannot modify your roles!")
-            return null
-        }
-        val user = userRepository.findByUsername(username)
-            .orElseThrow { EntityNotFoundException("username $username") }
-        if (value) {
-            if (user.roles.contains("ADMIN")) {
-                logger.info("The user is already an ADMIN!")
-            } else {
-                user.addRoleName("ADMIN")
-                logger.info("ADMIN added to the roles of the user")
-            }
-        }
-        else {
-            user.removeRoleName("ADMIN")
-            logger.info("ADMIN removed from the roles of the user")
-        }
-        return user.getId()
-    }
-
-    /*@Rollback
-    private fun rollbackForSetUserAsAdmin(username: String, value: Boolean, userId: Long) {
-        //TODO
-        val user = userRepository.findByUsername(username)
-            .orElseThrow { EntityNotFoundException("username $username") }
-        user.removeRoleName("ADMIN")
-    }*/
-
-    //TODO: Rollback?
     override fun cancelUserOrder(orderId: Long) {
         logger.info("Cancelling order {}", orderId)
         return orderConnector.cancelOrder(orderId)
+    }
+
+    @Rollback
+    private fun rollbackForCancelUserOrder(orderId: Long){
+        logger.warn("Rollback of cancelling order with ID $orderId")
     }
 
     override fun getPicture(productId: Long): PostPicture? {

@@ -6,6 +6,7 @@ import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.service.CatalogService
 import it.polito.wa2.group17.common.dto.OrderDto
 import it.polito.wa2.group17.common.dto.PostPicture
+import it.polito.wa2.group17.common.dto.Wallet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -58,7 +59,7 @@ class CatalogController {
 
     @GetMapping("/mywallets")
     @OnlyEnabledUsers
-    fun getMyWallets(): ResponseEntity<Unit> {
+    fun getMyWallets(): ResponseEntity<Wallet> {
         return ResponseEntity.ok(catalogService.getWallets())
     }
 
@@ -72,12 +73,6 @@ class CatalogController {
     @OnlyEnabledUsers
     fun updateUserInfo(@RequestBody username: String, @RequestBody email: String, @RequestBody name: String, @RequestBody surname: String, @RequestBody deliveryAddr:String): ResponseEntity<Long> {
         return ResponseEntity.ok(catalogService.updateUserInformation(username, email, name, surname, deliveryAddr))
-    }
-
-    @PutMapping("/setAdmin/{userId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun setAdmin(@RequestBody username: String, @RequestBody value: Boolean): ResponseEntity<Long>{
-        return ResponseEntity.ok(catalogService.setUserAsAdmin(username, value))
     }
 
     @PutMapping("/cancelOrder/{orderId}")

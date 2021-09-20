@@ -5,8 +5,10 @@ import it.polito.wa2.group17.catalog.model.BadLoginResponse
 import it.polito.wa2.group17.catalog.model.LoginRequest
 import it.polito.wa2.group17.catalog.model.LoginResponse
 import it.polito.wa2.group17.catalog.model.UserRegistration
+import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.security.RoleName
 import it.polito.wa2.group17.catalog.security.jwt.JwtUtils
+import it.polito.wa2.group17.catalog.service.CatalogService
 import it.polito.wa2.group17.catalog.service.UserDetailsServiceExtended
 import it.polito.wa2.group17.common.utils.extractErrors
 import org.slf4j.LoggerFactory
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -41,6 +44,9 @@ class AuthController {
 
     @Autowired
     private lateinit var encoder: PasswordEncoder
+
+    @Autowired
+    private lateinit var userDetails: UserDetailsServiceExtended
 
     @PostMapping("/register")
     fun register(
@@ -105,10 +111,22 @@ class AuthController {
         }
     }
 
+    @PutMapping("/setAdmin")
+    fun setAdmin(@RequestBody username: String): ResponseEntity<Long>{
+        print("Inside setAdmin")
+        return ResponseEntity.ok(userDetails.setUserAsAdmin(username))
+    }
+
     @GetMapping("/registrationConfirm")
     fun registrationConfirm(@RequestParam("token") token: String): ResponseEntity<String> {
         logger.info("Received token confirmation request for {}", token)
         userServiceExtended.verifyToken(token)
         return ResponseEntity.ok("User account has been confirmed")
+    }
+
+    @GetMapping("/admins")
+    fun getAdmins(): List<UserDetailsDto> {
+        logger.info("Searching for the admins")
+        return userServiceExtended.getAdmins()
     }
 }
