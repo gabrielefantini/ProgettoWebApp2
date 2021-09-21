@@ -1,7 +1,6 @@
 package it.polito.wa2.group17.catalog.service
 
 import it.polito.wa2.group17.catalog.connector.MailConnectorMocked
-import it.polito.wa2.group17.catalog.connector.OrderConnector
 import it.polito.wa2.group17.catalog.domain.EmailVerificationToken
 import it.polito.wa2.group17.catalog.domain.User
 import it.polito.wa2.group17.catalog.dto.BooleanValueClass
@@ -11,15 +10,9 @@ import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.exceptions.auth.EmailAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyVerifiedException
-import it.polito.wa2.group17.catalog.exceptions.security.UserNotAllowedException
-import it.polito.wa2.group17.catalog.model.BadLoginResponse
-import it.polito.wa2.group17.catalog.model.LoginRequest
-import it.polito.wa2.group17.catalog.model.LoginResponse
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.catalog.security.RoleName
-import it.polito.wa2.group17.catalog.security.jwt.JwtUtils
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
-import it.polito.wa2.group17.common.mail.MailConnector
 import it.polito.wa2.group17.common.mail.MailRequestDto
 import it.polito.wa2.group17.common.mail.MailService
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
@@ -27,11 +20,7 @@ import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
