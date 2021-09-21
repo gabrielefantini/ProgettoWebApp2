@@ -15,13 +15,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import springfox.documentation.spi.service.contexts.SecurityContext
 
 interface SignInAndUserInfo {
     @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
-    fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto
+    fun updateUserInformation(password: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto
 
     fun signInUser(req: LoginRequest): ResponseEntity<*>
 }
@@ -37,14 +38,17 @@ class SignInAndUserInfoImpl(private val userRepository: UserRepository) : SignIn
     private lateinit var authManager: AuthenticationManager
 
     @Autowired
+    private lateinit var encoder: PasswordEncoder
+
+    @Autowired
     private lateinit var jwtUtils: JwtUtils
 
     @MultiserviceTransactional
-    override fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto {
+    override fun updateUserInformation(password: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto {
         val username = SecurityContextHolder.getContext().authentication.name
         val user = userRepository.findByUsername(username).get()
         val userDetailsDto = UserDetailsDto(user.getId(), user.username, user.password, user.email, user.isEnabled, user.getRoleNames(), user.name, user.surname, user.deliveryAddr)
-        userRepository.updateUserInformation(username, new_username, email, name, surname, deliveryAddr)
+        userRepository.updateUserInformation(username, encoder.encode(password), email, name, surname, deliveryAddr)
         return userDetailsDto
     }
 
@@ -78,8 +82,8 @@ class SignInAndUserInfoImpl(private val userRepository: UserRepository) : SignIn
     }
 
     @Rollback
-    private fun rollbackForUpdateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String, userDet: UserDetailsDto) {
+    private fun rollbackForUpdateUserInformation(password: String, email: String, name: String, surname: String, deliveryAddr:String, userDet: UserDetailsDto) {
         val user = userRepository.findById(userDet.id!!).get()
-        userRepository.updateUserInformation(user.username, userDet.username, userDet.email, userDet.name, userDet.surname, userDet.deliveryAddr)
+        userRepository.updateUserInformation(user.username, user.password, userDet.email, userDet.name, userDet.surname, userDet.deliveryAddr)
     }
 }

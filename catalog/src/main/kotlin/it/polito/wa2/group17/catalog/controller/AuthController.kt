@@ -109,7 +109,7 @@ class AuthController {
 
     @PostMapping("/updateUserInfo")
     @OnlyEnabledUsers
-    fun updateUserInfo(@RequestParam username: String, @RequestParam email: String, @RequestParam name: String, @RequestParam surname: String, @RequestParam deliveryAddr:String): ResponseEntity<Long> {
-        return ResponseEntity.ok(signInAndUserInfo.updateUserInformation(username, email, name, surname, deliveryAddr).id)
+    fun updateUserInfo(@RequestParam username: String, @RequestParam password: String, @RequestParam email: String, @RequestParam name: String, @RequestParam surname: String, @RequestParam deliveryAddr:String): ResponseEntity<*> {
+        return ResponseEntity.ok(signInAndUserInfo.updateUserInformation(password, email, name, surname, deliveryAddr))
     }
 }

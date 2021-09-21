@@ -83,6 +83,4 @@ private open class NotificationServiceImpl : NotificationService {
         tokenRepo.delete(storedToken.get())
         return username
     }
-
-
 }
