@@ -43,7 +43,7 @@ interface UserDetailsServiceExtended : UserDetailsService {
     @Throws(EntityNotFoundException::class)
     fun setUserEnabled(username: String, enabled: Boolean): BooleanValueClass
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun enableUser(username: String, enabled: Boolean)
 
     @Throws(EntityNotFoundException::class)
@@ -174,7 +174,6 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         user.roles = putSetAdmin.prev_value
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     override fun enableUser(username: String, enabled: Boolean) {
         logger.info("enableUser started")
         userRepository.findByUsername(username)
@@ -218,12 +217,12 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
             if (user.roles.contains("ADMIN")) {
                 logger.info("The user is already an ADMIN!")
             } else {
-                user.addRoleName("ADMIN")
+                user.addRoleName(RoleName.ADMIN.name)
                 logger.info("ADMIN added to the roles of the user")
             }
         }
         else {
-            user.removeRoleName("ADMIN")
+            user.removeRoleName(RoleName.ADMIN.name)
             logger.info("ADMIN removed from the roles of the user")
         }
         return putSetAdmin

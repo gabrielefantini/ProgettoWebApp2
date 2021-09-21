@@ -17,8 +17,8 @@ interface UserRepository : CrudRepository<User, Long> {
 
     @Modifying
     @Transactional
-    @Query ("UPDATE User set email = :email, password = :password, name = :name, surname = :surname, deliveryAddr = :deliveryAddr where username = :username")
-    fun updateUserInformation(username: String, password: String, email: String, name: String, surname: String, deliveryAddr:String)
+    @Query ("UPDATE User set password = :password, name = :name, surname = :surname, deliveryAddr = :deliveryAddr where username = :username")
+    fun updateUserInformation(username: String, password: String, name: String, surname: String, deliveryAddr:String)
 
     @Query ("SELECT u from User u where roles IN :possibilities")
     fun findAdmin(possibilities: List<String>): List<User>

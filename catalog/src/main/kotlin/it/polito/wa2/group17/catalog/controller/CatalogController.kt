@@ -9,6 +9,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import java.net.URI
 import javax.validation.Valid
 
 @RestController
@@ -74,14 +75,28 @@ class CatalogController {
     }
 
     @PutMapping("/{productId}/picture")
-    @OnlyEnabledUsers
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     fun addPicture(@PathVariable productId: Long, @RequestBody @Valid picture: PostPicture): ResponseEntity<ProductDto?> {
         return ResponseEntity.ok(catalogService.addProductPicture(productId, picture))
     }
 
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/patchproduct/{productId}")
     fun patchProductById(@PathVariable productId: Long, @RequestBody @Valid product: PatchProductRequest) =
         ResponseEntity.ok(catalogService.patchProductById(productId,product)
     )
+
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/{warehouseId}/add/product")
+    fun addProductToWarehouse(@PathVariable warehouseId: Long, @RequestBody @Valid addProductRequest: AddProductRequest
+    ): ResponseEntity<StoredProductDto?> {
+        return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, addProductRequest))
+    }
+
+    @GetMapping("/status/{orderId}")
+    @OnlyEnabledUsers
+    fun getOrderStatus(@PathVariable orderId: Long): ResponseEntity<OrderStatus?>{
+        return ResponseEntity.ok(catalogService.getOrderStatus(orderId))
+    }
 
 }

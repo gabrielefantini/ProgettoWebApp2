@@ -64,5 +64,11 @@ class OrderConnector {
 
     }
 
+    fun getStatus(orderId: Long): OrderDto? {
+        return restTemplate.getForEntity(
+            "$uri/$orderId", OrderDto::class.java
+        ).body
+    }
+
 
 }

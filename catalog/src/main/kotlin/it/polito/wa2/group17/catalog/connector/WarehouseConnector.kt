@@ -68,4 +68,18 @@ class WarehouseConnector {
 
         return responseEntity
     }
+
+    fun addProduct(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto? {
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+
+        val requestEntity: HttpEntity<AddProductRequest> = HttpEntity(addProductRequest, headers)
+
+        val responseEntity: ResponseEntity<StoredProductDto> =
+            restTemplate.postForEntity("$uri/$warehouseId/products", requestEntity, StoredProductDto::class.java)
+
+        System.out.println("Status Code: " + responseEntity.statusCode)
+
+        return responseEntity.body
+    }
 }

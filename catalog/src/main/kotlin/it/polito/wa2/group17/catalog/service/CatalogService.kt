@@ -14,6 +14,7 @@ import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -49,11 +50,18 @@ interface CatalogService {
     @Throws(EntityNotFoundException::class)
     fun getPicture(productId: Long): PostPicture?
 
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @Throws(EntityNotFoundException::class)
     fun addProductPicture(productId: Long, picture: PostPicture):ProductDto?
 
     @Throws(EntityNotFoundException::class)
     fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto
+
+    @Throws(EntityNotFoundException::class)
+    fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto?
+
+    @Throws(EntityNotFoundException::class)
+    fun getOrderStatus(orderId: Long): OrderStatus?
 
 
 }
@@ -145,8 +153,28 @@ private open class CatalogServiceImpl(
         return warehouseConnector.setProductPicture(productId, picture)
     }
 
+    @MultiserviceTransactional
     override fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto {
         return warehouseConnector.patchProductById(productId, product)
+    }
+
+    @MultiserviceTransactional
+    override fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto? {
+        return warehouseConnector.addProduct(warehouseId, addProductRequest)
+    }
+
+    override fun getOrderStatus(orderId: Long): OrderStatus? {
+        return orderConnector.getStatus(orderId)?.status
+    }
+
+    @Rollback
+    private fun rollbackForAddProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest, Dto: StoredProductDto?) {
+        logger.info("Rollback for addProductToWarehouse")
+    }
+
+    @Rollback
+    private fun rollbackForPatchProductById(productId: Long, product: PatchProductRequest, Dto: ProductDto) {
+        logger.info("Rollback for patchProductById")
     }
 
     @Rollback

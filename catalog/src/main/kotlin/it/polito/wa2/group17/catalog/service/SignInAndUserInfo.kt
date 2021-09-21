@@ -22,7 +22,7 @@ import springfox.documentation.spi.service.contexts.SecurityContext
 
 interface SignInAndUserInfo {
     @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
-    fun updateUserInformation(password: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto
+    fun updateUserInformation(password: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto
 
     fun signInUser(req: LoginRequest): ResponseEntity<*>
 }
@@ -44,11 +44,11 @@ class SignInAndUserInfoImpl(private val userRepository: UserRepository) : SignIn
     private lateinit var jwtUtils: JwtUtils
 
     @MultiserviceTransactional
-    override fun updateUserInformation(password: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto {
+    override fun updateUserInformation(password: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto {
         val username = SecurityContextHolder.getContext().authentication.name
         val user = userRepository.findByUsername(username).get()
         val userDetailsDto = UserDetailsDto(user.getId(), user.username, user.password, user.email, user.isEnabled, user.getRoleNames(), user.name, user.surname, user.deliveryAddr)
-        userRepository.updateUserInformation(username, encoder.encode(password), email, name, surname, deliveryAddr)
+        userRepository.updateUserInformation(username, encoder.encode(password), name, surname, deliveryAddr)
         return userDetailsDto
     }
 
@@ -82,8 +82,8 @@ class SignInAndUserInfoImpl(private val userRepository: UserRepository) : SignIn
     }
 
     @Rollback
-    private fun rollbackForUpdateUserInformation(password: String, email: String, name: String, surname: String, deliveryAddr:String, userDet: UserDetailsDto) {
+    private fun rollbackForUpdateUserInformation(password: String, name: String, surname: String, deliveryAddr:String, userDet: UserDetailsDto) {
         val user = userRepository.findById(userDet.id!!).get()
-        userRepository.updateUserInformation(user.username, user.password, userDet.email, userDet.name, userDet.surname, userDet.deliveryAddr)
+        userRepository.updateUserInformation(user.username, user.password, userDet.name, userDet.surname, userDet.deliveryAddr)
     }
 }

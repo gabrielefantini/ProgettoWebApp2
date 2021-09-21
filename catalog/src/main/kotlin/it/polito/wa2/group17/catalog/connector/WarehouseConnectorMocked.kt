@@ -28,4 +28,6 @@ class WarehouseConnectorMocked: WarehouseConnector() {
     override fun setProductPicture(productId: Long, picture: PostPicture) = ProductDto(0, "prod", "desc", "URL", "cat", 10.0, 5.0, Date.from(Instant.now()))
 
     override fun patchProductById(productId: Long, product: PatchProductRequest) = ProductDto(0, "prod", "desc", "URL", "cat", 10.0, 5.0, Date.from(Instant.now()))
+
+    override fun addProduct(warehouseId: Long, addProductRequest: AddProductRequest) = StoredProductDto(1, 10, 5)
 }
