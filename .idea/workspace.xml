@@ -4,26 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="Funzioni product testate">
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/MailConnectorMocked.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/Wallet.kt" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="Test finali + getAdmins + fix setUserAsAdmin">
+      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/BooleanValueClass.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/PutSetAdmin.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnectorMocked.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/AuthController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/AuthController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/EmailVerificationToken.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/EmailVerificationToken.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/User.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/User.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/UserRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/UserRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/UserDetailsServiceExtended.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/UserDetailsServiceExtended.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/resources/application-local.yml" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/resources/application-local.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +49,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Kotlin Data Class" />
         <option value="Kotlin Class" />
       </list>
     </option>
@@ -145,13 +142,15 @@
     </option>
   </component>
   <component name="RunManager" selected="Spring Boot.CatalogApplication">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -254,7 +253,8 @@
       <workItem from="1631970081353" duration="1288000" />
       <workItem from="1631978810394" duration="2981000" />
       <workItem from="1632076889786" duration="576000" />
-      <workItem from="1632135888957" duration="14531000" />
+      <workItem from="1632135888957" duration="14940000" />
+      <workItem from="1632216073978" duration="7616000" />
     </task>
     <task id="LOCAL-00001" summary="Primo commit">
       <created>1627133893238</created>
@@ -375,7 +375,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632139664051</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Test finali + getAdmins + fix setUserAsAdmin">
+      <created>1632162948280</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1632162948280</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -421,7 +428,8 @@
     <MESSAGE value="UserDetailsServiceExtended updated" />
     <MESSAGE value="AuthController updated" />
     <MESSAGE value="Funzioni product testate" />
-    <option name="LAST_COMMIT_MESSAGE" value="Funzioni product testate" />
+    <MESSAGE value="Test finali + getAdmins + fix setUserAsAdmin" />
+    <option name="LAST_COMMIT_MESSAGE" value="Test finali + getAdmins + fix setUserAsAdmin" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

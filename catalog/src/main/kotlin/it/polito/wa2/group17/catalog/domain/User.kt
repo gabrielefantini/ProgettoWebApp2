@@ -36,7 +36,6 @@ class User(
 
     fun getRoleNames(): Set<RoleName> = StringToRoleNamesConverter().invoke(roles)
 
-
     fun addRoleName(role: String) {
         if (!roles.contains(role)) roles += "$role "
     }

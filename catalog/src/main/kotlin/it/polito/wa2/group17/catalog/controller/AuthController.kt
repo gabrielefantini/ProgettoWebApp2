@@ -112,9 +112,9 @@ class AuthController {
     }
 
     @PutMapping("/setAdmin")
-    fun setAdmin(@RequestBody username: String): ResponseEntity<Long>{
+    fun setAdmin(@RequestParam username: String, @RequestParam value: Boolean): ResponseEntity<Long>{
         print("Inside setAdmin")
-        return ResponseEntity.ok(userDetails.setUserAsAdmin(username))
+        return ResponseEntity.ok(userDetails.setUserAsAdmin(username, value)?.id)
     }
 
     @GetMapping("/registrationConfirm")

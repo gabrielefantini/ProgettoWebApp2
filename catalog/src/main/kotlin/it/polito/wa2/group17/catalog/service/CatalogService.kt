@@ -44,9 +44,6 @@ interface CatalogService {
     fun getUserInformation(): UserDetailsDto?
 
     @Throws(EntityNotFoundException::class)
-    fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): Long?
-
-    @Throws(EntityNotFoundException::class)
     fun cancelUserOrder(orderId: Long)
 
     @Throws(EntityNotFoundException::class)
@@ -120,14 +117,6 @@ private open class CatalogServiceImpl(
         return if(!userInfo.isEmpty) {
             fromEntity(userInfo.get())
         } else null
-    }
-
-    // TODO: Rollback
-    override fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): Long? {
-        val username = SecurityContextHolder.getContext().authentication.name
-        val user = userRepository.updateUserInformation(username, new_username, email, name, surname, deliveryAddr)
-        return if (!user.isEmpty) user.get().getId()
-        else null
     }
 
     @MultiserviceTransactional

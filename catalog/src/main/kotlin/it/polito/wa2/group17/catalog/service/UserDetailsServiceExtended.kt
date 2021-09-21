@@ -4,7 +4,9 @@ import it.polito.wa2.group17.catalog.connector.MailConnectorMocked
 import it.polito.wa2.group17.catalog.connector.OrderConnector
 import it.polito.wa2.group17.catalog.domain.EmailVerificationToken
 import it.polito.wa2.group17.catalog.domain.User
+import it.polito.wa2.group17.catalog.dto.BooleanValueClass
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
+import it.polito.wa2.group17.catalog.dto.PutSetAdmin
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.exceptions.auth.EmailAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyPresentException
@@ -39,10 +41,10 @@ interface UserDetailsServiceExtended : UserDetailsService {
     fun createTokenForUser(username: String, email: String? = null)
 
     @Throws(EntityNotFoundException::class)
-    fun addRoleToUser(username: String, role: String)
+    fun addRoleToUser(username: String, role: String): PutSetAdmin
 
     @Throws(EntityNotFoundException::class)
-    fun setUserEnabled(username: String, enabled: Boolean)
+    fun setUserEnabled(username: String, enabled: Boolean): BooleanValueClass
 
     @PreAuthorize("hasRole('ADMIN')")
     fun enableUser(username: String, enabled: Boolean)
@@ -56,9 +58,12 @@ interface UserDetailsServiceExtended : UserDetailsService {
 
     //@PreAuthorize("hasRole('ADMIN')")
     @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
-    fun setUserAsAdmin(username: String/*, value: Boolean*/): Long?
+    fun setUserAsAdmin(username: String, value: Boolean): PutSetAdmin?
 
     fun getAdmins(): List<UserDetailsDto>
+
+    @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
+    fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto
 }
 
 @Service
@@ -93,7 +98,7 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
             token.getId().toString()
         }"
 
-    // TODO: Rollback
+    @MultiserviceTransactional
     override fun createUser(
         username: String, password: String, email: String,
         name: String, surname: String, address: String,
@@ -108,6 +113,11 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         val user = userRepository.save(User(username, password, email, name, surname, address, false))
         logger.info("User {} created", username)
         createTokenForUser(username, email)
+    }
+
+    @Rollback
+    private fun rollbackForCreateUser(username: String, password: String, email: String, name: String, surname: String, address: String) {
+        userRepository.deleteUserByEmail(email)
     }
 
     override fun createTokenForUser(username: String, email: String?) {
@@ -148,13 +158,21 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         return userRepository.findAdmin(listOf("ADMIN", "CUSTOMER ADMIN", "ADMIN CUSTOMER")).map { it -> UserDetailsDto(it.getId(), it.username, it.password, it.email, it.isEnabled, it.getRoleNames(), it.name, it.surname, it.deliveryAddr) }
     }
 
-
-    override fun addRoleToUser(username: String, role: String) {
+    @MultiserviceTransactional
+    override fun addRoleToUser(username: String, role: String): PutSetAdmin {
         logger.info("Adding role {} to {}", role, username)
-        userRepository.findByUsername(username)
+        val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
-            .addRoleName(role)
+        val putSetAdmin = PutSetAdmin(user.getId()!!, user.roles)
+        user.addRoleName(role)
+        return putSetAdmin
+    }
 
+    @Rollback
+    private fun rollbackForAddRoleToUser(username: String, role: String, putSetAdmin: PutSetAdmin) {
+        val user = userRepository.findByUsername(username)
+            .orElseThrow { EntityNotFoundException("username $username") }
+        user.roles = putSetAdmin.prev_value
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -165,28 +183,38 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
             .isEnabled = enabled
     }
 
-
-    override fun setUserEnabled(username: String, enabled: Boolean) {
+    @MultiserviceTransactional
+    override fun setUserEnabled(username: String, enabled: Boolean): BooleanValueClass {
         logger.info("{} user {}", if (enabled) "Enabling" else "Disabling", username)
-        userRepository.findByUsername(username)
+        val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
-            .isEnabled = enabled
+        val booleanValue = BooleanValueClass(user.isEnabled)
+        user.isEnabled = enabled
+        return booleanValue
+    }
+
+    @Rollback
+    private fun rollbackForSetUserEnabled(username: String, enabled: Boolean, booleanValue: BooleanValueClass) {
+        val user = userRepository.findByUsername(username)
+            .orElseThrow { EntityNotFoundException("username $username") }
+        user.isEnabled = booleanValue.prev_value
     }
 
     @MultiserviceTransactional
-    override fun setUserAsAdmin(username: String): Long? {
+    override fun setUserAsAdmin(username: String, value: Boolean): PutSetAdmin {
         val caller = userRepository.findByUsername(SecurityContextHolder.getContext().authentication.name)
         if (caller.get().name == username) {
-            throw UserNotAllowedException("You cannot modify your roles!")
+            throw GenericBadRequestException("You cannot modify your roles!")
         }
         if (!caller.get().roles.contains("ADMIN")) {
-            throw UserNotAllowedException("You are not an admin!")
+            throw GenericBadRequestException("You are not an admin!")
         }
         print("inside UserDetails")
         val user = userRepository.findByUsername(username)
             .orElseThrow { it.polito.wa2.group17.common.exception.EntityNotFoundException("username $username") }
-        // TODO: trattare vari casi
-        /*if (value) {
+        val putSetAdmin = PutSetAdmin(user.getId()!!, user.roles)
+
+        if (value) {
             if (user.roles.contains("ADMIN")) {
                 logger.info("The user is already an ADMIN!")
             } else {
@@ -197,16 +225,30 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         else {
             user.removeRoleName("ADMIN")
             logger.info("ADMIN removed from the roles of the user")
-        }*/
-        user.addRoleName("ADMIN")
-        return user.getId()
+        }
+        return putSetAdmin
     }
 
     @Rollback
-    private fun rollbackForSetUserAsAdmin(username: String,  userId: Long?) {
+    private fun rollbackForSetUserAsAdmin(username: String, value: Boolean,  putSetAdmin: PutSetAdmin) {
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
-        user.removeRoleName("ADMIN")
+        user.roles = putSetAdmin.prev_value
     }
 
+    @MultiserviceTransactional
+    override fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto {
+        val username = SecurityContextHolder.getContext().authentication.name
+        val user = userRepository.findByUsername(username).get()
+        val userDetailsDto = UserDetailsDto(user.getId(), user.username, user.password, user.email, user.isEnabled, user.getRoleNames(), user.name, user.surname, user.deliveryAddr)
+        userRepository.updateUserInformation(username, new_username, email, name, surname, deliveryAddr)
+
+        return userDetailsDto
+    }
+
+    @Rollback
+    private fun rollbackForUpdateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String, userDet: UserDetailsDto) {
+        val user = userRepository.findById(userDet.id!!).get()
+        userRepository.updateUserInformation(user.username, userDet.username, userDet.email, userDet.name, userDet.surname, userDet.deliveryAddr)
+    }
 }
