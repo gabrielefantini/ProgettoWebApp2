@@ -1,17 +1,15 @@
 package it.polito.wa2.group17.catalog.controller
 
-import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.service.CatalogService
-import it.polito.wa2.group17.common.dto.OrderDto
-import it.polito.wa2.group17.common.dto.PostPicture
-import it.polito.wa2.group17.common.dto.Wallet
+import it.polito.wa2.group17.common.dto.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @RestController
 @RequestMapping (
@@ -74,4 +72,16 @@ class CatalogController {
     fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Unit> {
         return ResponseEntity.ok(catalogService.cancelUserOrder(orderId))
     }
+
+    @PutMapping("/{productId}/picture")
+    @OnlyEnabledUsers
+    fun addPicture(@PathVariable productId: Long, @RequestBody @Valid picture: PostPicture): ResponseEntity<ProductDto?> {
+        return ResponseEntity.ok(catalogService.addProductPicture(productId, picture))
+    }
+
+    @PatchMapping("/patchproduct/{productId}")
+    fun patchProductById(@PathVariable productId: Long, @RequestBody @Valid product: PatchProductRequest) =
+        ResponseEntity.ok(catalogService.patchProductById(productId,product)
+    )
+
 }

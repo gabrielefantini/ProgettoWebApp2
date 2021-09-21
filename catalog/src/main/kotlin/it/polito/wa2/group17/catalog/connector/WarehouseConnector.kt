@@ -1,11 +1,13 @@
 package it.polito.wa2.group17.catalog.connector
 
-import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.common.connector.Connector
-import it.polito.wa2.group17.common.dto.PostPicture
-import it.polito.wa2.group17.common.dto.Wallet
+import it.polito.wa2.group17.common.dto.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 
 @Connector
@@ -39,5 +41,31 @@ class WarehouseConnector {
         return restTemplate.getForEntity(
             "$uri/users/$username", Wallet::class.java
         ).body
+    }
+
+    fun setProductPicture(productId: Long, picture: PostPicture):ProductDto? {
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+
+        val requestEntity: HttpEntity<PostPicture> = HttpEntity(picture, headers)
+
+        val responseEntity: ResponseEntity<ProductDto> =
+            restTemplate.postForEntity("$uri/$productId/picture", requestEntity, ProductDto::class.java)
+
+        System.out.println("Status Code: " + responseEntity.statusCode)
+
+        return responseEntity.body
+    }
+
+    fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto? {
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+
+        val requestEntity: HttpEntity<PatchProductRequest> = HttpEntity(product, headers)
+
+        val responseEntity: ProductDto? =
+            restTemplate.patchForObject("$uri/$productId/picture", requestEntity, ProductDto::class.java)
+
+        return responseEntity
     }
 }

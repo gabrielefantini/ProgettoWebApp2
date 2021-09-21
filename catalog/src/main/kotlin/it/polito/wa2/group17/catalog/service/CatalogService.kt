@@ -5,20 +5,20 @@ import it.polito.wa2.group17.catalog.connector.OrderConnectorMocked
 import it.polito.wa2.group17.catalog.connector.WarehouseConnector
 import it.polito.wa2.group17.catalog.connector.WarehouseConnectorMocked
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
-import it.polito.wa2.group17.common.dto.StoredProductDto
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
-import it.polito.wa2.group17.common.dto.OrderDto
-import it.polito.wa2.group17.common.dto.PostPicture
-import it.polito.wa2.group17.common.dto.Wallet
+import it.polito.wa2.group17.common.dto.*
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.bind.annotation.RequestBody
+import javax.validation.Valid
 
 interface CatalogService {
 
@@ -48,6 +48,12 @@ interface CatalogService {
 
     @Throws(EntityNotFoundException::class)
     fun getPicture(productId: Long): PostPicture?
+
+    @Throws(EntityNotFoundException::class)
+    fun addProductPicture(productId: Long, picture: PostPicture):ProductDto?
+
+    @Throws(EntityNotFoundException::class)
+    fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto
 
 
 }
@@ -132,6 +138,20 @@ private open class CatalogServiceImpl(
 
     override fun getPicture(productId: Long): PostPicture? {
         return warehouseConnector.getProductPicture(productId)
+    }
+
+    @MultiserviceTransactional
+    override fun addProductPicture(productId: Long, picture: PostPicture): ProductDto? {
+        return warehouseConnector.setProductPicture(productId, picture)
+    }
+
+    override fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto {
+        return warehouseConnector.patchProductById(productId, product)
+    }
+
+    @Rollback
+    private fun rollbackForAddProductPicture(productId: Long, picture: PostPicture, Dto: ProductDto?) {
+        logger.info("Rollback for addProductPicture")
     }
 
 

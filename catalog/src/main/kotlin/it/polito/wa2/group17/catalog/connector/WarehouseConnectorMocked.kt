@@ -1,11 +1,16 @@
 package it.polito.wa2.group17.catalog.connector
 
 import it.polito.wa2.group17.common.connector.Connector
-import it.polito.wa2.group17.common.dto.PostPicture
-import it.polito.wa2.group17.common.dto.StoredProductDto
-import it.polito.wa2.group17.common.dto.Wallet
+import it.polito.wa2.group17.common.dto.*
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.web.client.RestTemplate
+import java.time.Instant
+import java.util.*
 
 @Connector
 @Primary
@@ -19,4 +24,8 @@ class WarehouseConnectorMocked: WarehouseConnector() {
     override fun getProductPicture(productId: Long): PostPicture? = PostPicture("URL")
 
     override fun getWalletsByUsername(username: String?) = Wallet(0, 1, mutableSetOf(1, 2, 3), 10.0)
+
+    override fun setProductPicture(productId: Long, picture: PostPicture) = ProductDto(0, "prod", "desc", "URL", "cat", 10.0, 5.0, Date.from(Instant.now()))
+
+    override fun patchProductById(productId: Long, product: PatchProductRequest) = ProductDto(0, "prod", "desc", "URL", "cat", 10.0, 5.0, Date.from(Instant.now()))
 }
