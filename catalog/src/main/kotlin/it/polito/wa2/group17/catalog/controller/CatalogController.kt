@@ -69,12 +69,6 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.getUserInformation())
     }
 
-    @PostMapping("/updateUserInfo")
-    @OnlyEnabledUsers
-    fun updateUserInfo(@RequestParam username: String, @RequestParam email: String, @RequestParam name: String, @RequestParam surname: String, @RequestParam deliveryAddr:String): ResponseEntity<Long> {
-        return ResponseEntity.ok(catalogService.updateUserInformation(username, email, name, surname, deliveryAddr).id)
-    }
-
     @PutMapping("/cancelOrder/{orderId}")
     @OnlyEnabledUsers
     fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Unit> {

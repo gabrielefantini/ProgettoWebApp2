@@ -16,7 +16,6 @@ interface UserRepository : CrudRepository<User, Long> {
     fun findByEmail(email: String): Optional<User>
 
     @Modifying
-    @Transactional
     @Query ("UPDATE User set email = :email, name = :name, surname = :surname, deliveryAddr = :deliveryAddr, username = :new_username where username = :username")
     fun updateUserInformation(username: String, new_username: String, email: String, name: String, surname: String, deliveryAddr:String)
 
@@ -24,4 +23,5 @@ interface UserRepository : CrudRepository<User, Long> {
     fun findAdmin(possibilities: List<String>): List<User>
 
     fun deleteUserByEmail(email: String)
+
 }

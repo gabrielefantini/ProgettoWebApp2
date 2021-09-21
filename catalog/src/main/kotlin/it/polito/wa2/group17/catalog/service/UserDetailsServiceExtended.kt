@@ -12,8 +12,12 @@ import it.polito.wa2.group17.catalog.exceptions.auth.EmailAlreadyPresentExceptio
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyPresentException
 import it.polito.wa2.group17.catalog.exceptions.auth.UserAlreadyVerifiedException
 import it.polito.wa2.group17.catalog.exceptions.security.UserNotAllowedException
+import it.polito.wa2.group17.catalog.model.BadLoginResponse
+import it.polito.wa2.group17.catalog.model.LoginRequest
+import it.polito.wa2.group17.catalog.model.LoginResponse
 import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.catalog.security.RoleName
+import it.polito.wa2.group17.catalog.security.jwt.JwtUtils
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import it.polito.wa2.group17.common.mail.MailConnector
 import it.polito.wa2.group17.common.mail.MailRequestDto
@@ -23,7 +27,11 @@ import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
@@ -62,8 +70,6 @@ interface UserDetailsServiceExtended : UserDetailsService {
 
     fun getAdmins(): List<UserDetailsDto>
 
-    @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
-    fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto
 }
 
 @Service
@@ -113,10 +119,13 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         val user = userRepository.save(User(username, password, email, name, surname, address, false))
         logger.info("User {} created", username)
         createTokenForUser(username, email)
+        addRoleToUser(user.username, RoleName.CUSTOMER.name)
+        setUserEnabled(user.username, false)
     }
 
     @Rollback
     private fun rollbackForCreateUser(username: String, password: String, email: String, name: String, surname: String, address: String) {
+        print("Rollback create user\n")
         userRepository.deleteUserByEmail(email)
     }
 
@@ -170,6 +179,7 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
 
     @Rollback
     private fun rollbackForAddRoleToUser(username: String, role: String, putSetAdmin: PutSetAdmin) {
+        print("Rollback add role\n")
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
         user.roles = putSetAdmin.prev_value
@@ -195,6 +205,7 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
 
     @Rollback
     private fun rollbackForSetUserEnabled(username: String, enabled: Boolean, booleanValue: BooleanValueClass) {
+        print ("Rollback set enabled\n")
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
         user.isEnabled = booleanValue.prev_value
@@ -234,21 +245,5 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         val user = userRepository.findByUsername(username)
             .orElseThrow { EntityNotFoundException("username $username") }
         user.roles = putSetAdmin.prev_value
-    }
-
-    @MultiserviceTransactional
-    override fun updateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto {
-        val username = SecurityContextHolder.getContext().authentication.name
-        val user = userRepository.findByUsername(username).get()
-        val userDetailsDto = UserDetailsDto(user.getId(), user.username, user.password, user.email, user.isEnabled, user.getRoleNames(), user.name, user.surname, user.deliveryAddr)
-        userRepository.updateUserInformation(username, new_username, email, name, surname, deliveryAddr)
-
-        return userDetailsDto
-    }
-
-    @Rollback
-    private fun rollbackForUpdateUserInformation(new_username: String, email: String, name: String, surname: String, deliveryAddr:String, userDet: UserDetailsDto) {
-        val user = userRepository.findById(userDet.id!!).get()
-        userRepository.updateUserInformation(user.username, userDet.username, userDet.email, userDet.name, userDet.surname, userDet.deliveryAddr)
     }
 }

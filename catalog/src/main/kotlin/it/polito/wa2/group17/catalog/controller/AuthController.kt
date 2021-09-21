@@ -9,6 +9,7 @@ import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.security.RoleName
 import it.polito.wa2.group17.catalog.security.jwt.JwtUtils
 import it.polito.wa2.group17.catalog.service.CatalogService
+import it.polito.wa2.group17.catalog.service.SignInAndUserInfo
 import it.polito.wa2.group17.catalog.service.UserDetailsServiceExtended
 import it.polito.wa2.group17.common.utils.extractErrors
 import org.slf4j.LoggerFactory
@@ -48,6 +49,9 @@ class AuthController {
     @Autowired
     private lateinit var userDetails: UserDetailsServiceExtended
 
+    @Autowired
+    private lateinit var signInAndUserInfo: SignInAndUserInfo
+
     @PostMapping("/register")
     fun register(
         @Valid @RequestBody userRegistration: UserRegistration,
@@ -64,8 +68,6 @@ class AuthController {
             userRegistration.surname,
             userRegistration.address
         )
-        userServiceExtended.addRoleToUser(userRegistration.username, RoleName.CUSTOMER.name)
-        userServiceExtended.setUserEnabled(userRegistration.username, false)
         return ResponseEntity.ok().build<Any>()
     }
 
@@ -83,32 +85,7 @@ class AuthController {
         @Valid @RequestBody req: LoginRequest
     ): ResponseEntity<*> {
         logger.info("User {} is trying to log in", req.username)
-        return try {
-            val authentication = authManager.authenticate(
-                UsernamePasswordAuthenticationToken(req.username, req.password)
-            )
-            logger.info("User {} logged in", req.username)
-            SecurityContextHolder.getContext().authentication = authentication
-
-            val userDetails = authentication.principal as UserDetailsDto
-
-            val jwt = jwtUtils.generateJwtToken(authentication)
-            val roles = userDetails.authorities.map { it.authority }.toList()
-            ResponseEntity.ok(
-                LoginResponse(
-                    jwt,
-                    userDetails.id!!,
-                    userDetails.username,
-                    userDetails.email,
-                    roles
-                )
-            )
-        } catch (e: Exception) {
-            logger.error("Log in failed.")
-            logger.error(e.toString())
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(BadLoginResponse("Log in failed. Please try again."))
-        }
+        return signInAndUserInfo.signInUser(req)
     }
 
     @PutMapping("/setAdmin")
@@ -128,5 +105,11 @@ class AuthController {
     fun getAdmins(): List<UserDetailsDto> {
         logger.info("Searching for the admins")
         return userServiceExtended.getAdmins()
+    }
+
+    @PostMapping("/updateUserInfo")
+    @OnlyEnabledUsers
+    fun updateUserInfo(@RequestParam username: String, @RequestParam email: String, @RequestParam name: String, @RequestParam surname: String, @RequestParam deliveryAddr:String): ResponseEntity<Long> {
+        return ResponseEntity.ok(signInAndUserInfo.updateUserInformation(username, email, name, surname, deliveryAddr).id)
     }
 }
