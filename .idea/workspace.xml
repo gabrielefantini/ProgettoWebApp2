@@ -4,21 +4,74 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="Patch product and set picture">
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/AddProductRequest.kt" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="Ultimi endpoint">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime__2_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime__3_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules/user-login.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/LoginConnector.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/LoginConnectorMocked.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/gradlew" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/gradlew.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/LoginApplication.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/connector/MailConnectorMocked.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/constraints/FieldMatchConstraint.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/domain/User.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/dto/BooleanValueClass.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/dto/ConvertibleDto.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/dto/UserDetailsDto.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/exceptions/InvalidTokenException.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/exceptions/security/UserNotAllowedException.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/exceptions/security/UserNotAuthenticatedException.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/repository/UserRepository.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/OnlyEnabledUsersAspect.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/RoleNameGrantedAuthority.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/StringToRoleNamesConverter.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/resources/application-local.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/resources/application.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/test/kotlin/it/polito/wa2/group17/login/LoginApplicationTests.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnectorMocked.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/AuthController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/controller/AuthController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/EmailVerificationToken.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/domain/EmailVerificationToken.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/PutSetAdmin.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/dto/PutSetAdmin.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/UserDetailsDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/UserDetailsDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/EmailAlreadyPresentException.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/exceptions/auth/EmailAlreadyPresentException.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyPresentException.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/exceptions/auth/UserAlreadyPresentException.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyVerifiedException.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/exceptions/auth/UserAlreadyVerifiedException.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginRequest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/model/LoginRequest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginResponse.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/model/LoginResponse.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/UserRegistration.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/model/UserRegistration.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/EmailVerificationTokenRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/repository/EmailVerificationTokenRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/UserRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/UserRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/AuthEntryPoint.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/AuthEntryPoint.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/OnlyEnabledUsersAspect.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/OnlyEnabledUsersAspect.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/WebSecurityConfig.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/WebSecurityConfig.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtAuthenticationTokenFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/jwt/JwtAuthenticationTokenFilter.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/jwt/JwtUtils.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/UserDetailsServiceExtended.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/UserDetailsServiceExtended.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/NotificationService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/service/NotificationService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/SignInAndUserInfo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/service/SignInAndUserInfo.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/UserDetailsServiceExtended.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/service/UserDetailsServiceExtended.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +108,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
@@ -100,21 +154,28 @@
     <property name="RequestMappingsPanelWidth1" value="75" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_directory_selection" value="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="project.structure.last.edited" value="SDKs" />
-    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Dockerfile" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Mattia\IdeaProjects\FinalProjectWa2\catalog\src\main\kotlin\it\polito\wa2\group17\catalog\service" />
+      <recent name="C:\Users\Mattia\IdeaProjects\FinalProjectWa2\login" />
+    </key>
     <key name="CreateKotlinClassDialog.RecentsKey">
       <recent name="it.polito.wa2.group17.catalog.exceptions.security" />
       <recent name="it.polito.wa2.group17.catalog.service" />
@@ -140,7 +201,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.CatalogApplication">
+  <component name="RunManager" selected="Spring Boot.CatalogApplicationKt">
     <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
@@ -148,6 +209,15 @@
         </value>
       </option>
       <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CatalogApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="FinalProject.login.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="it.polito.wa2.group17.catalog.CatalogApplication" />
+      <option name="VM_PARAMETERS" value="-Dspring.profiles.active=local" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -161,6 +231,34 @@
         </pattern>
       </extension>
       <option name="SPRING_BOOT_MAIN_CLASS" value="it.polito.wa2.group17.catalog.CatalogApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CatalogApplicationKt" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="FinalProject.catalog.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="it.polito.wa2.group17.catalog.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="SPRING_BOOT_MAIN_CLASS" value="it.polito.wa2.group17.catalog.CatalogApplicationKt" />
+      <option name="VM_PARAMETERS" value="-Dspring.profiles.active=local" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LoginApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="FinalProject.login.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="it.polito.wa2.group17.login.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="SPRING_BOOT_MAIN_CLASS" value="it.polito.wa2.group17.login.LoginApplication" />
       <option name="VM_PARAMETERS" value="-Dspring.profiles.active=local" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <method v="2">
@@ -203,11 +301,16 @@
       <item itemvalue="Spring Boot.MailApplication" />
       <item itemvalue="Spring Boot.WalletApplication" />
       <item itemvalue="Spring Boot.OrderApplication" />
+      <item itemvalue="Spring Boot.CatalogApplication (1)" />
+      <item itemvalue="Spring Boot.CatalogApplicationKt" />
+      <item itemvalue="Spring Boot.LoginApplication" />
       <item itemvalue="Spring Boot.CatalogApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.CatalogApplicationKt" />
         <item itemvalue="Spring Boot.CatalogApplication" />
+        <item itemvalue="Spring Boot.LoginApplication" />
       </list>
     </recent_temporary>
   </component>
@@ -252,7 +355,11 @@
       <workItem from="1632076889786" duration="576000" />
       <workItem from="1632135888957" duration="14940000" />
       <workItem from="1632216073978" duration="19979000" />
-      <workItem from="1632247005840" duration="2109000" />
+      <workItem from="1632247005840" duration="3042000" />
+      <workItem from="1632306127038" duration="623000" />
+      <workItem from="1632306837202" duration="4721000" />
+      <workItem from="1632324878204" duration="1992000" />
+      <workItem from="1632389158593" duration="7029000" />
     </task>
     <task id="LOCAL-00001" summary="Primo commit">
       <created>1627133893238</created>
@@ -415,7 +522,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632242284363</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Ultimi endpoint">
+      <created>1632249476868</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1632249476868</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -466,7 +580,8 @@
     <MESSAGE value="Rollback ok" />
     <MESSAGE value="Fix updateUserInfo" />
     <MESSAGE value="Patch product and set picture" />
-    <option name="LAST_COMMIT_MESSAGE" value="Patch product and set picture" />
+    <MESSAGE value="Ultimi endpoint" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ultimi endpoint" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

@@ -1,7 +1,6 @@
 package it.polito.wa2.group17.catalog.repository
 
 import it.polito.wa2.group17.catalog.domain.User
-import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository

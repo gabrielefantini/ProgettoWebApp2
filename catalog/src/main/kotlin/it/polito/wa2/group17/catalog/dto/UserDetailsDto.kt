@@ -4,9 +4,7 @@ import it.polito.wa2.group17.catalog.security.RoleName
 import it.polito.wa2.group17.catalog.security.RoleNameGrantedAuthority
 import it.polito.wa2.group17.catalog.security.StringToRoleNamesConverter
 import it.polito.wa2.group17.catalog.domain.User
-import it.polito.wa2.group17.common.utils.converter.ConvertibleAlias
 import it.polito.wa2.group17.common.utils.converter.CustomConversion
-import it.polito.wa2.group17.common.utils.converter.impl.IdAnnotatedExtractor
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 

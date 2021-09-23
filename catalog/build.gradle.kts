@@ -41,26 +41,18 @@ dependencies {
     implementation("io.swagger:swagger-annotations:1.5.21")
     implementation("io.swagger:swagger-models:1.5.21")
 
-    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
+//    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+//    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+//    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
     implementation("org.springframework.boot:spring-boot-starter-security")
+//
+//    implementation("org.hibernate.validator:hibernate-validator")
+//    implementation("javax.validation:validation-api")
 
-    implementation("org.hibernate.validator:hibernate-validator")
-    implementation("javax.validation:validation-api")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.0.3")
 
-
-    //implementation("org.openjdk.jol:jol-core:0.10")
-    //implementation("org.apache.commons:commons-jcs-core:2.2.1")
-    //implementation("org.springframework.hateoas:spring-hateoas")
-    //implementation("org.springframework.boot:spring-boot-starter-mail")
-    //implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
-    //runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
-    //runtimeOnly("com.h2database:h2")
-
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation ("junit:junit:4.13.2")
+//    testImplementation("org.springframework.security:spring-security-test")
+//    testImplementation ("junit:junit:4.13.2")
     testImplementation("org.mockito.kotlin:mockito-kotlin:3.1.0")
     testImplementation("org.powermock:powermock-core:1.7.3")
     testImplementation("org.powermock:powermock-module-junit4:1.7.3")

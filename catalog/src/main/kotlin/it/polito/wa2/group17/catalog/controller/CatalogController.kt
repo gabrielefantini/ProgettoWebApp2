@@ -1,15 +1,12 @@
 package it.polito.wa2.group17.catalog.controller
 
-import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.service.CatalogService
 import it.polito.wa2.group17.common.dto.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import java.net.URI
 import javax.validation.Valid
 
 @RestController
@@ -60,12 +57,6 @@ class CatalogController {
     @OnlyEnabledUsers
     fun getMyWallets(): ResponseEntity<Wallet> {
         return ResponseEntity.ok(catalogService.getWallets())
-    }
-
-    @GetMapping("/getUserInfo")
-    @OnlyEnabledUsers
-    fun getMyInformation(): ResponseEntity<UserDetailsDto>{
-        return ResponseEntity.ok(catalogService.getUserInformation())
     }
 
     @PutMapping("/cancelOrder/{orderId}")

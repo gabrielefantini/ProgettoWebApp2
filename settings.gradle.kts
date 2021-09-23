@@ -1,2 +1,2 @@
 rootProject.name = "FinalProject"
-include("common", "warehouse", "wallet", "catalog", "order", "mail")
+include("common", "warehouse", "wallet", "catalog", "order", "mail", "login")

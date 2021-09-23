@@ -10,18 +10,9 @@ spring:
     generate-ddl: true
     properties.hibernate.dialect: org.hibernate.dialect.MariaDBDialect
     hibernate.ddl-auto: update
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 
-notifications:
-  tokenVerification:
-    subject: "Verify your email address"
-    body: "Click the following link to verify your email address %s.\n You have time until %s."
-    expirationMargin: 108000000 #3 hours
-
-application.jwt:
-  jwtSecret: eyJhbGciOiJIUzUxMiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTYxOTcwODk5OSwiaWF0IjoxNjE5NzA4OTk5fQ.ma7jdHNtn2L1YIzD7TTxw71RIRlKROntCgbR4KujuZdPXKEQj6qic2BIC2UPJvsjnbfnRTw2sBWHUVaSSU70fA
-  jwtExpirationMs: 108000000 #3 hours
-  jwtHeader: Authorization
-  jwtHeaderStart: Bearer
 
 connectors:
   order:
@@ -34,6 +25,10 @@ connectors:
       enabled: true
   mail:
     uri: http://localhost:mail-service
+    mock:
+      enabled: true
+  login:
+    uri: http://localhost:login-service
     mock:
       enabled: true
 

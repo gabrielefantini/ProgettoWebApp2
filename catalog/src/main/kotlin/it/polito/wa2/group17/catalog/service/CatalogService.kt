@@ -1,8 +1,8 @@
 package it.polito.wa2.group17.catalog.service
 
-import it.polito.wa2.group17.catalog.connector.OrderConnector
+import it.polito.wa2.group17.catalog.connector.LoginConnector
+import it.polito.wa2.group17.catalog.connector.LoginConnectorMocked
 import it.polito.wa2.group17.catalog.connector.OrderConnectorMocked
-import it.polito.wa2.group17.catalog.connector.WarehouseConnector
 import it.polito.wa2.group17.catalog.connector.WarehouseConnectorMocked
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
@@ -13,13 +13,9 @@ import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.RequestBody
-import javax.validation.Valid
 
 interface CatalogService {
 
@@ -40,9 +36,6 @@ interface CatalogService {
 
     @Throws(EntityNotFoundException::class)
     fun getWallets(): Wallet?
-
-    @Throws(EntityNotFoundException::class)
-    fun getUserInformation(): UserDetailsDto?
 
     @Throws(EntityNotFoundException::class)
     fun cancelUserOrder(orderId: Long)
@@ -69,9 +62,7 @@ interface CatalogService {
 
 @Service
 @Transactional
-private open class CatalogServiceImpl(
-    val userRepository: UserRepository
-) : CatalogService {
+private open class CatalogServiceImpl() : CatalogService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -81,15 +72,15 @@ private open class CatalogServiceImpl(
     @Autowired
     private lateinit var orderConnector: OrderConnectorMocked
 
+    @Autowired
+    private lateinit var loginConnector: LoginConnectorMocked
+
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
-        val user = userRepository.findByUsername(username)
-        if (!user.isEmpty) {
-            val userId = user.get().getId()
-            return orderConnector.getOrdersByUsername(userId)
-        }
-        return listOf()
+        val user = loginConnector.findByUsername(username)
+        val userId = user.id
+        return orderConnector.getOrdersByUsername(userId)
     }
 
     override fun getOrderById(orderId: Long): OrderDto? {
@@ -123,14 +114,6 @@ private open class CatalogServiceImpl(
         logger.info("Searching for the wallets of the user with username {}", username)
         val wallets = warehouseConnector.getWalletsByUsername(username)
         return wallets
-    }
-
-    override fun getUserInformation(): UserDetailsDto? {
-        val username = SecurityContextHolder.getContext().authentication.name
-        val userInfo = userRepository.findByUsername(username)
-        return if(!userInfo.isEmpty) {
-            fromEntity(userInfo.get())
-        } else null
     }
 
     @MultiserviceTransactional

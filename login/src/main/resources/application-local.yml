@@ -1,0 +1,14 @@
+KAFKA_SERVER: localhost:9092
+MAIL_URI: localhost:8080
+server:
+  port: 8084
+
+logging:
+  level:
+    com.netflix: OFF
+
+transaction:
+  debug:
+    auto-rollback:
+      enabled: false
+
