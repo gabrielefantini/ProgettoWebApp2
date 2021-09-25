@@ -7,6 +7,7 @@ import it.polito.wa2.group17.catalog.connector.WarehouseConnectorMocked
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
+import it.polito.wa2.group17.catalog.security.OnlyAdmins
 import it.polito.wa2.group17.common.dto.*
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
@@ -43,7 +44,6 @@ interface CatalogService {
     @Throws(EntityNotFoundException::class)
     fun getPicture(productId: Long): PostPicture?
 
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @Throws(EntityNotFoundException::class)
     fun addProductPicture(productId: Long, picture: PostPicture):ProductDto?
 
@@ -132,6 +132,7 @@ private open class CatalogServiceImpl() : CatalogService {
     }
 
     @MultiserviceTransactional
+    @OnlyAdmins
     override fun addProductPicture(productId: Long, picture: PostPicture): ProductDto? {
         return warehouseConnector.setProductPicture(productId, picture)
     }
@@ -141,6 +142,7 @@ private open class CatalogServiceImpl() : CatalogService {
         return warehouseConnector.patchProductById(productId, product)
     }
 
+    @OnlyAdmins
     @MultiserviceTransactional
     override fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto? {
         return warehouseConnector.addProduct(warehouseId, addProductRequest)

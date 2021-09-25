@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
@@ -17,6 +19,8 @@ import kotlin.jvm.Throws
 
 @Configuration
 @ConditionalOnSingleCandidate(value = WebSecurityConfigurerAdapter::class)
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 class WebSecurityConfig(val passwordEncoder: PasswordEncoder, val userDetailsService: UserDetailsServiceExtendedImpl) :
     WebSecurityConfigurerAdapter() {
 
@@ -35,7 +39,7 @@ class WebSecurityConfig(val passwordEncoder: PasswordEncoder, val userDetailsSer
             .authorizeRequests()
             .antMatchers("/swagger-ui/").permitAll()
             .antMatchers("/auth/**").permitAll()
-            .antMatchers("/wallet/**").authenticated()
+            //.antMatchers("/auth/setAdmin").authenticated()
 
         http.csrf().disable()
 

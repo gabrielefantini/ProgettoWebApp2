@@ -10,8 +10,6 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @SpringBootApplication(scanBasePackages = ["it.polito.wa2.group17"])
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 class LoginApplication{
 
     @Bean

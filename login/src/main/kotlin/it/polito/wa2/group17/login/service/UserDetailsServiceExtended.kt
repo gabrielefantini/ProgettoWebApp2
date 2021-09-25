@@ -17,6 +17,7 @@ import it.polito.wa2.group17.common.mail.MailRequestDto
 import it.polito.wa2.group17.common.mail.MailService
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
+import it.polito.wa2.group17.login.security.OnlyAdmins
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -43,7 +44,6 @@ interface UserDetailsServiceExtended : UserDetailsService {
     @Throws(EntityNotFoundException::class)
     fun setUserEnabled(username: String, enabled: Boolean): BooleanValueClass
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun enableUser(username: String, enabled: Boolean)
 
     @Throws(EntityNotFoundException::class)
@@ -53,7 +53,6 @@ interface UserDetailsServiceExtended : UserDetailsService {
     @Throws(EntityNotFoundException::class)
     fun getCustomerIdForUser(username: String): Long?
 
-    //@PreAuthorize("hasRole('ADMIN')")
     @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
     fun setUserAsAdmin(username: String, value: Boolean): PutSetAdmin?
 
@@ -174,6 +173,7 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         user.roles = putSetAdmin.prev_value
     }
 
+    @OnlyAdmins
     override fun enableUser(username: String, enabled: Boolean) {
         logger.info("enableUser started")
         userRepository.findByUsername(username)
@@ -199,14 +199,11 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
         user.isEnabled = booleanValue.prev_value
     }
 
+    @OnlyAdmins
     @MultiserviceTransactional
     override fun setUserAsAdmin(username: String, value: Boolean): PutSetAdmin {
-        val caller = userRepository.findByUsername(SecurityContextHolder.getContext().authentication.name)
-        if (caller.get().name == username) {
+        if (SecurityContextHolder.getContext().authentication.name == username) {
             throw GenericBadRequestException("You cannot modify your roles!")
-        }
-        if (!caller.get().roles.contains("ADMIN")) {
-            throw GenericBadRequestException("You are not an admin!")
         }
         print("inside UserDetails")
         val user = userRepository.findByUsername(username)
