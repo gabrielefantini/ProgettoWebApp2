@@ -4,49 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="Login microservizio separato">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/FinalProject.mail.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/FinalProject.mail.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/catalog/FinalProject.catalog.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/catalog/FinalProject.catalog.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/common/FinalProject.common.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/common/FinalProject.common.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/eureka-server.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/eureka-server.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/login/FinalProject.login.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/login/FinalProject.login.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/order/FinalProject.order.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/order/FinalProject.order.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/security/UserNotAdminException.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/OnlyAdminsAspect.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/OnlyAdminsAspect.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/dependencies-accessors/dependencies-accessors.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/dependencies-accessors/gc.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/executionHistory/executionHistory.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileChanges/last-build.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/fileHashes.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/fileHashes/resourceHashesCache.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.1.1/gc.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/md5-checksums.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/vcs-1/gc.properties" beforeDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="fix admin">
+      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnector.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnectorMocked.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/RatingDto.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/RatingRequest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/RatingEntity.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/repository/RatingRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/LoginApplication.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/LoginApplication.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/WebSecurityConfig.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/security/WebSecurityConfig.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/service/UserDetailsServiceExtended.kt" beforeDir="false" afterPath="$PROJECT_DIR$/login/src/main/kotlin/it/polito/wa2/group17/login/service/UserDetailsServiceExtended.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/controller/ProductController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/controller/ProductController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/ProductEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/ProductEntity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/ProductService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/ProductService.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -293,9 +268,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Spring Boot.LoginApplication" />
+        <item itemvalue="Spring Boot.CatalogApplicationKt" />
         <item itemvalue="Docker.catalog/Dockerfile" />
         <item itemvalue="Spring Boot.CatalogApplication" />
-        <item itemvalue="Spring Boot.CatalogApplicationKt" />
       </list>
     </recent_temporary>
   </component>
@@ -355,7 +330,9 @@
       <workItem from="1632587193193" duration="539000" />
       <workItem from="1632587783404" duration="346000" />
       <workItem from="1632588181462" duration="115000" />
-      <workItem from="1632588350447" duration="3627000" />
+      <workItem from="1632588350447" duration="3976000" />
+      <workItem from="1632647732849" duration="1043000" />
+      <workItem from="1632736529160" duration="7516000" />
     </task>
     <task id="LOCAL-00001" summary="Primo commit">
       <created>1627133893238</created>
@@ -532,7 +509,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632396653011</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="fix admin">
+      <created>1632593058191</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1632593058191</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -585,7 +569,8 @@
     <MESSAGE value="Patch product and set picture" />
     <MESSAGE value="Ultimi endpoint" />
     <MESSAGE value="Login microservizio separato" />
-    <option name="LAST_COMMIT_MESSAGE" value="Login microservizio separato" />
+    <MESSAGE value="fix admin" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix admin" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

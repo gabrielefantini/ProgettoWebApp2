@@ -1,9 +1,6 @@
 package it.polito.wa2.group17.catalog.service
 
-import it.polito.wa2.group17.catalog.connector.LoginConnector
-import it.polito.wa2.group17.catalog.connector.LoginConnectorMocked
-import it.polito.wa2.group17.catalog.connector.OrderConnectorMocked
-import it.polito.wa2.group17.catalog.connector.WarehouseConnectorMocked
+import it.polito.wa2.group17.catalog.connector.*
 import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.repository.UserRepository
@@ -56,6 +53,9 @@ interface CatalogService {
     @Throws(EntityNotFoundException::class)
     fun getOrderStatus(orderId: Long): OrderStatus?
 
+    @Throws(EntityNotFoundException::class)
+    fun rateProduct(productId: Long, ratingDto: RatingRequest): Long?
+
 
 }
 
@@ -74,6 +74,9 @@ private open class CatalogServiceImpl() : CatalogService {
 
     @Autowired
     private lateinit var loginConnector: LoginConnectorMocked
+
+    @Autowired
+    private lateinit var productConnector: ProductConnectorMocked
 
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
@@ -137,6 +140,7 @@ private open class CatalogServiceImpl() : CatalogService {
         return warehouseConnector.setProductPicture(productId, picture)
     }
 
+    @OnlyAdmins
     @MultiserviceTransactional
     override fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto {
         return warehouseConnector.patchProductById(productId, product)
@@ -150,6 +154,10 @@ private open class CatalogServiceImpl() : CatalogService {
 
     override fun getOrderStatus(orderId: Long): OrderStatus? {
         return orderConnector.getStatus(orderId)?.status
+    }
+
+    override fun rateProduct(productId: Long, ratingDto: RatingRequest): Long? {
+        return productConnector.rateProductById(productId, ratingDto)
     }
 
     @Rollback

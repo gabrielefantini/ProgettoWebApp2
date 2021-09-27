@@ -1,5 +1,7 @@
 package it.polito.wa2.group17.warehouse.controller
 
+import it.polito.wa2.group17.common.dto.RatingDto
+import it.polito.wa2.group17.common.dto.RatingRequest
 import it.polito.wa2.group17.warehouse.dto.PatchProductRequest
 import it.polito.wa2.group17.warehouse.dto.PostPicture
 import it.polito.wa2.group17.warehouse.dto.PutProductRequest
@@ -71,4 +73,8 @@ class ProductController {
     fun getWarehouseByProductId(
         @PathVariable productId: Long
     ) = ResponseEntity.ok(productService.getWarehousesContainingProductById(productId))
+
+    @PostMapping("/{productId}/rating")
+    fun rateProduct(@PathVariable productId: Long,
+                    @RequestBody @Valid ratingDto: RatingRequest) = ResponseEntity.ok(productService.rateProductById(productId, ratingDto))
 }

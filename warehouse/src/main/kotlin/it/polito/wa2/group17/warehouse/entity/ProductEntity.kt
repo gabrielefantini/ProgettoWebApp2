@@ -4,6 +4,8 @@ import it.polito.wa2.group17.common.utils.BaseEntity
 import it.polito.wa2.group17.common.utils.SafeLongIdEntity
 import java.util.*
 import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 
 @Entity
@@ -14,10 +16,12 @@ class ProductEntity(
     var pictureURL: String? = null,
     var category: String? = null,
     var price: Double? = 0.0,
-    var avgRating: Double? = 0.0,
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    var ratings: MutableList<RatingEntity>,
+    var avgRating: Double = if (ratings.isNotEmpty()) ratings.map{ it.stars }.average() else 0.0,
     var creationDate: Date? = null,
     @OneToOne
-    var storedProductEntity: StoredProductEntity
+    var storedProductEntity: StoredProductEntity,
 ) : SafeLongIdEntity(id)
 
 

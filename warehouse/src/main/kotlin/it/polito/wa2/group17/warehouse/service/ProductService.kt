@@ -1,5 +1,7 @@
 package it.polito.wa2.group17.warehouse.service
 
+import it.polito.wa2.group17.common.dto.RatingDto
+import it.polito.wa2.group17.common.dto.RatingRequest
 import it.polito.wa2.group17.common.exception.EntitiesNotFoundException
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
@@ -11,9 +13,11 @@ import it.polito.wa2.group17.warehouse.dto.PostPicture
 import it.polito.wa2.group17.warehouse.dto.ProductDto
 import it.polito.wa2.group17.warehouse.dto.PutProductRequest
 import it.polito.wa2.group17.warehouse.entity.ProductEntity
+import it.polito.wa2.group17.warehouse.entity.RatingEntity
 import it.polito.wa2.group17.warehouse.entity.StoredProductEntity
 import it.polito.wa2.group17.warehouse.model.Warehouse
 import it.polito.wa2.group17.warehouse.repository.ProductRepository
+import it.polito.wa2.group17.warehouse.repository.RatingRepository
 import it.polito.wa2.group17.warehouse.repository.StoredProductRepository
 import it.polito.wa2.group17.warehouse.repository.WarehouseRepository
 import org.hibernate.annotations.NotFound
@@ -33,6 +37,7 @@ interface ProductService {
     fun getProductPictureById(productId: Long): PostPicture
     fun addProductPicture(productId: Long, picture: PostPicture): ProductDto
     fun getWarehousesContainingProductById(productId: Long): List<Warehouse>
+    fun rateProductById(productId: Long, ratingDto: RatingRequest): Long?
 
 }
 
@@ -47,6 +52,9 @@ private open class ProductServiceImpl: ProductService {
 
     @Autowired
     private lateinit var storedProductRepository: StoredProductRepository
+
+    @Autowired
+    private lateinit var ratingRepository: RatingRepository
 
     @Autowired
     private lateinit var productEntityUpdater: ProductEntityUpdater
@@ -116,6 +124,23 @@ private open class ProductServiceImpl: ProductService {
         return storedProductRepository
             .findAllByProduct(product)
             .map { it -> it.warehouse.convert() }
+    }
+
+    @MultiserviceTransactional
+    override fun rateProductById(productId: Long, ratingDto: RatingRequest): Long? {
+        val product = productRepository.findById(productId)
+        if (product.isEmpty) return null
+        else {
+            val id = ratingRepository.count()
+            val entity = ratingRepository.save(RatingEntity(id, ratingDto.stars, ratingDto.comment, product.get()))
+            return entity.getId()
+        }
+    }
+
+    @Rollback
+    private fun rollbackForRateProductById(productId: Long, ratingDto: RatingRequest, id:Long?) {
+        if (id == null) return
+        ratingRepository.deleteById(id)
     }
 
 }

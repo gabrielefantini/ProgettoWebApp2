@@ -90,4 +90,11 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.getOrderStatus(orderId))
     }
 
+    @PostMapping("/{productId}/rating")
+    @OnlyEnabledUsers
+    fun rateProduct(@PathVariable productId: Long, @RequestBody @Valid ratingRequest: RatingRequest): ResponseEntity<Long?> {
+        //val rating = RatingDto(null, ratingRequest.stars, ratingRequest.comment)
+        return ResponseEntity.ok(catalogService.rateProduct(productId, ratingRequest))
+    }
+
 }
