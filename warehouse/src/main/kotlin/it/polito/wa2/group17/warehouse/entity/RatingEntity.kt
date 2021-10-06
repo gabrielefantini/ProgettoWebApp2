@@ -12,6 +12,6 @@ class RatingEntity (
     var comment: String,
 
     @ManyToOne
-    @JoinColumn(referencedColumnName = "id")
+    @JoinColumn(name = "product")
     var product: ProductEntity
 ) : SafeLongIdEntity(id)

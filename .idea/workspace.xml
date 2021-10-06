@@ -4,24 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="fix admin">
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnector.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnectorMocked.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/RatingDto.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/RatingRequest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/RatingEntity.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/repository/RatingRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/wallet/FinalProject.wallet.test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/warehouse/FinalProject.warehouse.test.iml" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="add rating">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/controller/ProductController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/controller/ProductController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/ProductEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/ProductEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/ProductService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/service/ProductService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/RatingEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/entity/RatingEntity.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,18 +137,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.LoginApplication">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Spring Boot.WarehouseApplication">
     <configuration name="CatalogApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="FinalProject.login.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="it.polito.wa2.group17.catalog.CatalogApplication" />
@@ -332,7 +307,11 @@
       <workItem from="1632588181462" duration="115000" />
       <workItem from="1632588350447" duration="3976000" />
       <workItem from="1632647732849" duration="1043000" />
-      <workItem from="1632736529160" duration="7516000" />
+      <workItem from="1632736529160" duration="8380000" />
+      <workItem from="1632756950856" duration="1104000" />
+      <workItem from="1633000442794" duration="209000" />
+      <workItem from="1633187630306" duration="224000" />
+      <workItem from="1633521889274" duration="2686000" />
     </task>
     <task id="LOCAL-00001" summary="Primo commit">
       <created>1627133893238</created>
@@ -516,7 +495,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632593058191</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="add rating">
+      <created>1632745949793</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1632745949793</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -545,7 +531,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Primo commit" />
     <MESSAGE value="Primo commit (catalog ancora da &quot;spezzare&quot;)" />
     <MESSAGE value="Aggiunta possiblità di recuperare e modificare le informazioni del profilo (da testare)" />
     <MESSAGE value="Aggiunta possiblità di mockare transaction failure" />
@@ -570,7 +555,8 @@
     <MESSAGE value="Ultimi endpoint" />
     <MESSAGE value="Login microservizio separato" />
     <MESSAGE value="fix admin" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix admin" />
+    <MESSAGE value="add rating" />
+    <option name="LAST_COMMIT_MESSAGE" value="add rating" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
