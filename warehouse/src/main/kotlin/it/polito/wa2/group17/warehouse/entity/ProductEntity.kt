@@ -18,7 +18,7 @@ class ProductEntity(
     var price: Double? = 0.0,
     @OneToMany(mappedBy = "product")
     var ratings: MutableList<RatingEntity>,
-    var avgRating: Double = if (ratings.isNotEmpty()) ratings.map{ it.stars }.average() else 0.0,
+    var avgRating: Double? = null,
     var creationDate: Date? = null,
     @OneToOne
     var storedProductEntity: StoredProductEntity,

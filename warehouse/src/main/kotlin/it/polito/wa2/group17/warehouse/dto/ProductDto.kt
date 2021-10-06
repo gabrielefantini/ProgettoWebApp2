@@ -1,5 +1,7 @@
 package it.polito.wa2.group17.warehouse.dto
 
+import it.polito.wa2.group17.common.utils.converter.ConvertibleCollection
+import it.polito.wa2.group17.warehouse.model.Rating
 import java.util.*
 
 data class ProductDto (
@@ -9,6 +11,8 @@ data class ProductDto (
     var pictureURL: String?,
     var category: String?,
     var price: Double?,
-    var avgRating: Double?,
+    @ConvertibleCollection(Rating::class)
+    val ratings: List<Rating>?,
+    var avgRating: Double? = ratings?.map{it.stars}?.average(),
     var creationDate: Date?,
 )

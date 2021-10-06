@@ -128,13 +128,10 @@ private open class ProductServiceImpl: ProductService {
 
     @MultiserviceTransactional
     override fun rateProductById(productId: Long, ratingDto: RatingRequest): Long? {
-        val product = productRepository.findById(productId)
-        if (product.isEmpty) return null
-        else {
-            val id = ratingRepository.count()
-            val entity = ratingRepository.save(RatingEntity(id, ratingDto.stars, ratingDto.comment, product.get()))
-            return entity.getId()
-        }
+        val product = getProductOrThrow(productId)
+        val newRate = ratingRepository.save(RatingEntity(stars = ratingDto.stars,comment = ratingDto.comment,product = product))
+
+        return newRate.getId()
     }
 
     @Rollback
