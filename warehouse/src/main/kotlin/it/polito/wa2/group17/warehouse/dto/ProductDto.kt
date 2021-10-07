@@ -13,6 +13,6 @@ data class ProductDto (
     var price: Double?,
     @ConvertibleCollection(Rating::class)
     val ratings: List<Rating>?,
-    var avgRating: Double? = ratings?.map{it.stars}?.average(),
+    var avgRating: Double?,
     var creationDate: Date?,
 )

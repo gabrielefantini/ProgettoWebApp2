@@ -8,10 +8,7 @@ import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.common.utils.converter.convert
 import it.polito.wa2.group17.common.utils.converter.convertTo
-import it.polito.wa2.group17.warehouse.dto.PatchProductRequest
-import it.polito.wa2.group17.warehouse.dto.PostPicture
-import it.polito.wa2.group17.warehouse.dto.ProductDto
-import it.polito.wa2.group17.warehouse.dto.PutProductRequest
+import it.polito.wa2.group17.warehouse.dto.*
 import it.polito.wa2.group17.warehouse.entity.ProductEntity
 import it.polito.wa2.group17.warehouse.entity.RatingEntity
 import it.polito.wa2.group17.warehouse.entity.StoredProductEntity
@@ -21,11 +18,14 @@ import it.polito.wa2.group17.warehouse.repository.RatingRepository
 import it.polito.wa2.group17.warehouse.repository.StoredProductRepository
 import it.polito.wa2.group17.warehouse.repository.WarehouseRepository
 import org.hibernate.annotations.NotFound
+import org.hibernate.sql.Update
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.Instant
+import java.util.*
 import javax.mail.Store
 
 interface ProductService {
@@ -37,7 +37,7 @@ interface ProductService {
     fun getProductPictureById(productId: Long): PostPicture
     fun addProductPicture(productId: Long, picture: PostPicture): ProductDto
     fun getWarehousesContainingProductById(productId: Long): List<Warehouse>
-    fun rateProductById(productId: Long, ratingDto: RatingRequest): Long?
+    fun rateProductById(productId: Long, ratingDto: RatingRequest): UpdateRating?
 
 }
 
@@ -127,17 +127,23 @@ private open class ProductServiceImpl: ProductService {
     }
 
     @MultiserviceTransactional
-    override fun rateProductById(productId: Long, ratingDto: RatingRequest): Long? {
+    override fun rateProductById(productId: Long, ratingDto: RatingRequest): UpdateRating? {
         val product = getProductOrThrow(productId)
-        val newRate = ratingRepository.save(RatingEntity(stars = ratingDto.stars,comment = ratingDto.comment,product = product))
-
-        return newRate.getId()
+        val prev_rat = product.avgRating
+        val newRate = ratingRepository.save(RatingEntity(stars = ratingDto.stars,comment = ratingDto.comment,product = product, title = ratingDto.title, creationDate = Date.from(
+            Instant.now())))
+        productRepository.updateRating(productId, product.ratings.map { it.stars }.average())
+        val rate_id = newRate.getId()
+        return if (rate_id == null || prev_rat == null) null
+        else
+            UpdateRating(rate_id, prev_rat)
     }
 
     @Rollback
-    private fun rollbackForRateProductById(productId: Long, ratingDto: RatingRequest, id:Long?) {
-        if (id == null) return
-        ratingRepository.deleteById(id)
+    private fun rollbackForRateProductById(productId: Long, ratingDto: RatingRequest, rating:UpdateRating?) {
+        if (rating == null) return
+        ratingRepository.deleteById(rating.id_rating)
+        productRepository.updateRating(productId, rating.prev_rating)
     }
 
 }

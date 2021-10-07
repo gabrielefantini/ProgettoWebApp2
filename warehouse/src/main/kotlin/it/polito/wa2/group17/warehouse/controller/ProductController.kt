@@ -76,5 +76,5 @@ class ProductController {
 
     @PostMapping("/{productId}/rating")
     fun rateProduct(@PathVariable productId: Long,
-                    @RequestBody @Valid ratingDto: RatingRequest) = ResponseEntity.ok(productService.rateProductById(productId, ratingDto))
+                    @RequestBody @Valid ratingDto: RatingRequest) = ResponseEntity.ok(productService.rateProductById(productId, ratingDto)?.id_rating)
 }
