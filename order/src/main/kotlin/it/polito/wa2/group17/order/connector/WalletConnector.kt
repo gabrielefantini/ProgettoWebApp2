@@ -17,13 +17,13 @@ class WalletConnector {
 
     fun getUserWallet(userId: Long): WalletModel? {
         return restTemplate
-            .getForEntity("$uri/wallets/{}", WalletModel::class.java, userId)
+            .getForEntity("$uri/wallets/users/${userId}", WalletModel::class.java)
             .body
     }
 
     fun addWalletTransaction(transaction: TransactionModel, walletId: Long): TransactionModel? {
         return restTemplate
-            .postForEntity("$uri/wallets/{}/transactions",transaction, TransactionModel::class.java, walletId)
+            .postForEntity("$uri/wallets/${walletId}/transactions",transaction, TransactionModel::class.java)
             .body
     }
 }

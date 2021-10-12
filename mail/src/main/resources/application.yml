@@ -2,11 +2,11 @@ spring:
   application:
     name: mail-service
   mail:
-    host: smtp.gmail.com
+    host: smtp.ethereal.email
     protocol: smtp
     port: 587
-    username: group17wa2@gmail.com
-    password: Group_17_Wa2_Polito!!
+    username: angel.collins50@ethereal.email
+    password: jTdeaSXZbBUeA78ubs
     template:
       textPlaceholder: "{TEXT_HERE}"
     properties:
@@ -16,4 +16,16 @@ spring:
           starttls.enable: true
           #ssl.trust: smtp-mail.outlook.com
         debug: false
+transaction:
+  kafka:
+    bootstrapServer: localhost:9092
 
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+server:
+  port: 8090

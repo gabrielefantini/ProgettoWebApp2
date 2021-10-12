@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.catalog.security
 
+import it.polito.wa2.group17.catalog.connector.LoginConnector
 import it.polito.wa2.group17.catalog.connector.LoginConnectorMocked
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.exceptions.security.UserNotAdminException
@@ -25,7 +26,7 @@ class OnlyAdminsAspect {
     }
 
     @Autowired
-    private lateinit var loginConnector: LoginConnectorMocked
+    private lateinit var loginConnector: LoginConnector
 
     @Around("@annotation(OnlyAdmins)")
     fun filterEnabledUsersAccess(proceedingJoinPoint: ProceedingJoinPoint): Any {
@@ -40,7 +41,7 @@ class OnlyAdminsAspect {
         val user = authentication.principal as UserDetailsDto
         val actualUser = loginConnector.findByUsername(user.username)
 
-        if (!actualUser.isEnabled)
+        if (!actualUser!!.isEnabled)
             throw UserNotAllowedException(actualUser.username)
 
         if (!actualUser.roles.contains(RoleName.ADMIN))

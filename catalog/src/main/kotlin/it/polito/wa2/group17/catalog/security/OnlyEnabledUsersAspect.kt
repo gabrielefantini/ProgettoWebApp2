@@ -25,7 +25,7 @@ class OnlyEnabledUsersAspect {
     }
 
     @Autowired
-    private lateinit var loginConnector: LoginConnectorMocked
+    private lateinit var loginConnector: LoginConnector
 
     @Around("@annotation(OnlyEnabledUsers)")
     fun filterEnabledUsersAccess(proceedingJoinPoint: ProceedingJoinPoint): Any {

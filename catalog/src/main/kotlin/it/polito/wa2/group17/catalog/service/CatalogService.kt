@@ -67,23 +67,23 @@ private open class CatalogServiceImpl() : CatalogService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
-    private lateinit var warehouseConnector: WarehouseConnectorMocked
+    private lateinit var warehouseConnector: WarehouseConnector
 
     @Autowired
-    private lateinit var orderConnector: OrderConnectorMocked
+    private lateinit var orderConnector: OrderConnector
 
     @Autowired
-    private lateinit var loginConnector: LoginConnectorMocked
+    private lateinit var loginConnector: LoginConnector
 
     @Autowired
-    private lateinit var productConnector: ProductConnectorMocked
+    private lateinit var productConnector: ProductConnector
 
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
         val user = loginConnector.findByUsername(username)
-        val userId = user.id
-        return orderConnector.getOrdersByUsername(userId)
+        val userId = user!!.id
+        return orderConnector.getOrdersByUsername(userId)!!
     }
 
     override fun getOrderById(orderId: Long): OrderDto? {
@@ -143,7 +143,7 @@ private open class CatalogServiceImpl() : CatalogService {
     @OnlyAdmins
     @MultiserviceTransactional
     override fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto {
-        return warehouseConnector.patchProductById(productId, product)
+        return warehouseConnector.patchProductById(productId, product)!!
     }
 
     @OnlyAdmins

@@ -24,23 +24,15 @@ application.jwt:
   jwtHeaderStart: Bearer
 
 connectors:
-  order:
-    uri: http://localhost:order-service
-    mock:
-      enabled: true
-  warehouse:
-    uri: http://localhost:warehouse-service
-    mock:
-      enabled: true
-  mail:
-    uri: http://localhost:mail-service
-    mock:
-      enabled: true
+    mail:
+      uri: http://mail-service
+      mock:
+        enabled: false
 
 
 transaction:
   kafka:
-    bootstrapServer: ${KAFKA_SERVER:transaction-kafka}
+    bootstrapServer: localhost:9092
 
 eureka:
   client:
@@ -48,3 +40,6 @@ eureka:
       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true
+
+server:
+  port: 8086

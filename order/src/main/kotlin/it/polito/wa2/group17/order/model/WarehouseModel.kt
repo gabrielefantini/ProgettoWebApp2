@@ -6,6 +6,6 @@ import javax.validation.constraints.NotNull
 data class WarehouseModel(
     val id: Long,
     @field: NotNull
-    val productList: List<@Valid StoredProductModel>
+    val products: List<@Valid StoredProductModel>
 )
 

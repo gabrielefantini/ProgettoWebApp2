@@ -21,7 +21,6 @@ import it.polito.wa2.group17.order.repositories.DeliveryRepository
 import it.polito.wa2.group17.order.repositories.OrderRepository
 import it.polito.wa2.group17.order.repositories.ProductOrderRepository
 import it.polito.wa2.group17.warehouse.exception.*
-import org.hibernate.criterion.Order
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -140,7 +139,7 @@ class OrderServiceImpl: OrderService {
         //todo--> vedere se si puo fare anche senza save
         orderEntity = orderRepo.save(orderEntity)
 
-        val user = catalogConnector.getUserInfo(orderReq.userId)?: throw UserNotFoundException(orderReq.userId)
+        val user = catalogConnector.getUserInfo()?: throw UserNotFoundException(orderReq.userId)
         
         //aggiungo le delivery list
         orderReq
@@ -154,7 +153,7 @@ class OrderServiceImpl: OrderService {
                         .forEach {
                                 warehouse ->
                             if(productQuantity > 0){
-                                val amountAvailable = warehouse.productList.find { it.productId == product.productId }?.quantity!!
+                                val amountAvailable = warehouse.products.find { it.productId == product.productId }?.quantity!!
                                 if(amountAvailable - productQuantity >= 0){
                                     val delivery = DeliveryEntity(
                                         user.deliveryAddr,
@@ -209,7 +208,7 @@ class OrderServiceImpl: OrderService {
             warehouses
                 .map{
                     warehouse ->
-                        warehouse.productList
+                        warehouse.products
                             .map {
                                 warehouseProduct ->
                                     if(warehouseProduct.productId == product.productId){
@@ -231,7 +230,7 @@ class OrderServiceImpl: OrderService {
             return  warehouses
                 .map {
                         warehouse ->
-                        warehouse.productList.forEach { warehouseProduct ->
+                        warehouse.products.forEach { warehouseProduct ->
                             if (warehouseProduct.productId == productId)
                                 deliveryRepository.findByWarehouseIdAndProductId(warehouse.id, productId)
                                     .forEach { delivery ->

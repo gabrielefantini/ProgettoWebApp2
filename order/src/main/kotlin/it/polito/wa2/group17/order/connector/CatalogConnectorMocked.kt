@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Primary
 @Primary
 @ConditionalOnProperty(prefix = "connectors.catalog.mock", name = ["enabled"], havingValue = "true")
 class CatalogConnectorMocked: CatalogConnector() {
-    override fun getUserInfo(userId: Long): UserModel = UserModel(userId, "via DiProva 42", "ddjfdif@libero.it")
+    override fun getUserInfo(): UserModel = UserModel(1, "via DiProva 42", "ddjfdif@libero.it")
 }

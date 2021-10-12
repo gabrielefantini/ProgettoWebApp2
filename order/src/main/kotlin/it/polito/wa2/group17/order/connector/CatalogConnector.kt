@@ -14,9 +14,9 @@ class CatalogConnector {
     @Value("\${connectors.catalog.uri}")
     private lateinit var uri: String
 
-    fun getUserInfo(userId: Long): UserModel? {
+    fun getUserInfo(): UserModel? {
         return restTemplate
-            .getForEntity("$uri/getUserInfo/{}", UserModel::class.java, userId)
+            .getForEntity("$uri/auth/getUserInfo/", UserModel::class.java)
             .body
     }
 

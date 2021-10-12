@@ -13,29 +13,28 @@ spring:
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 
-
 connectors:
   order:
-    uri: http://localhost:order-service
+    uri: http://order-service
     mock:
-      enabled: true
+      enabled: false
   warehouse:
-    uri: http://localhost:warehouse-service
+    uri: http://warehouse-service
     mock:
-      enabled: true
+      enabled: false
   mail:
-    uri: http://localhost:mail-service
+    uri: http://mail-service
     mock:
-      enabled: true
+      enabled: false
   login:
-    uri: http://localhost:login-service
+    uri: http://login-service
     mock:
-      enabled: true
+      enabled: false
 
 
 transaction:
   kafka:
-    bootstrapServer: ${KAFKA_SERVER:transaction-kafka}
+    bootstrapServer: localhost:9092
 
 eureka:
   client:
@@ -43,3 +42,6 @@ eureka:
       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true
+
+server:
+  port: 8085

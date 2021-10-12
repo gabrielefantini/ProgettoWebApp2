@@ -18,22 +18,22 @@ class WarehouseConnector {
 
     fun getProduct(productId: Long): ProductModel? {
         return restTemplate
-            .getForEntity("$uri/products/{}", ProductModel::class.java, productId)
+            .getForEntity("$uri/products/${productId}", ProductModel::class.java)
             .body
     }
     fun getProductWarehouses(productId: Long): List<WarehouseModel>? {
         return restTemplate.getForEntity(
-            "$uri/products/{}/warehouses", Array<WarehouseModel>::class.java, productId
-        ).body?.toList()
+            "$uri/products/${productId}/warehouses", Array<WarehouseModel>::class.java
+        ).body?.toList() ?: listOf()
     }
     fun buyProduct(warehouseId: Long, productBuyRequest: ProductBuyRequest): BuyProductResponse? {
         return restTemplate.postForEntity(
-            "$uri/warehouses/{}/sell",productBuyRequest, BuyProductResponse::class.java, warehouseId
+            "$uri/warehouses/${warehouseId}/sell",productBuyRequest, BuyProductResponse::class.java
         ).body
     }
     fun updateProductQuantity(warehouseId: Long, productId: Long, updateProductRequest: UpdateProductRequest): StoredProductModel? {
         return restTemplate.patchForObject(
-            "$uri/warehouses/{}/products/{}",updateProductRequest, StoredProductModel::class.java, warehouseId, productId
+            "$uri/warehouses/${warehouseId}/products/${productId}",updateProductRequest, StoredProductModel::class.java
         )
     }
 }

@@ -12,7 +12,7 @@ class UsersConnector {
     @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @Value("\${connectors.users.uri}")
+    @Value("\${connectors.login.uri}")
     private lateinit var uri: String
 
     fun getAdmins(): List<UserDto> {

@@ -1,6 +1,6 @@
 package it.polito.wa2.group17.login.service
 
-import it.polito.wa2.group17.login.connector.MailConnectorMocked
+
 import it.polito.wa2.group17.login.domain.EmailVerificationToken
 import it.polito.wa2.group17.login.domain.User
 import it.polito.wa2.group17.login.dto.BooleanValueClass
@@ -84,8 +84,7 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
     private companion object {
         val localAddress: String = Inet4Address.getLocalHost().hostName
     }
-    @Autowired
-    private lateinit var mailConnector: it.polito.wa2.group17.login.connector.MailConnectorMocked
+
 
     private fun computeTokenEndpoint(token: EmailVerificationToken) =
         "http://$localAddress:$localPort/auth/registrationConfirm?token=${
@@ -126,11 +125,10 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
 
         logger.info("Creating token for user $username sending it to $existingEmail")
         val token = notificationService.createTokenForUser(username)
-        mailConnector.sendMail(MailRequestDto(
+        mailService.sendMessage(
             existingEmail,
             tokenMessageSubject,
             String.format(tokenMessageBody, computeTokenEndpoint(token), token.expireDate))
-        )
     }
 
     override fun loadUserByUsername(username: String): UserDetailsDto {

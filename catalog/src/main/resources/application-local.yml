@@ -10,5 +10,5 @@ logging:
 transaction:
   debug:
     auto-rollback:
-      enabled: true
+      enabled: false
 
