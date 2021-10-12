@@ -127,10 +127,15 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, putProductRequest)?.productId)
     }
 
-    @DeleteMapping("/deleteWarehouse/warehouseId")
+    /*@DeleteMapping("/deleteWarehouse/warehouseId")
     @OnlyAdmins
-    fun deleteWarehouse(@RequestBody warehouseId: Long) = catalogService.deleteWarehouse(warehouseId)
+    fun deleteWarehouse(@RequestBody warehouseId: Long) = catalogService.deleteWarehouse(warehouseId)*/
 
+    @PutMapping("/addProduct")
+    @OnlyAdmins
+    fun addProduct(
+        @PathVariable productId: Long,
+        @RequestBody @Valid putProductRequest: PutProductRequest) = catalogService.addProduct(productId, putProductRequest)
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 

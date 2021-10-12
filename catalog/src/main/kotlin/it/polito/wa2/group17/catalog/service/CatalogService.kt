@@ -66,6 +66,8 @@ interface CatalogService {
     @Throws(EntityNotFoundException::class)
     fun deleteWarehouse(warehouseId: Long)
 
+    fun addProduct(productId: Long, putProductRequest: PutProductRequest)
+
 
 }
 
@@ -180,6 +182,10 @@ private open class CatalogServiceImpl() : CatalogService {
 
     override fun deleteWarehouse(warehouseId: Long) {
         return warehouseConnector.deleteWarehouse(warehouseId)
+    }
+
+    override fun addProduct(productId: Long, putProductRequest: PutProductRequest) {
+        return productConnector.addProduct(productId, putProductRequest)
     }
 
     @Rollback

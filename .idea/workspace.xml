@@ -4,39 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="fix rating">
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/domain/EmailVerificationToken.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/dto/PutSetAdmin.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/EmailAlreadyPresentException.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyPresentException.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/exceptions/auth/UserAlreadyVerifiedException.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginRequest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/LoginResponse.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/model/UserRegistration.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/repository/EmailVerificationTokenRepository.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/AuthEntryPoint.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/WebSecurityConfig.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtAuthenticationTokenFilter.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/jwt/JwtUtils.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/NotificationService.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/SignInAndUserInfo.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/UserDetailsServiceExtended.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/OrderPatchRequest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/WarehouseRequest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/catalog/FinalProject.catalog.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/catalog/FinalProject.catalog.main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/catalog/FinalProject.catalog.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/catalog/FinalProject.catalog.test.iml" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="addprodtowarehouse, addwarehouse, login e catalog uniti e endpoint per modificate stato ordine">
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/PutProductRequest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/CatalogApplication.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnector.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/OrderConnectorMocked.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnector.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnectorMocked.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/controller/WarehouseController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/warehouse/src/main/kotlin/it/polito/wa2/group17/warehouse/controller/WarehouseController.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -360,7 +335,7 @@
       <workItem from="1633545578585" duration="1104000" />
       <workItem from="1633546714003" duration="22000" />
       <workItem from="1633604729535" duration="2670000" />
-      <workItem from="1634058283937" duration="5607000" />
+      <workItem from="1634058283937" duration="6936000" />
     </task>
     <task id="LOCAL-00001" summary="Primo commit">
       <created>1627133893238</created>
@@ -565,7 +540,14 @@
       <option name="project" value="LOCAL" />
       <updated>1633607422935</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="addprodtowarehouse, addwarehouse, login e catalog uniti e endpoint per modificate stato ordine">
+      <created>1634064248674</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1634064248674</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -594,7 +576,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Aggiunta possiblità di recuperare e modificare le informazioni del profilo (da testare)" />
     <MESSAGE value="Aggiunta possiblità di mockare transaction failure" />
     <MESSAGE value="mocked kafka on autorollback" />
     <MESSAGE value="rollback question" />
@@ -619,7 +600,8 @@
     <MESSAGE value="fix admin" />
     <MESSAGE value="add rating" />
     <MESSAGE value="fix rating" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix rating" />
+    <MESSAGE value="addprodtowarehouse, addwarehouse, login e catalog uniti e endpoint per modificate stato ordine" />
+    <option name="LAST_COMMIT_MESSAGE" value="addprodtowarehouse, addwarehouse, login e catalog uniti e endpoint per modificate stato ordine" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

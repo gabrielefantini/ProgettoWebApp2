@@ -26,4 +26,8 @@ class WarehouseConnectorMocked: WarehouseConnector() {
 
     override fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest) = StoredProductDto(1, 10, 5)
 
+    override fun deleteWarehouse(warehouseId: Long) {}
+
+    override fun addWarehouse(warehouseRequest: WarehouseRequest) = 0L
+
 }
