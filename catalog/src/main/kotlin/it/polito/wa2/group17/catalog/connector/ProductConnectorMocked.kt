@@ -1,6 +1,7 @@
 package it.polito.wa2.group17.catalog.connector
 
 import it.polito.wa2.group17.common.connector.Connector
+import it.polito.wa2.group17.common.dto.OrderPatchRequest
 import it.polito.wa2.group17.common.dto.RatingDto
 import it.polito.wa2.group17.common.dto.RatingRequest
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

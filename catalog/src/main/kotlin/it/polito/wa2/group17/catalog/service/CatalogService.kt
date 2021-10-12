@@ -56,6 +56,16 @@ interface CatalogService {
     @Throws(EntityNotFoundException::class)
     fun rateProduct(productId: Long, ratingDto: RatingRequest): Long?
 
+    @Throws(EntityNotFoundException::class)
+    fun changeProductStatus(productId: Long, status: OrderPatchRequest): Long?
+
+    @Throws(EntityNotFoundException::class)
+    fun addWarehouse(warehouseRequest: WarehouseRequest): Long?
+
+
+    @Throws(EntityNotFoundException::class)
+    fun deleteWarehouse(warehouseId: Long)
+
 
 }
 
@@ -149,7 +159,7 @@ private open class CatalogServiceImpl() : CatalogService {
     @OnlyAdmins
     @MultiserviceTransactional
     override fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto? {
-        return warehouseConnector.addProduct(warehouseId, addProductRequest)
+        return warehouseConnector.addProductToWarehouse(warehouseId, addProductRequest)
     }
 
     override fun getOrderStatus(orderId: Long): OrderStatus? {
@@ -158,6 +168,18 @@ private open class CatalogServiceImpl() : CatalogService {
 
     override fun rateProduct(productId: Long, ratingDto: RatingRequest): Long? {
         return productConnector.rateProductById(productId, ratingDto)
+    }
+
+    override fun changeProductStatus(productId: Long, status: OrderPatchRequest): Long? {
+        return orderConnector.changeStatus(productId, status)
+    }
+
+    override fun addWarehouse(warehouseRequest: WarehouseRequest): Long? {
+        return warehouseConnector.addWarehouse(warehouseRequest)
+    }
+
+    override fun deleteWarehouse(warehouseId: Long) {
+        return warehouseConnector.deleteWarehouse(warehouseId)
     }
 
     @Rollback

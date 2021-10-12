@@ -2,6 +2,7 @@ package it.polito.wa2.group17.catalog.connector
 
 import it.polito.wa2.group17.common.connector.Connector
 import it.polito.wa2.group17.common.dto.OrderDto
+import it.polito.wa2.group17.common.dto.OrderPatchRequest
 import it.polito.wa2.group17.common.dto.OrderStatus
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
@@ -69,5 +70,17 @@ class OrderConnector {
         ).body
     }
 
+
+    fun changeStatus(productId: Long, status: OrderPatchRequest): Long? {
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+
+        val requestEntity: HttpEntity<OrderPatchRequest> = HttpEntity(status, headers)
+
+        val responseEntity: OrderDto? =
+            restTemplate.patchForObject("$uri/$productId/rating", requestEntity, OrderDto::class.java)
+
+        return responseEntity?.id
+    }
 
 }

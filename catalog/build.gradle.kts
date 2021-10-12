@@ -41,9 +41,10 @@ dependencies {
     implementation("io.swagger:swagger-annotations:1.5.21")
     implementation("io.swagger:swagger-models:1.5.21")
 
-//    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-//    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
-//    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
+
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
     implementation("org.springframework.boot:spring-boot-starter-security")
 //
 //    implementation("org.hibernate.validator:hibernate-validator")

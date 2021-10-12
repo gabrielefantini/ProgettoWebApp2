@@ -50,10 +50,12 @@ class WarehouseController {
     fun saveWarehouse(
         @RequestBody @Valid warehouseRequest: WarehouseRequest,
     ): ResponseEntity<*> {
-        val warehouse = warehouseService.createWarehouse(warehouseRequest.products)
-        return ResponseEntity
+        val products = warehouseRequest.products.map { StoredProduct(it.productId, it.quantity, it.minimumQuantity) }
+        val warehouse = warehouseService.createWarehouse(products)
+        /*return ResponseEntity
             .created(URI.create("/warehouses/${warehouse.id}"))
-            .body(warehouse)
+            .body(warehouse)*/
+        return ResponseEntity.ok(warehouse.id)
     }
 
     @DeleteMapping("/{warehouseId}")

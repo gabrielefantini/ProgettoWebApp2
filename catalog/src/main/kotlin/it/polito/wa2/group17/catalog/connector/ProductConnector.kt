@@ -1,8 +1,7 @@
 package it.polito.wa2.group17.catalog.connector
 
 import it.polito.wa2.group17.common.connector.Connector
-import it.polito.wa2.group17.common.dto.RatingDto
-import it.polito.wa2.group17.common.dto.RatingRequest
+import it.polito.wa2.group17.common.dto.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
