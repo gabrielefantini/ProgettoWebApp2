@@ -127,17 +127,20 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, putProductRequest)?.productId)
     }
 
-    /*@DeleteMapping("/deleteWarehouse/warehouseId")
+    @DeleteMapping("/deleteWarehouse/warehouseId")
     @OnlyAdmins
-    fun deleteWarehouse(@RequestBody warehouseId: Long) = catalogService.deleteWarehouse(warehouseId)*/
+    fun deleteWarehouse(@RequestParam warehouseId: Long) = catalogService.deleteWarehouse(warehouseId)
+
+
+    @DeleteMapping("/deleteProduct/productId")
+    @OnlyAdmins
+    fun deleteProduct(@RequestParam productId: Long) = catalogService.deleteProduct(productId)
 
     @PutMapping("/addProduct")
     @OnlyAdmins
-    fun addProduct(
-        @PathVariable productId: Long,
-        @RequestBody @Valid putProductRequest: PutProductRequest) = catalogService.addProduct(productId, putProductRequest)
+    fun addProduct(@RequestParam productId: Long, @RequestBody @Valid putProductRequest: PutProductRequest) = catalogService.addProduct(productId, putProductRequest)
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////// LOGIN
 
     @Autowired
     private lateinit var userServiceExtended: UserDetailsServiceExtended

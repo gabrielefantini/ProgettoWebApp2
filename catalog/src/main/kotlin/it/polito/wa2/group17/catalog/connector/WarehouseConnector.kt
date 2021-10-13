@@ -98,12 +98,12 @@ class WarehouseConnector {
         return responseEntity.body
     }
 
-    fun deleteWarehouse(warehouseId: Long) {
+    fun deleteWarehouse(warehouseId: Long): Long {
         val headers = HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
 
-        val requestEntity: HttpEntity<Long> = HttpEntity(warehouseId, headers)
+        restTemplate.delete("$uri/$warehouseId")
 
-        restTemplate.delete("$uri/", requestEntity)
+        return warehouseId
     }
 }

@@ -4,14 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="addprodtowarehouse, addwarehouse, login e catalog uniti e endpoint per modificate stato ordine">
-      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/it/polito/wa2/group17/common/dto/PutProductRequest.kt" afterDir="false" />
+    <list default="true" id="526cfc61-ef02-4027-84cf-c8bb7873eb88" name="Default Changelist" comment="addProduct">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnector.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/ProductConnectorMocked.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnector.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/connector/WarehouseConnectorMocked.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/controller/CatalogController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/OnlyAdminsAspect.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/security/OnlyAdminsAspect.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/kotlin/it/polito/wa2/group17/catalog/service/CatalogService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catalog/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/catalog/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,20 +145,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.CatalogApplication (1)">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Spring Boot.CatalogApplicationKt">
     <configuration name="CatalogApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="FinalProject.login.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="it.polito.wa2.group17.catalog.CatalogApplication" />
@@ -261,8 +250,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.LoginApplication" />
         <item itemvalue="Spring Boot.CatalogApplicationKt" />
+        <item itemvalue="Spring Boot.LoginApplication" />
         <item itemvalue="Docker.catalog/Dockerfile" />
         <item itemvalue="Spring Boot.CatalogApplication" />
       </list>
@@ -335,7 +324,8 @@
       <workItem from="1633545578585" duration="1104000" />
       <workItem from="1633546714003" duration="22000" />
       <workItem from="1633604729535" duration="2670000" />
-      <workItem from="1634058283937" duration="6936000" />
+      <workItem from="1634058283937" duration="6975000" />
+      <workItem from="1634109153125" duration="4185000" />
     </task>
     <task id="LOCAL-00001" summary="Primo commit">
       <created>1627133893238</created>
@@ -547,7 +537,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634064248674</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="addProduct">
+      <created>1634067056609</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1634067056609</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -576,7 +573,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Aggiunta possiblità di mockare transaction failure" />
     <MESSAGE value="mocked kafka on autorollback" />
     <MESSAGE value="rollback question" />
     <MESSAGE value="Safe long id entity" />
@@ -601,7 +597,8 @@
     <MESSAGE value="add rating" />
     <MESSAGE value="fix rating" />
     <MESSAGE value="addprodtowarehouse, addwarehouse, login e catalog uniti e endpoint per modificate stato ordine" />
-    <option name="LAST_COMMIT_MESSAGE" value="addprodtowarehouse, addwarehouse, login e catalog uniti e endpoint per modificate stato ordine" />
+    <MESSAGE value="addProduct" />
+    <option name="LAST_COMMIT_MESSAGE" value="addProduct" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

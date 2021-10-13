@@ -64,9 +64,11 @@ interface CatalogService {
 
 
     @Throws(EntityNotFoundException::class)
-    fun deleteWarehouse(warehouseId: Long)
+    fun deleteWarehouse(warehouseId: Long): Long
 
-    fun addProduct(productId: Long, putProductRequest: PutProductRequest)
+    fun addProduct(productId: Long, putProductRequest: PutProductRequest): Long
+
+    fun deleteProduct(productId: Long): Long
 
 
 }
@@ -79,16 +81,16 @@ private open class CatalogServiceImpl() : CatalogService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
-    private lateinit var warehouseConnector: WarehouseConnector
+    private lateinit var orderConnector: OrderConnectorMocked
 
     @Autowired
-    private lateinit var orderConnector: OrderConnector
+    private lateinit var warehouseConnector: WarehouseConnectorMocked
 
     @Autowired
-    private lateinit var loginConnector: LoginConnector
+    private lateinit var loginConnector: LoginConnectorMocked
 
     @Autowired
-    private lateinit var productConnector: ProductConnector
+    private lateinit var productConnector: ProductConnectorMocked
 
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
@@ -110,7 +112,7 @@ private open class CatalogServiceImpl() : CatalogService {
     }
 
     @Rollback
-    private fun rollbackForAddOrder(order: OrderDto, id: Long){
+    private fun rollbackForAddNewOrder(order: OrderDto, id: Long){
         logger.warn("Rollback of order with ID ${order.id}")
     }
 
@@ -180,12 +182,16 @@ private open class CatalogServiceImpl() : CatalogService {
         return warehouseConnector.addWarehouse(warehouseRequest)
     }
 
-    override fun deleteWarehouse(warehouseId: Long) {
+    override fun deleteWarehouse(warehouseId: Long): Long {
         return warehouseConnector.deleteWarehouse(warehouseId)
     }
 
-    override fun addProduct(productId: Long, putProductRequest: PutProductRequest) {
+    override fun addProduct(productId: Long, putProductRequest: PutProductRequest): Long {
         return productConnector.addProduct(productId, putProductRequest)
+    }
+
+    override fun deleteProduct(productId: Long): Long {
+        return productConnector.deleteProduct(productId)
     }
 
     @Rollback

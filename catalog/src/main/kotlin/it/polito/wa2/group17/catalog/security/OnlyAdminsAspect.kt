@@ -6,6 +6,7 @@ import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.exceptions.security.UserNotAdminException
 import it.polito.wa2.group17.catalog.exceptions.security.UserNotAllowedException
 import it.polito.wa2.group17.catalog.exceptions.security.UserNotAuthenticatedException
+import it.polito.wa2.group17.catalog.service.SignInAndUserInfo
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
@@ -26,7 +27,7 @@ class OnlyAdminsAspect {
     }
 
     @Autowired
-    private lateinit var loginConnector: LoginConnector
+    private lateinit var signInAndUserInfo: SignInAndUserInfo
 
     @Around("@annotation(OnlyAdmins)")
     fun filterEnabledUsersAccess(proceedingJoinPoint: ProceedingJoinPoint): Any {
@@ -39,7 +40,12 @@ class OnlyAdminsAspect {
             throw IllegalStateException("Unexpected principal ${authentication.principal}")
 
         val user = authentication.principal as UserDetailsDto
-        val actualUser = loginConnector.findByUsername(user.username)
+        logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ${user.username}")
+        val actualUser = signInAndUserInfo.findUser(user.username)
+
+        if (actualUser != null) {
+            logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ${actualUser.username}")
+        }
 
         if (!actualUser!!.isEnabled)
             throw UserNotAllowedException(actualUser.username)

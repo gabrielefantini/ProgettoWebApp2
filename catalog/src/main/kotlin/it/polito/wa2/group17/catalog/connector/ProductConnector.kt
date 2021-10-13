@@ -32,12 +32,23 @@ class ProductConnector {
         return responseEntity.body?.id
     }
 
-    fun addProduct(productId: Long, putProductRequest: PutProductRequest) {
+    fun addProduct(productId: Long, putProductRequest: PutProductRequest): Long {
         val headers = HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
 
         val requestEntity: HttpEntity<PutProductRequest> = HttpEntity(putProductRequest, headers)
 
         restTemplate.put("$uri/$productId", requestEntity)
+
+        return productId
+    }
+
+    fun deleteProduct(productId: Long): Long {
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+
+        restTemplate.delete("$uri/$productId")
+
+        return productId
     }
 }
