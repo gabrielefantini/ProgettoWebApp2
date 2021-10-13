@@ -139,7 +139,7 @@ class OrderServiceImpl: OrderService {
         //todo--> vedere se si puo fare anche senza save
         orderEntity = orderRepo.save(orderEntity)
 
-        val user = catalogConnector.getUserInfo()?: throw UserNotFoundException(orderReq.userId)
+        val user = catalogConnector.getUserInfo()?: throw UserNotFoundException()
         
         //aggiungo le delivery list
         orderReq
@@ -310,13 +310,16 @@ class OrderServiceImpl: OrderService {
                     )
         }
     }
+
     private fun refundCustomer(order: OrderEntity){
-        val wallet = walletConnector.getUserWallet(order.buyerId!!) ?: throw WalletException(order.buyerId!!)
+        val userId = catalogConnector.getUserInfo()?.id ?: throw UserNotFoundException()    //id of the user performing the transaction => admin (since updateOrder is used only by admins)
+        val buyerId = order.buyerId!!   //id of the user involved in the order => wallet owner
+        val wallet = walletConnector.getUserWallet(buyerId) ?: throw WalletException(buyerId)
         walletConnector
             .addWalletTransaction(
                 TransactionModel(
                     reason = "refund of order with ID ${order.getId()}",
-                    userId = order.buyerId!!,
+                    userId = userId,
                     amount = order.price,
                     timeInstant = Calendar.getInstance().toInstant(),
                 ),

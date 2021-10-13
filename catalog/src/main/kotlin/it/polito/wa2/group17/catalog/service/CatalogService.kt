@@ -78,16 +78,16 @@ private open class CatalogServiceImpl() : CatalogService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
-    private lateinit var orderConnector: OrderConnectorMocked
+    private lateinit var orderConnector: OrderConnector
 
     @Autowired
-    private lateinit var warehouseConnector: WarehouseConnectorMocked
+    private lateinit var warehouseConnector: WarehouseConnector
 
     @Autowired
     private lateinit var signInAndUserInfo: SignInAndUserInfo
 
     @Autowired
-    private lateinit var productConnector: ProductConnectorMocked
+    private lateinit var productConnector: ProductConnector
 
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name

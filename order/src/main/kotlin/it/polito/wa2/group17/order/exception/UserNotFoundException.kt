@@ -4,5 +4,5 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-class UserNotFoundException(userId: Long) :
-    Exception("UserId: $userId not found")
+class UserNotFoundException() :
+    Exception("User not found")
