@@ -1,9 +1,6 @@
 package it.polito.wa2.group17.catalog.service
 
 import it.polito.wa2.group17.catalog.connector.*
-import it.polito.wa2.group17.catalog.dto.ConvertibleDto.Factory.fromEntity
-import it.polito.wa2.group17.catalog.dto.UserDetailsDto
-import it.polito.wa2.group17.catalog.repository.UserRepository
 import it.polito.wa2.group17.catalog.security.OnlyAdmins
 import it.polito.wa2.group17.common.dto.*
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
@@ -87,7 +84,7 @@ private open class CatalogServiceImpl() : CatalogService {
     private lateinit var warehouseConnector: WarehouseConnectorMocked
 
     @Autowired
-    private lateinit var loginConnector: LoginConnectorMocked
+    private lateinit var signInAndUserInfo: SignInAndUserInfo
 
     @Autowired
     private lateinit var productConnector: ProductConnectorMocked
@@ -95,7 +92,7 @@ private open class CatalogServiceImpl() : CatalogService {
     override fun getOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
-        val user = loginConnector.findByUsername(username)
+        val user = signInAndUserInfo.findUser(username)
         val userId = user!!.id
         return orderConnector.getOrdersByUsername(userId)!!
     }

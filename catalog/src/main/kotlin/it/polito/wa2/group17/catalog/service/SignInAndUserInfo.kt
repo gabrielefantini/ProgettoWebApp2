@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 interface SignInAndUserInfo {
-    @Throws(it.polito.wa2.group17.common.exception.EntityNotFoundException::class)
+    @Throws(EntityNotFoundException::class)
     fun updateUserInformation(password: String, name: String, surname: String, deliveryAddr:String): UserDetailsDto
 
     fun signInUser(req: LoginRequest): ResponseEntity<*>

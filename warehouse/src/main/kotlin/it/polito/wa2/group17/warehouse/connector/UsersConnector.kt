@@ -17,7 +17,7 @@ class UsersConnector {
 
     fun getAdmins(): List<UserDto> {
         return restTemplate.getForEntity(
-            "$uri/admins", Array<UserDto>::class.java
+            "$uri/auth/admins", Array<UserDto>::class.java
         ).body?.toList() ?: listOf()
     }
 }

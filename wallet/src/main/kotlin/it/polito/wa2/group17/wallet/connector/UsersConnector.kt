@@ -18,13 +18,13 @@ class UsersConnector {
 
     fun isAdmin(userId: Long): Boolean {
         return Role.ADMIN == restTemplate
-            .getForEntity("$uri/{}", UserDto::class.java, userId)
+            .getForEntity("$uri/auth/getUserInfo/{}", UserDto::class.java, userId)
             .body?.role
     }
 
     fun isCustomer(userId: Long): Boolean {
         return Role.CUSTOMER == restTemplate
-            .getForEntity("$uri/{}", UserDto::class.java, userId)
+            .getForEntity("$uri/auth/getUserInfo/{}", UserDto::class.java, userId)
             .body?.role
     }
 

@@ -1,7 +1,5 @@
 package it.polito.wa2.group17.catalog.security
 
-import it.polito.wa2.group17.catalog.connector.LoginConnector
-import it.polito.wa2.group17.catalog.connector.LoginConnectorMocked
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.exceptions.security.UserNotAdminException
 import it.polito.wa2.group17.catalog.exceptions.security.UserNotAllowedException
@@ -40,12 +38,7 @@ class OnlyAdminsAspect {
             throw IllegalStateException("Unexpected principal ${authentication.principal}")
 
         val user = authentication.principal as UserDetailsDto
-        logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ${user.username}")
         val actualUser = signInAndUserInfo.findUser(user.username)
-
-        if (actualUser != null) {
-            logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ${actualUser.username}")
-        }
 
         if (!actualUser!!.isEnabled)
             throw UserNotAllowedException(actualUser.username)
