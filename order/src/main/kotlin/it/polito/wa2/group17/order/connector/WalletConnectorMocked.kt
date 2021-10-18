@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.wallet.mock", name = ["enabled"], havingValue = "true")
 class WalletConnectorMocked: WalletConnector() {
     override fun getUserWallet(userId: Long): WalletModel? = WalletModel(1,userId,20000.0)

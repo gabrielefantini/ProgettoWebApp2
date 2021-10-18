@@ -9,9 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.product.mock", name = ["enabled"], havingValue = "true")
-
 class ProductConnectorMocked: ProductConnector() {
     override fun rateProductById(productId: Long, ratingDto: RatingRequest) = 0L
 

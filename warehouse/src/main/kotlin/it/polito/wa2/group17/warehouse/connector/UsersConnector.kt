@@ -4,9 +4,11 @@ import it.polito.wa2.group17.common.connector.Connector
 import it.polito.wa2.group17.warehouse.dto.UserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Primary
 import org.springframework.web.client.RestTemplate
 
 @Connector
+@Primary
 class UsersConnector {
 
     @Autowired

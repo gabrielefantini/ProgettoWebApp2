@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Primary
 import java.util.*
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.users.mock", name = ["enabled"], havingValue = "true")
 class UsersConnectorMocked : UsersConnector() {
 

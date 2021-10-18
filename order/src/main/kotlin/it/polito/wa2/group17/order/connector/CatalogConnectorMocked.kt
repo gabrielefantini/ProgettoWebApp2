@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.catalog.mock", name = ["enabled"], havingValue = "true")
 class CatalogConnectorMocked: CatalogConnector() {
     override fun getUserInfo(): UserModel = UserModel(1, "via DiProva 42", "ddjfdif@libero.it")

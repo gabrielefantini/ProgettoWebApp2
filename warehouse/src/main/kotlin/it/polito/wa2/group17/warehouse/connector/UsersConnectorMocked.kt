@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.users.mock", name = ["enabled"], havingValue = "true")
 class UsersConnectorMocked : UsersConnector() {
 

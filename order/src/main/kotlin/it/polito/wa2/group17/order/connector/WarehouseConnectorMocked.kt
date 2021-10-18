@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.warehouse.mock", name = ["enabled"], havingValue = "true")
 class WarehouseConnectorMocked: WarehouseConnector() {
     override fun getProduct(productId: Long): ProductModel?

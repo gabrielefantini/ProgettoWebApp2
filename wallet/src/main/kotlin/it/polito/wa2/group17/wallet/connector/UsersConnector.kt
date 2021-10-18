@@ -5,9 +5,11 @@ import it.polito.wa2.group17.wallet.dto.UserDto
 import it.polito.wa2.group17.wallet.enums.Role
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Primary
 import org.springframework.web.client.RestTemplate
 
 @Connector
+@Primary
 class UsersConnector {
 
     @Autowired

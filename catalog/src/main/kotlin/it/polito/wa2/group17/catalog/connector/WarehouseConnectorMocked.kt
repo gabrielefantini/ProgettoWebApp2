@@ -8,9 +8,7 @@ import java.time.Instant
 import java.util.*
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.warehouse.mock", name = ["enabled"], havingValue = "true")
-
 class WarehouseConnectorMocked: WarehouseConnector() {
     override fun getProducts(): List<StoredProductDto> = listOf(StoredProductDto(0, 10, 5), StoredProductDto(1, 20, 10), StoredProductDto(2, 30, 2))
 

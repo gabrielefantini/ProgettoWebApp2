@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
 
 @Connector
-@Primary
 @ConditionalOnProperty(prefix = "connectors.order.mock", name = ["enabled"], havingValue = "true")
 class OrderConnectorMocked: OrderConnector() {
     override fun getOrderById(orderId: Long): OrderDto? = OrderDto(orderId, 1, listOf(ProductOrderModel(0, 10, 15.0), ProductOrderModel(1, 20, 100.0)), 2150.0, OrderStatus.ISSUED);

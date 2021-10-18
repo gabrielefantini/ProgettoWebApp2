@@ -69,8 +69,10 @@ class OrderServiceImpl: OrderService {
         return orderRepo.findAll().map { it.convert() }
     }
 
+    private fun getOrderOrThrow(orderId: Long) = orderRepo.findById(orderId).orElseThrow { EntityNotFoundException(orderId) }
+
     override fun getOrder(orderId: Long): OrderDto {
-        return orderRepo.findByIdOrNull(orderId)?.convert() ?: throw EntityNotFoundException(orderId)
+        return getOrderOrThrow(orderId).convert()
     }
 
     //rollback needed

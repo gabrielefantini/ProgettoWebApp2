@@ -5,9 +5,11 @@ import it.polito.wa2.group17.order.model.TransactionModel
 import it.polito.wa2.group17.order.model.WalletModel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Primary
 import org.springframework.web.client.RestTemplate
 
 @Connector
+@Primary
 class WalletConnector {
     @Autowired
     private lateinit var restTemplate: RestTemplate
