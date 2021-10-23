@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.warehouse.controller
 
+import it.polito.wa2.group17.common.dto.NewProductRequest
 import it.polito.wa2.group17.common.dto.RatingDto
 import it.polito.wa2.group17.common.dto.RatingRequest
 import it.polito.wa2.group17.warehouse.dto.PatchProductRequest
@@ -30,6 +31,10 @@ class ProductController {
     @GetMapping("/{productId}")
     fun getProductById(@PathVariable productId: Long) =
         ResponseEntity.ok(productService.getProductById(productId))
+
+    @PostMapping
+    fun addProduct(@RequestBody @Valid product: NewProductRequest) =
+        ResponseEntity.ok(productService.addProduct(product))
 
     @PutMapping("/{productId}")
     fun putProductById(

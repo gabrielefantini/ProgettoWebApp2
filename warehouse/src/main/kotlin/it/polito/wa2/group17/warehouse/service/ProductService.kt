@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.warehouse.service
 
+import it.polito.wa2.group17.common.dto.NewProductRequest
 import it.polito.wa2.group17.common.dto.RatingDto
 import it.polito.wa2.group17.common.dto.RatingRequest
 import it.polito.wa2.group17.common.exception.EntitiesNotFoundException
@@ -31,6 +32,7 @@ import javax.mail.Store
 interface ProductService {
     fun getProductsByCategory(category: String): List<ProductDto>
     fun getProductById(id: Long): ProductDto
+    fun addProduct(product: NewProductRequest): ProductDto
     fun putProductById(productId: Long, productRequest: PutProductRequest): ProductDto
     fun patchProductById(productId: Long, patchProductRequest: PatchProductRequest): ProductDto
     fun deleteProductById(productId: Long): ProductDto
@@ -71,6 +73,20 @@ private open class ProductServiceImpl: ProductService {
     override fun getProductById(productId: Long): ProductDto {
         logger.info("Getting product by Id")
         return getProductOrThrow(productId).convert()
+    }
+
+    @MultiserviceTransactional
+    override fun addProduct(product: NewProductRequest): ProductDto {
+        logger.info("Creating new product")
+        val newProduct : ProductEntity = product.convert()
+        productRepository.save(newProduct)
+        return newProduct.convert()
+    }
+
+    @Rollback
+    private fun rollbackForAddProduct(product: NewProductRequest,createdProduct: ProductDto){
+        logger.warn("Rollback of addProduct")
+        productRepository.deleteById(createdProduct.id!!)
     }
 
     override fun putProductById(
