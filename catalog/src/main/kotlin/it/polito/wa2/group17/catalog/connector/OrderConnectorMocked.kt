@@ -24,7 +24,7 @@ class OrderConnectorMocked: OrderConnector() {
 
     override fun getOrdersByUsername(userId: Long?): List<OrderDto> = listOf(OrderDto(0, 1, listOf(ProductOrderModel(0, 10, 15.0), ProductOrderModel(1, 20, 100.0)), 2150.0, OrderStatus.ISSUED))
 
-    override fun getStatus(orderId: Long) = OrderDto(1, 2, listOf(), 0.0, OrderStatus.DELIVERED)
+    //override fun getStatus(orderId: Long) = OrderDto(1, 2, listOf(), 0.0, OrderStatus.DELIVERED)
 
     override fun changeStatus(productId: Long, status: OrderPatchRequest) = 0L
 }

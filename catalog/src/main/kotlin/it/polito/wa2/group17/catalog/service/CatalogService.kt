@@ -54,7 +54,7 @@ interface CatalogService {
     fun rateProduct(productId: Long, ratingDto: RatingRequest): Long?
 
     @Throws(EntityNotFoundException::class)
-    fun changeProductStatus(productId: Long, status: OrderPatchRequest): Long?
+    fun changeOrderStatus(orderId: Long, status: OrderPatchRequest): Long?
 
     @Throws(EntityNotFoundException::class)
     fun addWarehouse(warehouseRequest: WarehouseRequest): Long?
@@ -63,7 +63,7 @@ interface CatalogService {
     @Throws(EntityNotFoundException::class)
     fun deleteWarehouse(warehouseId: Long): Long
 
-    fun addProduct(productId: Long, putProductRequest: PutProductRequest): Long
+    fun addProduct(newProductRequest: NewProductRequest): ProductDto?
 
     fun deleteProduct(productId: Long): Long
 
@@ -164,15 +164,15 @@ private open class CatalogServiceImpl() : CatalogService {
     }
 
     override fun getOrderStatus(orderId: Long): OrderStatus? {
-        return orderConnector.getStatus(orderId)?.status
+        return orderConnector.getOrderById(orderId)?.status
     }
 
     override fun rateProduct(productId: Long, ratingDto: RatingRequest): Long? {
         return productConnector.rateProductById(productId, ratingDto)
     }
 
-    override fun changeProductStatus(productId: Long, status: OrderPatchRequest): Long? {
-        return orderConnector.changeStatus(productId, status)
+    override fun changeOrderStatus(orderId: Long, status: OrderPatchRequest): Long? {
+        return orderConnector.changeStatus(orderId, status)
     }
 
     override fun addWarehouse(warehouseRequest: WarehouseRequest): Long? {
@@ -183,8 +183,8 @@ private open class CatalogServiceImpl() : CatalogService {
         return warehouseConnector.deleteWarehouse(warehouseId)
     }
 
-    override fun addProduct(productId: Long, putProductRequest: PutProductRequest): Long {
-        return productConnector.addProduct(productId, putProductRequest)
+    override fun addProduct(newProductRequest: NewProductRequest): ProductDto? {
+        return productConnector.addProduct(newProductRequest)
     }
 
     override fun deleteProduct(productId: Long): Long {

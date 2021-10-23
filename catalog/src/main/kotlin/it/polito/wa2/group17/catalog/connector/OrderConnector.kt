@@ -68,21 +68,21 @@ class OrderConnector {
 
     }
 
-    fun getStatus(orderId: Long): OrderDto? {
+    /*fun getStatus(orderId: Long): OrderDto? {
         return restTemplate.getForEntity(
             "$uri/$orderId", OrderDto::class.java
         ).body
-    }
+    }*/
 
 
-    fun changeStatus(productId: Long, status: OrderPatchRequest): Long? {
+    fun changeStatus(orderId: Long, status: OrderPatchRequest): Long? {
         val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
+        headers.contentType = MediaType.APPLICATION_JSON
 
         val requestEntity: HttpEntity<OrderPatchRequest> = HttpEntity(status, headers)
 
         val responseEntity: OrderDto? =
-            restTemplate.patchForObject("$uri/$productId/rating", requestEntity, OrderDto::class.java)
+            restTemplate.patchForObject("$uri/orders/$orderId", requestEntity, OrderDto::class.java)
 
         return responseEntity?.id
     }
