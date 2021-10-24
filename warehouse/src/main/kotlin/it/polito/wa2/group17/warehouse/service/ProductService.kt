@@ -30,7 +30,7 @@ import java.util.*
 import javax.mail.Store
 
 interface ProductService {
-    fun getProductsByCategory(category: String): List<ProductDto>
+    fun getProductsByCategory(category: String?): List<ProductDto>
     fun getProductById(id: Long): ProductDto
     fun addProduct(product: NewProductRequest): ProductDto
     fun putProductById(productId: Long, productRequest: PutProductRequest): ProductDto
@@ -63,10 +63,16 @@ private open class ProductServiceImpl: ProductService {
 
     private fun getProductOrThrow(productId: Long) = productRepository.findById(productId).orElseThrow { EntityNotFoundException(productId) }
 
-    override fun getProductsByCategory(category: String): List<ProductDto> {
-        logger.info("Getting products by category")
-        val result = productRepository.findProductEntitiesByCategory(category)
-        if(result.isEmpty()) throw EntitiesNotFoundException(category)
+    override fun getProductsByCategory(category: String?): List<ProductDto> {
+        var categ = category
+        if(categ == "null" ) categ = null
+        logger.info("Getting products by category ${categ ?: "all"}")
+        val result = if(categ != null)
+            productRepository.findProductEntitiesByCategory(categ)
+        else
+            productRepository.findAll().toList()
+
+        if(result.isEmpty()) throw EntitiesNotFoundException(category ?: "all")
         else return result.map{ it.convert() }
     }
 

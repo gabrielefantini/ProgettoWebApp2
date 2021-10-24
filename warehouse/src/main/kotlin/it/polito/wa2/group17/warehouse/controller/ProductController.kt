@@ -24,7 +24,7 @@ class ProductController {
     private lateinit var productService: ProductService
 
     @GetMapping
-    fun getProductsByCategory(@RequestParam(name = "category", required = false) category:String) =
+    fun getProductsByCategory(@RequestParam(name = "category", required = false) category:String?) =
         ResponseEntity.ok(productService.getProductsByCategory(category))
 
 

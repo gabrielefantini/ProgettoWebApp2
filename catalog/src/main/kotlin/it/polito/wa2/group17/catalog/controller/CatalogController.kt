@@ -16,13 +16,15 @@ import javax.validation.Valid
     produces = [MediaType.APPLICATION_JSON_VALUE]
 )
 class CatalogController {
+
     @Autowired
     private lateinit var catalogService: CatalogService
 
+    // order-service ***
 
     @GetMapping ("/orders")
     @OnlyEnabledUsers
-    fun getOrdersByUsername(): ResponseEntity<List<OrderDto>> {
+    fun getMyOrders(): ResponseEntity<List<OrderDto>> {
         return ResponseEntity.ok(catalogService.getOrders())
     }
 
@@ -32,70 +34,16 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.getOrderById(orderId))
     }
 
-    @PostMapping("/orders")
-    @OnlyEnabledUsers
-    fun addOrder(@RequestBody order: OrderDto): Long {
-        return catalogService.addNewOrder(order)
-    }
-
-    // tutti possono elencare i prodotti
-    @GetMapping("/products")
-    fun getProducts(): ResponseEntity<List<StoredProductDto>> {
-        return ResponseEntity.ok(catalogService.listProducts())
-    }
-
-    @GetMapping("/products/{productId}")
-    fun getProductById(@PathVariable productId: Long): ResponseEntity<StoredProductDto> {
-        return ResponseEntity.ok(catalogService.getProduct(productId))
-    }
-
-    @GetMapping("/products/{productId}/picture")
-    fun getPicture(@PathVariable productId: Long): ResponseEntity<PostPicture> {
-        return ResponseEntity.ok(catalogService.getPicture(productId))
-    }
-
-    @GetMapping("/wallets")
-    @OnlyEnabledUsers
-    fun getMyWallets(): ResponseEntity<Wallet> {
-        return ResponseEntity.ok(catalogService.getWallets())
-    }
-
-    @DeleteMapping("/orders/{orderId}")
-    @OnlyEnabledUsers
-    fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Unit> {
-        return ResponseEntity.ok(catalogService.cancelUserOrder(orderId))
-    }
-
-    @PutMapping("/products/{productId}/picture")
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun addPicture(@PathVariable productId: Long, @RequestBody @Valid picture: PostPicture): ResponseEntity<ProductDto?> {
-        return ResponseEntity.ok(catalogService.addProductPicture(productId, picture))
-    }
-
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PatchMapping("/products/{productId}")
-    fun patchProductById(@PathVariable productId: Long, @RequestBody @Valid product: PatchProductRequest) =
-        ResponseEntity.ok(catalogService.patchProductById(productId,product)
-    )
-
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/warehouses/{warehouseId}/products")
-    fun addProductToWarehouse(@PathVariable warehouseId: Long, @RequestBody @Valid addProductRequest: AddProductRequest
-    ): ResponseEntity<StoredProductDto?> {
-        return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, addProductRequest))
-    }
-
     @GetMapping("/orders/{orderId}/status")
     @OnlyEnabledUsers
     fun getOrderStatus(@PathVariable orderId: Long): ResponseEntity<OrderStatus?>{
         return ResponseEntity.ok(catalogService.getOrderStatus(orderId))
     }
 
-    @PostMapping("/products/{productId}/rating")
+    @PostMapping("/orders")
     @OnlyEnabledUsers
-    fun rateProduct(@PathVariable productId: Long, @RequestBody @Valid ratingRequest: RatingRequest): ResponseEntity<Long?> {
-        //val rating = RatingDto(null, ratingRequest.stars, ratingRequest.comment)
-        return ResponseEntity.ok(catalogService.rateProduct(productId, ratingRequest))
+    fun addOrder(@RequestBody order: OrderDto): Long {
+        return catalogService.addNewOrder(order)
     }
 
     @PatchMapping("/orders/{orderId}/status")
@@ -104,29 +52,88 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.changeOrderStatus(orderId, status))
     }
 
-    @PutMapping("/warehouses")
-    @OnlyAdmins
-    fun addWarehouse(@RequestBody @Valid warehouseRequest: WarehouseRequest): ResponseEntity<Long?> {
-        return ResponseEntity.ok(catalogService.addWarehouse(warehouseRequest))
+    @DeleteMapping("/orders/{orderId}")
+    @OnlyEnabledUsers
+    fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Unit> {
+        return ResponseEntity.ok(catalogService.cancelUserOrder(orderId))
     }
 
-    @PutMapping("/warehouses/{warehouseId}/products")
-    @OnlyAdmins
-    fun addProductToWarehouseFun(@PathVariable warehouseId: Long, @RequestBody @Valid putProductRequest: AddProductRequest): ResponseEntity<Long?> {
-        return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, putProductRequest)?.productId)
+    // ******
+
+    // wallet-service ***
+
+    @GetMapping("/wallets")
+    @OnlyEnabledUsers
+    fun getMyWallets(): ResponseEntity<Wallet> {
+        return ResponseEntity.ok(catalogService.getWallets())
     }
 
-    @DeleteMapping("/warehouses/{warehouseId}")
-    @OnlyAdmins
-    fun deleteWarehouse(@PathVariable warehouseId: Long) = catalogService.deleteWarehouse(warehouseId)
+    // ******
 
+    // warehouse-service / products ***
+
+    @GetMapping("/products")
+    fun getProductsByCategory(@RequestParam(name = "category", required = false) category:String?) = ResponseEntity.ok(catalogService.getProductsByCategory(category))
+
+    @GetMapping("/products/{productId}")
+    fun getProductById(@PathVariable productId: Long) =
+        ResponseEntity.ok(catalogService.getProduct(productId))
+
+    @GetMapping("/products/{productId}/picture")
+    fun getPicture(@PathVariable productId: Long) =
+        ResponseEntity.ok(catalogService.getPicture(productId))
+
+    @PostMapping("/products")
+    @OnlyAdmins
+    fun addProduct(@RequestBody @Valid newProductRequest: NewProductRequest) = catalogService.addProduct(newProductRequest)
+
+    @PostMapping("/products/{productId}/rating")
+    @OnlyEnabledUsers
+    fun rateProduct(@PathVariable productId: Long, @RequestBody @Valid ratingRequest: RatingRequest): ResponseEntity<Long?> {
+        //val rating = RatingDto(null, ratingRequest.stars, ratingRequest.comment)
+        return ResponseEntity.ok(catalogService.rateProduct(productId, ratingRequest))
+    }
+
+    @PutMapping("/products/{productId}/picture")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    fun addPicture(@PathVariable productId: Long, @RequestBody @Valid picture: PostPicture) =
+        ResponseEntity.ok(catalogService.addProductPicture(productId, picture))
+
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PatchMapping("/products/{productId}")
+    fun patchProductById(@PathVariable productId: Long, @RequestBody @Valid product: PatchProductRequest) =
+        ResponseEntity.ok(catalogService.patchProductById(productId,product))
 
     @DeleteMapping("/products/{productId}")
     @OnlyAdmins
     fun deleteProduct(@PathVariable productId: Long) = catalogService.deleteProduct(productId)
 
-    @PostMapping("/products")
+    // ******
+
+    // warehouse-service / warehouses ***
+
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/warehouses/{warehouseId}/products")
+    fun addProductToWarehouse(@PathVariable warehouseId: Long, @RequestBody @Valid addProductRequest: AddProductRequest
+    ): ResponseEntity<StoredProductDto?> {
+        return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, addProductRequest))
+    }
+
+    @PostMapping("/warehouses")
     @OnlyAdmins
-    fun addProduct(@RequestBody @Valid newProductRequest: NewProductRequest) = catalogService.addProduct(newProductRequest)
+    fun addWarehouse(@RequestBody @Valid warehouseRequest: WarehouseRequest) =
+        ResponseEntity.ok(catalogService.addWarehouse(warehouseRequest))
+
+    @PutMapping("/warehouses/{warehouseId}/products")
+    @OnlyAdmins
+    fun addProductToWarehouseFun(@PathVariable warehouseId: Long, @RequestBody @Valid putProductRequest: AddProductRequest) =
+        ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, putProductRequest)?.productId)
+
+    @DeleteMapping("/warehouses/{warehouseId}")
+    @OnlyAdmins
+    fun deleteWarehouse(@PathVariable warehouseId: Long) =
+        catalogService.deleteWarehouse(warehouseId)
+
+    // ******
 
 }

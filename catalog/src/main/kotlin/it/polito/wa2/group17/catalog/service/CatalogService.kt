@@ -24,10 +24,10 @@ interface CatalogService {
     fun addNewOrder(order: OrderDto): Long
 
     @Throws(EntityNotFoundException::class)
-    fun listProducts(): List<StoredProductDto>
+    fun getProductsByCategory(category: String?): List<ProductDto>
 
     @Throws(EntityNotFoundException::class)
-    fun getProduct(productId: Long): StoredProductDto?
+    fun getProduct(productId: Long): ProductDto?
 
     @Throws(EntityNotFoundException::class)
     fun getWallets(): Wallet?
@@ -113,12 +113,12 @@ private open class CatalogServiceImpl() : CatalogService {
         logger.warn("Rollback of order with ID ${order.id}")
     }
 
-    override fun listProducts(): List<StoredProductDto> {
-        logger.info("Listing all the products...")
-        return warehouseConnector.getProducts()
+    override fun getProductsByCategory(category: String?): List<ProductDto> {
+        logger.info("Listing all the products of category '${category ?: "all"}'")
+        return warehouseConnector.getProducts(category)
     }
 
-    override fun getProduct(productId: Long): StoredProductDto? {
+    override fun getProduct(productId: Long): ProductDto? {
         logger.info("Searching for product with id {}", productId)
         return warehouseConnector.getProductById(productId)
     }

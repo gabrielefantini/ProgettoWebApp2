@@ -10,7 +10,7 @@ import java.util.*
 
 @Repository
 interface ProductRepository: CrudRepository<ProductEntity,Long>{
-    fun findProductEntitiesByCategory(category: String?): List<ProductEntity>
+    fun findProductEntitiesByCategory(category: String): List<ProductEntity>
     fun save(product: Optional<ProductEntity>)
 
     @Modifying

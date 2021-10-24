@@ -9,6 +9,7 @@ data class ProductDto (
     var pictureURL: String?,
     var category: String?,
     var price: Double?,
+    val ratings: List<RatingDto>?,
     var avgRating: Double?,
     var creationDate: Date?,
 )

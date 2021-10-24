@@ -22,15 +22,15 @@ class WarehouseConnector {
     @Value("\${connectors.warehouse.uri}")
     private lateinit var uri: String
 
-    fun getProducts(): List<StoredProductDto> {
+    fun getProducts(category: String?): List<ProductDto> {
         return restTemplate.getForEntity(
-            "$uri/products", Array<StoredProductDto>::class.java
+            "$uri/products?category=$category", Array<ProductDto>::class.java
         ).body?.toList() ?: listOf()
     }
 
-    fun getProductById(productId: Long): StoredProductDto? {
+    fun getProductById(productId: Long): ProductDto? {
         return restTemplate.getForEntity(
-            "$uri/products/$productId", StoredProductDto::class.java
+            "$uri/products/$productId", ProductDto::class.java
         ).body
     }
 
@@ -53,9 +53,9 @@ class WarehouseConnector {
         val requestEntity: HttpEntity<PostPicture> = HttpEntity(picture, headers)
 
         val responseEntity: ResponseEntity<ProductDto> =
-            restTemplate.postForEntity("$uri/$productId/picture", requestEntity, ProductDto::class.java)
+            restTemplate.postForEntity("$uri/products/$productId/picture", requestEntity, ProductDto::class.java)
 
-        System.out.println("Status Code: " + responseEntity.statusCode)
+        println("Status Code: " + responseEntity.statusCode)
 
         return responseEntity.body
     }
@@ -93,9 +93,9 @@ class WarehouseConnector {
         val requestEntity: HttpEntity<WarehouseRequest> = HttpEntity(warehouseRequest, headers)
 
         val responseEntity: ResponseEntity<Long> =
-            restTemplate.postForEntity("$uri/", requestEntity, Long::class.java)
+            restTemplate.postForEntity("$uri/warehouses", requestEntity, Long::class.java)
 
-        System.out.println("Status Code: " + responseEntity.statusCode)
+        println("Status Code: " + responseEntity.statusCode)
 
         return responseEntity.body
     }
