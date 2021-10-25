@@ -33,7 +33,7 @@ interface OrderService{
     fun getOrder(orderId: Long): OrderDto
     fun addOrder(orderReq: OrderRequest): OrderDto
     fun updateOrder(orderId: Long,orderPatchRequest: OrderPatchRequest,userId: Long): OrderUpdate
-    fun deleteOrder(orderId: Long): OrderDto
+    fun deleteOrder(orderId: Long,userId: Long): OrderDto
 }
 
 @Service
@@ -282,7 +282,7 @@ class OrderServiceImpl: OrderService {
                 }
                 if( orderPatchRequest.status == OrderStatus.FAILED){
                     restoreQuantities(order)
-                    refundCustomer(order,userId)
+                    refundCustomer(order,userId,OrderStatus.FAILED)
                     order.status = OrderStatus.FAILED
                     return OrderUpdate(orderRepo.save(order).convert(), OrderStatus.DELIVERING)
                 } else throw GenericBadRequestException("Invalid status update")
@@ -291,7 +291,7 @@ class OrderServiceImpl: OrderService {
             OrderStatus.DELIVERED -> {
                 if( orderPatchRequest.status == OrderStatus.FAILED){
                     restoreQuantities(order)
-                    refundCustomer(order,userId)
+                    refundCustomer(order,userId,OrderStatus.FAILED)
                     order.status = OrderStatus.FAILED
                     return OrderUpdate(orderRepo.save(order).convert(), OrderStatus.DELIVERED)
                 } else throw GenericBadRequestException("Invalid status update")
@@ -306,22 +306,24 @@ class OrderServiceImpl: OrderService {
             ?.forEach {
             delivery ->
                 warehouseConnector
-                    .updateProductQuantity(
+                    .restoreProduct(
                         delivery.warehouseId!!,
-                        delivery.productId!!,
-                        UpdateProductRequest(delivery.quantity.toInt())
+                        RestoreProductRequest(
+                            delivery.productId!!,
+                            delivery.quantity.toInt()
+                        )
                     )
         }
     }
 
-    private fun refundCustomer(order: OrderEntity,userId: Long){
-        //val userId = catalogConnector.getUserInfo()?.id ?: throw UserNotFoundException()    //id of the user performing the transaction => admin (since updateOrder is used only by admins)
+    private fun refundCustomer(order: OrderEntity,userId: Long,status: OrderStatus){
+        //userId : id of the user performing the transaction => admin (since updateOrder is used only by admins)
         val buyerId = order.buyerId!!   //id of the user involved in the order => wallet owner
         val wallet = walletConnector.getUserWallet(buyerId) ?: throw WalletException(buyerId)
         walletConnector
             .addWalletTransaction(
                 TransactionModel(
-                    reason = "refund of order with ID ${order.getId()}",
+                    reason = "refund : order $status",
                     userId = userId,
                     amount = order.price,
                     timeInstant = Calendar.getInstance().toInstant(),
@@ -339,11 +341,11 @@ class OrderServiceImpl: OrderService {
     }
 
     @MultiserviceTransactional
-    override fun deleteOrder(orderId: Long): OrderDto {
+    override fun deleteOrder(orderId: Long,userId: Long): OrderDto {
         logger.info("Deleting order with Id: $orderId")
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
         if(order.status != OrderStatus.ISSUED) throw GenericBadRequestException("Too late to delete the order")
-        refundCustomer(order,1)
+        refundCustomer(order,userId,OrderStatus.CANCELED)
         order.status = OrderStatus.CANCELED
         return orderRepo.save(order).convert()
     }

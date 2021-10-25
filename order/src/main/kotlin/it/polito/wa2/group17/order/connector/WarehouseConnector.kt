@@ -33,9 +33,10 @@ class WarehouseConnector {
             "$uri/warehouses/${warehouseId}/sell",productBuyRequest, BuyProductResponse::class.java
         ).body
     }
-    fun updateProductQuantity(warehouseId: Long, productId: Long, updateProductRequest: UpdateProductRequest): StoredProductModel? {
-        return restTemplate.patchForObject(
-            "$uri/warehouses/${warehouseId}/products/${productId}",updateProductRequest, StoredProductModel::class.java
-        )
+
+    fun restoreProduct(warehouseId: Long,restoreProductRequest: RestoreProductRequest): StoredProductModel? {
+        return restTemplate.postForEntity(
+            "$uri/warehouses/${warehouseId}/fulfill",restoreProductRequest, StoredProductModel::class.java
+        ).body
     }
 }

@@ -55,18 +55,8 @@ class OrderConnector {
         ).body
     }
 
-    fun cancelOrder(orderId: Long) {
-        val order = restTemplate.getForEntity(
-            "$uri/orders/{orderId}", OrderDto::class.java
-        ).body
-        if (order != null) {
-            if (order.status == OrderStatus.ISSUED) {
-                restTemplate.delete("$uri/orders/$orderId", null)
-            }
-            throw GenericBadRequestException("The shipping is started!")
-        }
-        throw EntityNotFoundException("Order with id $orderId")
-
+    fun cancelOrder(orderId: Long,userId: Long) {
+        restTemplate.delete("$uri/orders/$orderId?userId=$userId")
     }
 
     fun changeStatus(orderId: Long, status: OrderPatchRequest,userId: Long): Long? {

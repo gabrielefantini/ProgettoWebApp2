@@ -114,12 +114,13 @@ private open class WalletServiceImpl(
             ?: throw EntityNotFoundException("Source wallet with id $sourceWalletId")
 
         if (amount > 0) {
+            //check if the positive transaction is about canceled orders (possible for a customer)
             //check if an admin is performing this operation
-            if (!usersConnector.isAdmin(userId))
+            if(reason != "refund : order CANCELED" && !usersConnector.isAdmin(userId))
                 throw InvalidTransactionException(
                     sourceWalletId,
                     amount,
-                    "Transactions with positive amount can be performed only by admins"
+                    "Not-admin positive transactions can only be performed through refund of a cancelled order"
                 )
         } else {
             // check if the authenticated user is the owner of the wallet

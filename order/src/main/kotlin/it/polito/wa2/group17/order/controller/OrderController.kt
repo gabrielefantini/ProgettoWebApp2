@@ -50,6 +50,6 @@ class OrderController {
 
     //DELETE
     @DeleteMapping("/{orderId}")
-    fun deleteOrder(@PathVariable orderId: Long) =
-        ResponseEntity.ok(orderService.deleteOrder(orderId))
+    fun deleteOrder(@PathVariable orderId: Long,@RequestParam userId: Long) =
+        ResponseEntity.ok(orderService.deleteOrder(orderId,userId))
 }

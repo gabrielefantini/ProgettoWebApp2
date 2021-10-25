@@ -30,9 +30,11 @@ class WarehouseConnectorMocked: WarehouseConnector() {
             20 - productBuyRequest.quantity,
             warehouseId
         )
+    /*
     override fun updateProductQuantity(warehouseId: Long, productId: Long, updateProductRequest: UpdateProductRequest): StoredProductModel? =
         StoredProductModel(
             productId,
             updateProductRequest.quantity ?: 0
         )
+    */
 }

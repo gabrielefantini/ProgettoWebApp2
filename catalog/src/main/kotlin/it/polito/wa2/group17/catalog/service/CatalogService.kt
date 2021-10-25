@@ -136,7 +136,8 @@ private open class CatalogServiceImpl() : CatalogService {
     @MultiserviceTransactional
     override fun cancelUserOrder(orderId: Long) {
         logger.info("Cancelling order {}", orderId)
-        return orderConnector.cancelOrder(orderId)
+        val user = signInAndUserInfo.getUserInformation()
+        return orderConnector.cancelOrder(orderId,user?.id!!)
     }
 
     @Rollback
