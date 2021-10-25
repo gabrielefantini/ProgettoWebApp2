@@ -1,9 +1,8 @@
 package it.polito.wa2.group17.catalog.connector
 
+import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.common.connector.Connector
-import it.polito.wa2.group17.common.dto.OrderDto
-import it.polito.wa2.group17.common.dto.OrderPatchRequest
-import it.polito.wa2.group17.common.dto.OrderStatus
+import it.polito.wa2.group17.common.dto.*
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
 import it.polito.wa2.group17.common.exception.GenericBadRequestException
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,10 +11,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
-import kotlin.jvm.Throws
 
 @Connector
 @Primary
@@ -33,20 +29,25 @@ class OrderConnector {
         ).body?.toList()?.filter { it.buyerId == userId }
     }
 
-    fun addOrder(order: OrderDto): Long {
-        val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
-
-        val requestEntity: HttpEntity<OrderDto> = HttpEntity(order, headers)
-
-        val restTemplate = RestTemplate()
-        val responseEntity: ResponseEntity<OrderDto> =
-            restTemplate.postForEntity("$uri/orders", requestEntity, OrderDto::class.java)
-
-        System.out.println("Status Code: " + responseEntity.statusCode)
-
-        return responseEntity.body?.id?:0L
+    fun addOrder(order: NewOrderRequest, user: UserDetailsDto): Long {
+        val orderReq = OrderRequest(
+            userId = user.id!!,
+            deliveryAddr = user.deliveryAddr,
+            email = user.email,
+            productOrders = order.productOrders
+        )
+        return restTemplate
+            .postForEntity("$uri/orders",orderReq,OrderDto::class.java)
+            .body?.id ?:0
     }
+
+    /*
+    fun addWalletTransaction(transaction: TransactionModel, walletId: Long): TransactionModel? {
+        return restTemplate
+            .postForEntity("$uri/wallets/${walletId}/transactions",transaction, TransactionModel::class.java)
+            .body
+    }
+    */
 
     fun getOrderById(orderId: Long): OrderDto? {
         return restTemplate.getForEntity(
@@ -68,21 +69,14 @@ class OrderConnector {
 
     }
 
-    /*fun getStatus(orderId: Long): OrderDto? {
-        return restTemplate.getForEntity(
-            "$uri/$orderId", OrderDto::class.java
-        ).body
-    }*/
-
-
-    fun changeStatus(orderId: Long, status: OrderPatchRequest): Long? {
+    fun changeStatus(orderId: Long, status: OrderPatchRequest,userId: Long): Long? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
         val requestEntity: HttpEntity<OrderPatchRequest> = HttpEntity(status, headers)
 
         val responseEntity: OrderDto? =
-            restTemplate.patchForObject("$uri/orders/$orderId", requestEntity, OrderDto::class.java)
+            restTemplate.patchForObject("$uri/orders/$orderId?userId=$userId", requestEntity, OrderDto::class.java)
 
         return responseEntity?.id
     }

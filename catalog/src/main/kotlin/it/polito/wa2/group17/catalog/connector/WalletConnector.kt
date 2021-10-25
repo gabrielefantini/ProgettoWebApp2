@@ -1,7 +1,7 @@
-package it.polito.wa2.group17.order.connector
+package it.polito.wa2.group17.catalog.connector
 
 import it.polito.wa2.group17.common.connector.Connector
-import it.polito.wa2.group17.order.model.UserModel
+import it.polito.wa2.group17.common.dto.Wallet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Primary
@@ -9,17 +9,18 @@ import org.springframework.web.client.RestTemplate
 
 @Connector
 @Primary
-class CatalogConnector {
+class WalletConnector {
     @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @Value("\${connectors.catalog.uri}")
+    @Value("\${connectors.wallet.uri}")
     private lateinit var uri: String
 
-    fun getUserInfo(): UserModel? {
-        return restTemplate
-            .getForEntity("$uri/auth/getUserInfo", UserModel::class.java)
-            .body
+
+    fun getWalletsByUserId(userId: Long): Wallet? {
+        return restTemplate.getForEntity(
+            "$uri/wallets/users/$userId", Wallet::class.java
+        ).body
     }
 
 }

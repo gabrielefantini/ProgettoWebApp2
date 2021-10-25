@@ -1,4 +1,4 @@
-package it.polito.wa2.group17.order.model
+package it.polito.wa2.group17.common.dto
 
 import org.jetbrains.annotations.NotNull
 import javax.validation.Valid

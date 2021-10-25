@@ -32,7 +32,7 @@ interface OrderService{
     fun getOrders(): List<OrderDto>
     fun getOrder(orderId: Long): OrderDto
     fun addOrder(orderReq: OrderRequest): OrderDto
-    fun updateOrder(orderId: Long,orderPatchRequest: OrderPatchRequest): OrderUpdate
+    fun updateOrder(orderId: Long,orderPatchRequest: OrderPatchRequest,userId: Long): OrderUpdate
     fun deleteOrder(orderId: Long): OrderDto
 }
 
@@ -66,6 +66,7 @@ class OrderServiceImpl: OrderService {
 
     //rollback not needed
     override fun getOrders(): List<OrderDto> {
+        logger.info("Getting all orders")
         return orderRepo.findAll().map { it.convert() }
     }
 
@@ -88,7 +89,7 @@ class OrderServiceImpl: OrderService {
 
     @MultiserviceTransactional
     override fun addOrder(orderReq: OrderRequest): OrderDto {
-        logger.info("Adding Order")
+        logger.info("Creating new order")
         //calcolo del costo totale
         val totalCost =
         orderReq
@@ -141,7 +142,7 @@ class OrderServiceImpl: OrderService {
         //todo--> vedere se si puo fare anche senza save
         orderEntity = orderRepo.save(orderEntity)
 
-        val user = catalogConnector.getUserInfo()?: throw UserNotFoundException()
+        //val user = catalogConnector.getUserInfo()?: throw UserNotFoundException()
         
         //aggiungo le delivery list
         orderReq
@@ -158,7 +159,7 @@ class OrderServiceImpl: OrderService {
                                 val amountAvailable = warehouse.products.find { it.productId == product.productId }?.quantity!!
                                 if(amountAvailable - productQuantity >= 0){
                                     val delivery = DeliveryEntity(
-                                        user.deliveryAddr,
+                                        orderReq.deliveryAddr,
                                         warehouse.id,
                                         product.productId,
                                         productQuantity,
@@ -168,7 +169,7 @@ class OrderServiceImpl: OrderService {
                                     deliveryRepository.save(delivery)
                                 } else if( amountAvailable != 0 ){
                                     val delivery = DeliveryEntity(
-                                        user.deliveryAddr,
+                                        orderReq.deliveryAddr,
                                         warehouse.id,
                                         product.productId,
                                         amountAvailable.toLong(),
@@ -189,12 +190,12 @@ class OrderServiceImpl: OrderService {
             Calendar.getInstance().toInstant()
         )
 
-        walletConnector.addWalletTransaction(transaction, wallet.walletId) ?: throw TransactionException()
+        walletConnector.addWalletTransaction(transaction, wallet.id) ?: throw TransactionException()
         
         //TODO
         //notifico via email
         /*
-        mailService.sendMessage(user.email, "Order number ${orderEntity.getId()}", "")
+        mailService.sendMessage(orderReq.email, "Order number ${orderEntity.getId()}", "")
 
         usersConnector.getAdmins().forEach {
             mailService.sendMessage(it.email, "PRODUCTS QUANTITY ALARM", "")
@@ -246,13 +247,13 @@ class OrderServiceImpl: OrderService {
     }
 
     @Rollback
-    private fun rollbackForAddOrder(orderReq: OrderRequest,order: OrderDto){
+    private fun rollbackForAddOrder(orderReq: OrderRequest, order: OrderDto){
         logger.warn("rollback of order with ID ${order.id}")
         orderRepo.deleteById(order.id)
     }
 
     @MultiserviceTransactional
-    override fun updateOrder(orderId: Long, orderPatchRequest: OrderPatchRequest): OrderUpdate {
+    override fun updateOrder(orderId: Long, orderPatchRequest: OrderPatchRequest,userId: Long): OrderUpdate {
         logger.info("Updating order status")
 
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
@@ -281,7 +282,7 @@ class OrderServiceImpl: OrderService {
                 }
                 if( orderPatchRequest.status == OrderStatus.FAILED){
                     restoreQuantities(order)
-                    refundCustomer(order)
+                    refundCustomer(order,userId)
                     order.status = OrderStatus.FAILED
                     return OrderUpdate(orderRepo.save(order).convert(), OrderStatus.DELIVERING)
                 } else throw GenericBadRequestException("Invalid status update")
@@ -290,7 +291,7 @@ class OrderServiceImpl: OrderService {
             OrderStatus.DELIVERED -> {
                 if( orderPatchRequest.status == OrderStatus.FAILED){
                     restoreQuantities(order)
-                    refundCustomer(order)
+                    refundCustomer(order,userId)
                     order.status = OrderStatus.FAILED
                     return OrderUpdate(orderRepo.save(order).convert(), OrderStatus.DELIVERED)
                 } else throw GenericBadRequestException("Invalid status update")
@@ -313,8 +314,8 @@ class OrderServiceImpl: OrderService {
         }
     }
 
-    private fun refundCustomer(order: OrderEntity){
-        val userId = catalogConnector.getUserInfo()?.id ?: throw UserNotFoundException()    //id of the user performing the transaction => admin (since updateOrder is used only by admins)
+    private fun refundCustomer(order: OrderEntity,userId: Long){
+        //val userId = catalogConnector.getUserInfo()?.id ?: throw UserNotFoundException()    //id of the user performing the transaction => admin (since updateOrder is used only by admins)
         val buyerId = order.buyerId!!   //id of the user involved in the order => wallet owner
         val wallet = walletConnector.getUserWallet(buyerId) ?: throw WalletException(buyerId)
         walletConnector
@@ -325,12 +326,12 @@ class OrderServiceImpl: OrderService {
                     amount = order.price,
                     timeInstant = Calendar.getInstance().toInstant(),
                 ),
-                wallet.walletId
+                wallet.id
             )
     }
 
     @Rollback
-    private fun rollbackForUpdateOrder(orderId: Long, orderPatchRequest: OrderPatchRequest, orderUpdate: OrderUpdate){
+    private fun rollbackForUpdateOrder(orderId: Long, orderPatchRequest: OrderPatchRequest,userId: Long, orderUpdate: OrderUpdate){
         logger.warn("Rollback of status update")
         val orderEntity = orderRepo.findByIdOrNull(orderUpdate.newOrder.id) ?: throw EntityNotFoundException(orderUpdate.newOrder.id)
         orderEntity.status = orderUpdate.oldStatus
@@ -342,7 +343,7 @@ class OrderServiceImpl: OrderService {
         logger.info("Deleting order with Id: $orderId")
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
         if(order.status != OrderStatus.ISSUED) throw GenericBadRequestException("Too late to delete the order")
-        refundCustomer(order)
+        refundCustomer(order,1)
         order.status = OrderStatus.CANCELED
         return orderRepo.save(order).convert()
     }

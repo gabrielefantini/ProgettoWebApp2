@@ -19,14 +19,14 @@ class UsersConnector {
     private lateinit var uri: String
 
     fun isAdmin(userId: Long): Boolean {
-        return Role.ADMIN == restTemplate
-            .getForEntity("$uri/auth/getUserInfo/{}", UserDto::class.java, userId)
-            .body?.role
+        return restTemplate
+            .getForEntity("$uri/auth/admins", Array<UserDto>::class.java)
+            .body?.map { it.id }?.contains(userId) ?: false
     }
 
-    fun isCustomer(userId: Long): Boolean {
+    fun isCustomer(): Boolean {
         return Role.CUSTOMER == restTemplate
-            .getForEntity("$uri/auth/getUserInfo/{}", UserDto::class.java, userId)
+            .getForEntity("$uri/auth/getUserInfo", UserDto::class.java)
             .body?.role
     }
 

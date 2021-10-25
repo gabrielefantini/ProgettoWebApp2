@@ -42,7 +42,7 @@ class CatalogController {
 
     @PostMapping("/orders")
     @OnlyEnabledUsers
-    fun addOrder(@RequestBody order: OrderDto): Long {
+    fun addOrder(@RequestBody @Valid order: NewOrderRequest): Long {
         return catalogService.addNewOrder(order)
     }
 

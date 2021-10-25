@@ -21,7 +21,7 @@ interface CatalogService {
     fun getOrderById(orderId: Long): OrderDto?
 
     @Throws(EntityNotFoundException::class)
-    fun addNewOrder(order: OrderDto): Long
+    fun addNewOrder(order: NewOrderRequest): Long
 
     @Throws(EntityNotFoundException::class)
     fun getProductsByCategory(category: String?): List<ProductDto>
@@ -84,6 +84,9 @@ private open class CatalogServiceImpl() : CatalogService {
     private lateinit var warehouseConnector: WarehouseConnector
 
     @Autowired
+    private lateinit var walletConnector: WalletConnector
+
+    @Autowired
     private lateinit var signInAndUserInfo: SignInAndUserInfo
 
     @Autowired
@@ -103,14 +106,15 @@ private open class CatalogServiceImpl() : CatalogService {
     }
 
     @MultiserviceTransactional
-    override fun addNewOrder(order: OrderDto): Long {
+    override fun addNewOrder(order: NewOrderRequest): Long {
         logger.info("Adding a new order...")
-        return orderConnector.addOrder(order)
+        val user = signInAndUserInfo.getUserInformation()
+        return orderConnector.addOrder(order,user!!)
     }
 
     @Rollback
-    private fun rollbackForAddNewOrder(order: OrderDto, id: Long){
-        logger.warn("Rollback of order with ID ${order.id}")
+    private fun rollbackForAddNewOrder(order: NewOrderRequest, id: Long){
+        logger.warn("Rollback of order with ID $id")
     }
 
     override fun getProductsByCategory(category: String?): List<ProductDto> {
@@ -124,10 +128,9 @@ private open class CatalogServiceImpl() : CatalogService {
     }
 
     override fun getWallets(): Wallet? {
-        val username = SecurityContextHolder.getContext().authentication.name
-        logger.info("Searching for the wallets of the user with username {}", username)
-        val wallets = warehouseConnector.getWalletsByUsername(username)
-        return wallets
+        val user = signInAndUserInfo.getUserInformation()
+        logger.info("Searching for the wallets of the user with username {}", user?.username)
+        return walletConnector.getWalletsByUserId(user?.id!!)
     }
 
     @MultiserviceTransactional
@@ -172,7 +175,8 @@ private open class CatalogServiceImpl() : CatalogService {
     }
 
     override fun changeOrderStatus(orderId: Long, status: OrderPatchRequest): Long? {
-        return orderConnector.changeStatus(orderId, status)
+        val user = signInAndUserInfo.getUserInformation()
+        return orderConnector.changeStatus(orderId, status,user?.id!!)
     }
 
     override fun addWarehouse(warehouseRequest: WarehouseRequest): Long? {

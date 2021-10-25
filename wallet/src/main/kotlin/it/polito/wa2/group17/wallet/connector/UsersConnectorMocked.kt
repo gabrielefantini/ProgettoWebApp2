@@ -9,8 +9,8 @@ import java.util.*
 @ConditionalOnProperty(prefix = "connectors.users.mock", name = ["enabled"], havingValue = "true")
 class UsersConnectorMocked : UsersConnector() {
 
-    override fun isAdmin(userId: Long): Boolean = userId < 0
+    //override fun isAdmin(userId: Long): Boolean = userId < 0
 
-    override fun isCustomer(userId: Long): Boolean = userId > 0
+    //override fun isCustomer(userId: Long): Boolean = userId > 0
 
 }

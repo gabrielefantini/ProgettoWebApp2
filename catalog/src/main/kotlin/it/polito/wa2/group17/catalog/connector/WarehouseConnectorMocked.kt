@@ -16,7 +16,7 @@ class WarehouseConnectorMocked: WarehouseConnector() {
 
     override fun getProductPicture(productId: Long): PostPicture? = PostPicture("URL")
 
-    override fun getWalletsByUsername(username: String?) = Wallet(0, 1, mutableSetOf(1, 2, 3), 10.0)
+    //override fun getWalletsByUsername(username: String?) = Wallet(0, 1, mutableSetOf(1, 2, 3), 10.0)
     /*
     override fun setProductPicture(productId: Long, picture: PostPicture) = ProductDto(0, "prod", "desc", "URL", "cat", 10.0, 5.0, Date.from(Instant.now()))
 

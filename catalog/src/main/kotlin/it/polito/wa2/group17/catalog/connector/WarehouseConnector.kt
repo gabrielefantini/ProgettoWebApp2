@@ -39,11 +39,6 @@ class WarehouseConnector {
         ).body
     }
 
-    fun getWalletsByUsername(username: String?): Wallet? {
-        return restTemplate.getForEntity(
-            "$uri/users/$username", Wallet::class.java
-        ).body
-    }
 
     fun setProductPicture(productId: Long, picture: PostPicture):ProductDto? {
         val headers = HttpHeaders()

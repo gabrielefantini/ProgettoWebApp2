@@ -43,8 +43,9 @@ class OrderController {
     @PatchMapping("/{orderId}")
     fun updateOrder(
         @PathVariable orderId: Long,
+        @RequestParam userId: Long,
         @RequestBody @Valid orderReq: OrderPatchRequest,
-    ) = ResponseEntity.ok(orderService.updateOrder(orderId, orderReq).newOrder)
+    ) = ResponseEntity.ok(orderService.updateOrder(orderId, orderReq,userId).newOrder)
 
 
     //DELETE
