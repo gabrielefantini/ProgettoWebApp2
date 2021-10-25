@@ -64,8 +64,7 @@ private open class ProductServiceImpl: ProductService {
     private fun getProductOrThrow(productId: Long) = productRepository.findById(productId).orElseThrow { EntityNotFoundException(productId) }
 
     override fun getProductsByCategory(category: String?): List<ProductDto> {
-        var categ = category
-        if(categ == "null" ) categ = null
+        val categ = if(category == "null" ) null else category
         logger.info("Getting products by category ${categ ?: "all"}")
         val result = if(categ != null)
             productRepository.findProductEntitiesByCategory(categ)
@@ -77,7 +76,7 @@ private open class ProductServiceImpl: ProductService {
     }
 
     override fun getProductById(productId: Long): ProductDto {
-        logger.info("Getting product by Id")
+        logger.info("Getting product by Id $productId")
         return getProductOrThrow(productId).convert()
     }
 
@@ -99,21 +98,21 @@ private open class ProductServiceImpl: ProductService {
         productId: Long,
         putProductRequest: PutProductRequest
     ): ProductDto {
-        logger.info("Putting product by Id")
-        return productEntityUpdater.putProduct(productId,putProductRequest).newState!!.convert()
+        logger.info("Putting product by Id $productId")
+        return productEntityUpdater.putProduct(productId,putProductRequest).newState!!
     }
 
     override fun patchProductById(
         productId: Long,
         patchProductRequest: PatchProductRequest
     ): ProductDto {
-        logger.info("patching product by Id")
-        return productEntityUpdater.patchProduct(productId,patchProductRequest).newState!!.convert()
+        logger.info("patching product by Id $productId")
+        return productEntityUpdater.patchProduct(productId,patchProductRequest).newState!!
     }
 
     @MultiserviceTransactional
     override fun deleteProductById(productId: Long): ProductDto {
-        logger.info("Deleting product by Id")
+        logger.info("Deleting product by Id $productId")
         val oldProduct = getProductById(productId)
         productRepository.deleteById(productId)
         return oldProduct.convert()
@@ -174,8 +173,8 @@ private open class ProductServiceImpl: ProductService {
 private open class ProductEntityUpdater {
 
     data class UpdateTransaction(
-        var oldState: ProductEntity? = null,
-        var newState: ProductEntity? = null
+        var oldState: ProductDto? = null,
+        var newState: ProductDto? = null
     )
 
     private companion object {
@@ -194,13 +193,13 @@ private open class ProductEntityUpdater {
         val update = UpdateTransaction()
 
         val oldProduct = productRepository.findByIdOrNull(productId)
-        update.oldState = oldProduct?.convert<ProductDto>()?.convert()
+        update.oldState = oldProduct?.convert()
 
 
 
         val newProduct : ProductEntity = putProductRequest.convert()
 
-        update.newState = newProduct.convert<ProductDto>().convert()
+        update.newState = newProduct.convert()
 
         productRepository.save(newProduct)
 
@@ -213,10 +212,10 @@ private open class ProductEntityUpdater {
         putProductRequest: PutProductRequest,
         update: UpdateTransaction,
     ){
-        logger.info("Rollback Of PutProduct")
+        logger.info("Rollback for putProduct")
 
         update.oldState?.let {
-            productRepository.save(it)
+            productRepository.save(it.convert())
         } ?: productRepository.deleteById(productId)
 }
 
@@ -231,7 +230,7 @@ private open class ProductEntityUpdater {
         val newProduct : ProductEntity = productRequest.convert()
 
         val oldProduct = productRepository.findById(productId).orElseThrow { EntityNotFoundException(productId) }
-        update.oldState = oldProduct.convert<ProductDto>().convert()
+        update.oldState = oldProduct.convert()
 
         newProduct.name?.let { oldProduct.name = it }
         newProduct.description?.let { oldProduct.description = it }
@@ -241,7 +240,7 @@ private open class ProductEntityUpdater {
         newProduct.avgRating?.let { oldProduct.avgRating = it }
         newProduct.creationDate?.let { oldProduct.creationDate = it }
 
-        update.newState = oldProduct
+        update.newState = oldProduct.convert()
         productRepository.save(oldProduct)
         return update
     }
@@ -252,8 +251,8 @@ private open class ProductEntityUpdater {
         productRequest: PatchProductRequest,
         update: UpdateTransaction,
     ){
-        logger.info("")
-        productRepository.save(update.oldState!!)
+        logger.info("Rollback for patchProduct")
+        productRepository.save(update.oldState!!.convert())
     }
 
 

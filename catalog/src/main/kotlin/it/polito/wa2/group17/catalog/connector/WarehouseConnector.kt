@@ -1,6 +1,5 @@
 package it.polito.wa2.group17.catalog.connector
 
-import it.polito.wa2.group17.catalog.dto.WarehouseDto
 import it.polito.wa2.group17.common.connector.Connector
 import it.polito.wa2.group17.common.dto.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -62,14 +61,11 @@ class WarehouseConnector {
 
     fun patchProductById(productId: Long, product: PatchProductRequest): ProductDto? {
         val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
+        headers.contentType = MediaType.APPLICATION_JSON
 
         val requestEntity: HttpEntity<PatchProductRequest> = HttpEntity(product, headers)
 
-        val responseEntity: ProductDto? =
-            restTemplate.patchForObject("$uri/$productId/picture", requestEntity, ProductDto::class.java)
-
-        return responseEntity
+        return restTemplate.patchForObject("$uri/products/$productId", requestEntity, ProductDto::class.java)
     }
 
     fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto? {
