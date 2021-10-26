@@ -24,9 +24,16 @@ class CatalogController {
     // order-service ***
 
     @ApiOperation(value="Get the list of your orders",tags = ["order","customer","catalog-controller"])
-    @GetMapping ("/orders")
+    @GetMapping ("/myOrders")
     @OnlyEnabledUsers
     fun getMyOrders(): ResponseEntity<List<OrderDto>> {
+        return ResponseEntity.ok(catalogService.getMyOrders())
+    }
+
+    @ApiOperation(value="Get the list of orders",tags = ["order","admin","catalog-controller"])
+    @GetMapping ("/orders")
+    @OnlyAdmins
+    fun getOrders(): ResponseEntity<List<OrderDto>> {
         return ResponseEntity.ok(catalogService.getOrders())
     }
 

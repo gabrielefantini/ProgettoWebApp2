@@ -102,6 +102,14 @@ class AuthController {
         return userServiceExtended.getAdmins()
     }
 
+    @ApiOperation(value="Get the list of customers",tags = ["auth-controller","admin"])
+    @GetMapping("/customers")
+    @OnlyAdmins
+    fun getCustomers(): List<UserDetailsDto> {
+        logger.info("Searching for customers")
+        return userServiceExtended.getCustomers()
+    }
+
     @ApiOperation(value="Update your user's details",tags = ["auth-controller"])
     @PostMapping("/updateUserInfo")
     @OnlyEnabledUsers

@@ -23,10 +23,10 @@ class OrderConnector {
     @Value("\${connectors.order.uri}")
     private lateinit var uri: String
 
-    fun getOrdersByUsername(userId: Long?): List<OrderDto>? {
+    fun getOrders(): List<OrderDto>? {
         return restTemplate.getForEntity(
             "$uri/orders", Array<OrderDto>::class.java
-        ).body?.toList()?.filter { it.buyerId == userId }
+        ).body?.toList()
     }
 
     fun addOrder(order: NewOrderRequest, user: UserDetailsDto): Long {

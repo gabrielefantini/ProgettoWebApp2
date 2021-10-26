@@ -19,6 +19,9 @@ interface CatalogService {
     fun getOrders(): List<OrderDto>
 
     @Throws(EntityNotFoundException::class)
+    fun getMyOrders(): List<OrderDto>
+
+    @Throws(EntityNotFoundException::class)
     fun getOrderById(orderId: Long): OrderDto?
 
     @Throws(EntityNotFoundException::class)
@@ -99,11 +102,16 @@ private open class CatalogServiceImpl() : CatalogService {
     private lateinit var productConnector: ProductConnector
 
     override fun getOrders(): List<OrderDto> {
+        logger.info("Searching for all orders")
+        return orderConnector.getOrders()!!
+    }
+
+    override fun getMyOrders(): List<OrderDto> {
         val username = SecurityContextHolder.getContext().authentication.name
         logger.info("Searching for the orders of the user with username {}", username)
         val user = signInAndUserInfo.findUser(username)
         val userId = user!!.id
-        return orderConnector.getOrdersByUsername(userId)!!
+        return orderConnector.getOrders()!!.filter { it.buyerId == userId }
     }
 
     override fun getOrderById(orderId: Long): OrderDto? {

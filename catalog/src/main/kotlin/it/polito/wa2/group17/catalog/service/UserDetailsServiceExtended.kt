@@ -18,6 +18,7 @@ import it.polito.wa2.group17.common.mail.MailService
 import it.polito.wa2.group17.common.transaction.MultiserviceTransactional
 import it.polito.wa2.group17.common.transaction.Rollback
 import it.polito.wa2.group17.catalog.security.OnlyAdmins
+import it.polito.wa2.group17.common.utils.converter.convert
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -57,6 +58,8 @@ interface UserDetailsServiceExtended : UserDetailsService {
     fun setUserAsAdmin(username: String, value: Boolean): PutSetAdmin?
 
     fun getAdmins(): List<UserDetailsDto>
+
+    fun getCustomers(): List<UserDetailsDto>
 
 }
 
@@ -151,6 +154,10 @@ class UserDetailsServiceExtendedImpl(private val userRepository: UserRepository)
 
     override fun getAdmins(): List<UserDetailsDto> {
         return userRepository.findAdmin(listOf("ADMIN", "CUSTOMER ADMIN", "ADMIN CUSTOMER")).map { it -> UserDetailsDto(it.getId(), it.username, it.password, it.email, it.isEnabled, it.getRoleNames(), it.name, it.surname, it.deliveryAddr) }
+    }
+
+    override fun getCustomers(): List<UserDetailsDto> {
+        return userRepository.findAll().filter { it.roles.contains("CUSTOMER") }.map { UserDetailsDto(it.getId(), it.username, it.password, it.email, it.isEnabled, it.getRoleNames(), it.name, it.surname, it.deliveryAddr) }
     }
 
     @MultiserviceTransactional
