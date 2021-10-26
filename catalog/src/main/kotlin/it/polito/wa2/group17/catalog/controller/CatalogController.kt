@@ -112,22 +112,21 @@ class CatalogController {
 
     // warehouse-service / warehouses ***
 
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/warehouses/{warehouseId}/products")
-    fun addProductToWarehouse(@PathVariable warehouseId: Long, @RequestBody @Valid addProductRequest: AddProductRequest
-    ): ResponseEntity<StoredProductDto?> {
-        return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, addProductRequest))
-    }
+    @GetMapping("/warehouses")
+    @OnlyAdmins
+    fun getWarehouses() = ResponseEntity.ok(catalogService.getWarehouses())
 
     @PostMapping("/warehouses")
     @OnlyAdmins
     fun addWarehouse(@RequestBody @Valid warehouseRequest: WarehouseRequest) =
         ResponseEntity.ok(catalogService.addWarehouse(warehouseRequest))
 
-    @PutMapping("/warehouses/{warehouseId}/products")
+    @PostMapping("/warehouses/{warehouseId}/products")
     @OnlyAdmins
-    fun addProductToWarehouseFun(@PathVariable warehouseId: Long, @RequestBody @Valid putProductRequest: AddProductRequest) =
-        ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, putProductRequest)?.productId)
+    fun addProductToWarehouse(@PathVariable warehouseId: Long, @RequestBody @Valid addProductRequest: AddProductRequest
+    ): ResponseEntity<StoredProductDto?> {
+        return ResponseEntity.ok(catalogService.addProductToWarehouse(warehouseId, addProductRequest))
+    }
 
     @DeleteMapping("/warehouses/{warehouseId}")
     @OnlyAdmins

@@ -1,5 +1,6 @@
 package it.polito.wa2.group17.catalog.connector
 
+import it.polito.wa2.group17.catalog.dto.WarehouseDto
 import it.polito.wa2.group17.common.connector.Connector
 import it.polito.wa2.group17.common.dto.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +21,55 @@ class WarehouseConnector {
 
     @Value("\${connectors.warehouse.uri}")
     private lateinit var uri: String
+
+    // warehouse    ***
+
+    fun getWarehouses(): List<WarehouseDto> {
+        return restTemplate.getForEntity(
+            "$uri/warehouses", Array<WarehouseDto>::class.java
+        ).body?.toList() ?: listOf()
+    }
+
+    fun addWarehouse(warehouseRequest: WarehouseRequest): Long? {
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+
+        val requestEntity: HttpEntity<WarehouseRequest> = HttpEntity(warehouseRequest, headers)
+
+        val responseEntity: ResponseEntity<Long> =
+            restTemplate.postForEntity("$uri/warehouses", requestEntity, Long::class.java)
+
+        println("Status Code: " + responseEntity.statusCode)
+
+        return responseEntity.body
+    }
+
+    fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto? {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+
+        val requestEntity: HttpEntity<AddProductRequest> = HttpEntity(addProductRequest, headers)
+
+        val responseEntity: ResponseEntity<StoredProductDto> =
+            restTemplate.postForEntity("$uri/warehouses/$warehouseId/products", requestEntity, StoredProductDto::class.java)
+
+        println("Status Code: " + responseEntity.statusCode)
+
+        return responseEntity.body
+    }
+
+    fun deleteWarehouse(warehouseId: Long): Long {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+
+        restTemplate.delete("$uri/warehouses/$warehouseId")
+
+        return warehouseId
+    }
+
+    // ***
+
+    // product      ***
 
     fun getProducts(category: String?): List<ProductDto> {
         return restTemplate.getForEntity(
@@ -63,40 +113,5 @@ class WarehouseConnector {
         return restTemplate.patchForObject("$uri/products/$productId", requestEntity, ProductDto::class.java)
     }
 
-    fun addProductToWarehouse(warehouseId: Long, addProductRequest: AddProductRequest): StoredProductDto? {
-        val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
-
-        val requestEntity: HttpEntity<AddProductRequest> = HttpEntity(addProductRequest, headers)
-
-        val responseEntity: ResponseEntity<StoredProductDto> =
-            restTemplate.postForEntity("$uri/$warehouseId/products", requestEntity, StoredProductDto::class.java)
-
-        System.out.println("Status Code: " + responseEntity.statusCode)
-
-        return responseEntity.body
-    }
-
-    fun addWarehouse(warehouseRequest: WarehouseRequest): Long? {
-        val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
-
-        val requestEntity: HttpEntity<WarehouseRequest> = HttpEntity(warehouseRequest, headers)
-
-        val responseEntity: ResponseEntity<Long> =
-            restTemplate.postForEntity("$uri/warehouses", requestEntity, Long::class.java)
-
-        println("Status Code: " + responseEntity.statusCode)
-
-        return responseEntity.body
-    }
-
-    fun deleteWarehouse(warehouseId: Long): Long {
-        val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
-
-        restTemplate.delete("$uri/$warehouseId")
-
-        return warehouseId
-    }
+    // ***
 }

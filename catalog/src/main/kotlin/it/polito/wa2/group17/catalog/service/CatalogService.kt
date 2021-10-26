@@ -1,6 +1,7 @@
 package it.polito.wa2.group17.catalog.service
 
 import it.polito.wa2.group17.catalog.connector.*
+import it.polito.wa2.group17.catalog.dto.WarehouseDto
 import it.polito.wa2.group17.catalog.security.OnlyAdmins
 import it.polito.wa2.group17.common.dto.*
 import it.polito.wa2.group17.common.exception.EntityNotFoundException
@@ -55,6 +56,8 @@ interface CatalogService {
 
     @Throws(EntityNotFoundException::class)
     fun changeOrderStatus(orderId: Long, status: OrderPatchRequest): Long?
+
+    fun getWarehouses(): List<WarehouseDto>
 
     @Throws(EntityNotFoundException::class)
     fun addWarehouse(warehouseRequest: WarehouseRequest): Long?
@@ -178,6 +181,10 @@ private open class CatalogServiceImpl() : CatalogService {
     override fun changeOrderStatus(orderId: Long, status: OrderPatchRequest): Long? {
         val user = signInAndUserInfo.getUserInformation()
         return orderConnector.changeStatus(orderId, status,user?.id!!)
+    }
+
+    override fun getWarehouses(): List<WarehouseDto> {
+        return warehouseConnector.getWarehouses()
     }
 
     override fun addWarehouse(warehouseRequest: WarehouseRequest): Long? {
