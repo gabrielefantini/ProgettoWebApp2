@@ -24,10 +24,10 @@ class UsersConnector {
             .body?.map { it.id }?.contains(userId) ?: false
     }
 
-    fun isCustomer(): Boolean {
+    /*fun isCustomer(): Boolean {
         return Role.CUSTOMER == restTemplate
             .getForEntity("$uri/auth/getUserInfo", UserDto::class.java)
             .body?.role
-    }
+    }*/
 
 }

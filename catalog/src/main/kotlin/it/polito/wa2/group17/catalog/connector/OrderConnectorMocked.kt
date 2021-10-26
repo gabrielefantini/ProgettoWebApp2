@@ -13,9 +13,12 @@ import org.springframework.context.annotation.Primary
 class OrderConnectorMocked: OrderConnector() {
     override fun getOrderById(orderId: Long): OrderDto? = OrderDto(orderId, 1, listOf(ProductOrderModel(0, 10, 15.0), ProductOrderModel(1, 20, 100.0)), 2150.0, OrderStatus.ISSUED);
 
+    /*
     override fun cancelOrder(orderId: Long) {
         print("Order $orderId cancelled.")
     }
+
+     */
 
     /*override fun addOrder(order: OrderDto): Long {
        print("Order ${order.id} added")

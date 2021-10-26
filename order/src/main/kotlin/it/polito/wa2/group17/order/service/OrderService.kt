@@ -351,7 +351,7 @@ class OrderServiceImpl: OrderService {
     }
 
     @Rollback
-    private fun rollbackForDeleteOrder(orderId: Long, order: OrderDto ){
+    private fun rollbackForDeleteOrder(orderId: Long,userId: Long, order: OrderDto ){
         logger.warn("Rollback for delete of order $orderId")
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
         order.status = OrderStatus.ISSUED
