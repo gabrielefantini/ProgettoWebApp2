@@ -1,8 +1,10 @@
 package it.polito.wa2.group17.catalog.controller
 
+import io.swagger.annotations.ApiOperation
 import it.polito.wa2.group17.catalog.dto.UserDetailsDto
 import it.polito.wa2.group17.catalog.model.LoginRequest
 import it.polito.wa2.group17.catalog.model.UserRegistration
+import it.polito.wa2.group17.catalog.security.OnlyAdmins
 import it.polito.wa2.group17.catalog.security.OnlyEnabledUsers
 import it.polito.wa2.group17.catalog.security.jwt.JwtUtils
 import it.polito.wa2.group17.catalog.service.SignInAndUserInfo
@@ -39,6 +41,7 @@ class AuthController {
     @Autowired
     private lateinit var signInAndUserInfo: SignInAndUserInfo
 
+    @ApiOperation(value="Register to the application",tags = ["auth-controller"])
     @PostMapping("/register")
     fun register(
         @Valid @RequestBody userRegistration: UserRegistration,
@@ -58,6 +61,7 @@ class AuthController {
         return ResponseEntity.ok().build<Any>()
     }
 
+    @ApiOperation(value="Get another token for registration",tags = ["auth-controller"])
     @GetMapping("/register/renewToken")
     fun renewToken(
         @RequestParam username: String
@@ -67,6 +71,7 @@ class AuthController {
         return ResponseEntity.ok().build<Any>()
     }
 
+    @ApiOperation(value="Login into the application",tags = ["auth-controller"])
     @PostMapping("/signin")
     fun signIn(
         @Valid @RequestBody req: LoginRequest
@@ -75,12 +80,14 @@ class AuthController {
         return signInAndUserInfo.signInUser(req)
     }
 
+    @ApiOperation(value="Give a given user the admin role",tags = ["auth-controller"])
     @PutMapping("/setAdmin")
     fun setAdmin(@RequestParam username: String, @RequestParam value: Boolean): ResponseEntity<Long>{
         print("Inside setAdmin")
         return ResponseEntity.ok(userDetails.setUserAsAdmin(username, value)?.id)
     }
 
+    @ApiOperation(value="Confirm your registration with received token",tags = ["auth-controller"])
     @GetMapping("/registrationConfirm")
     fun registrationConfirm(@RequestParam("token") token: String): ResponseEntity<String> {
         logger.info("Received token confirmation request for {}", token)
@@ -88,19 +95,22 @@ class AuthController {
         return ResponseEntity.ok("User account has been confirmed")
     }
 
+    @ApiOperation(value="Get the list of admins",tags = ["auth-controller"])
     @GetMapping("/admins")
     fun getAdmins(): List<UserDetailsDto> {
         logger.info("Searching for the admins")
         return userServiceExtended.getAdmins()
     }
 
+    @ApiOperation(value="Update your user's details",tags = ["auth-controller"])
     @PostMapping("/updateUserInfo")
     @OnlyEnabledUsers
     fun updateUserInfo(@RequestParam password: String, @RequestParam name: String, @RequestParam surname: String, @RequestParam deliveryAddr:String): ResponseEntity<*> {
         return ResponseEntity.ok(signInAndUserInfo.updateUserInformation(password, name, surname, deliveryAddr))
     }
 
-    @GetMapping("/getUserInfo")
+    @ApiOperation(value="Get your user's details",tags = ["auth-controller"])
+    @GetMapping("/getMyInfo")
     @OnlyEnabledUsers
     fun getMyInformation(): ResponseEntity<UserDetailsDto>{
         return ResponseEntity.ok(signInAndUserInfo.getUserInformation())

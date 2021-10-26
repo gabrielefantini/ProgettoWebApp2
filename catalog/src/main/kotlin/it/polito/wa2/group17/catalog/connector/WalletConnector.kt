@@ -23,4 +23,10 @@ class WalletConnector {
         ).body
     }
 
+    fun addWalletToUser(userId: Long): Wallet? {
+        return restTemplate.postForEntity(
+            "$uri/wallets",userId,Wallet::class.java
+        ).body
+    }
+
 }

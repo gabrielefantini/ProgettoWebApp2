@@ -34,6 +34,9 @@ interface CatalogService {
     fun getWallets(): Wallet?
 
     @Throws(EntityNotFoundException::class)
+    fun addWalletToUser(userId: Long): Wallet?
+
+    @Throws(EntityNotFoundException::class)
     fun cancelUserOrder(orderId: Long)
 
     @Throws(EntityNotFoundException::class)
@@ -134,6 +137,11 @@ private open class CatalogServiceImpl() : CatalogService {
         val user = signInAndUserInfo.getUserInformation()
         logger.info("Searching for the wallets of the user with username {}", user?.username)
         return walletConnector.getWalletsByUserId(user?.id!!)
+    }
+
+    override fun addWalletToUser(userId: Long): Wallet? {
+        logger.info("Adding new wallet to user $userId")
+        return walletConnector.addWalletToUser(userId)
     }
 
     @MultiserviceTransactional
