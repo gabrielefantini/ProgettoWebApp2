@@ -149,15 +149,19 @@ private open class ProductServiceImpl: ProductService {
 
     @MultiserviceTransactional
     override fun rateProductById(productId: Long, ratingDto: RatingRequest): UpdateRating? {
-        val product = getProductOrThrow(productId)
-        val prev_rat = product.avgRating
+        var product = getProductOrThrow(productId)
+        val prevRat = product.avgRating
         val newRate = ratingRepository.save(RatingEntity(stars = ratingDto.stars,comment = ratingDto.comment,product = product, title = ratingDto.title, creationDate = Date.from(
             Instant.now())))
-        productRepository.updateRating(productId, product.ratings.map { it.stars }.average())
-        val rate_id = newRate.getId()
-        return if (rate_id == null || prev_rat == null) null
+        val newAverage = product.ratings.map { it.stars }.toMutableList().let {
+            it.add(newRate.stars)
+            it.average()
+        }
+        productRepository.updateRating(productId,newAverage)
+        val rateId = newRate.getId()
+        return if (rateId == null || prevRat == null) null
         else
-            UpdateRating(rate_id, prev_rat)
+            UpdateRating(rateId, prevRat)
     }
 
     @Rollback

@@ -90,6 +90,13 @@ class CatalogController {
         return ResponseEntity.ok(catalogService.addWalletToUser(userId))
     }
 
+    @ApiOperation(value="Perform a transaction for a given wallet",tags = ["wallet","admin","catalog-controller"])
+    @PostMapping("/wallets/{walletId}/transactions")
+    @OnlyAdmins
+    fun performTransaction(@PathVariable walletId: Long,@RequestParam amount: Long): ResponseEntity<*>{
+        return ResponseEntity.ok(catalogService.performTransaction(walletId,amount))
+    }
+
     // ******
 
     // warehouse-service / products ***

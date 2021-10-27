@@ -76,6 +76,7 @@ interface CatalogService {
 
     fun deleteProduct(productId: Long): Long
 
+    fun performTransaction(walletId: Long,amount: Long): Transaction?
 
 }
 
@@ -150,6 +151,12 @@ private open class CatalogServiceImpl() : CatalogService {
     override fun addWalletToUser(userId: Long): Wallet? {
         logger.info("Adding new wallet to user $userId")
         return walletConnector.addWalletToUser(userId)
+    }
+
+    override fun performTransaction(walletId: Long,amount: Long): Transaction? {
+        val user = signInAndUserInfo.getUserInformation()
+        logger.info("Performing a transaction for wallet {}", walletId)
+        return walletConnector.performTransaction(user?.id!!,walletId,amount)
     }
 
     @MultiserviceTransactional

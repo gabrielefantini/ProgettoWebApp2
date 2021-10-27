@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Primary
 @Connector
 @ConditionalOnProperty(prefix = "connectors.product.mock", name = ["enabled"], havingValue = "true")
 class ProductConnectorMocked: ProductConnector() {
-    override fun rateProductById(productId: Long, ratingDto: RatingRequest) = 0L
+    //override fun rateProductById(productId: Long, ratingDto: RatingRequest) = 0L
 
     //override fun addProduct(productId: Long, putProductRequest: PutProductRequest) = productId
 

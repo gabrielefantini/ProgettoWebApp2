@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.lang.StringBuilder
 import java.util.*
 
 interface OrderService{
@@ -33,7 +34,7 @@ interface OrderService{
     fun getOrder(orderId: Long): OrderDto
     fun addOrder(orderReq: OrderRequest): OrderDto
     fun updateOrder(orderId: Long,orderPatchRequest: OrderPatchRequest,userId: Long): OrderUpdate
-    fun deleteOrder(orderId: Long,userId: Long): OrderDto
+    fun deleteOrder(orderId: Long,userId: Long): OrderUpdate
 }
 
 @Service
@@ -191,17 +192,25 @@ class OrderServiceImpl: OrderService {
         )
 
         walletConnector.addWalletTransaction(transaction, wallet.id) ?: throw TransactionException()
-        
-        //TODO
+
         //notifico via email
-        /*
-        mailService.sendMessage(orderReq.email, "Order number ${orderEntity.getId()}", "")
 
-        usersConnector.getAdmins().forEach {
-            mailService.sendMessage(it.email, "PRODUCTS QUANTITY ALARM", "")
+        val mailBuilder = StringBuilder()
 
+        mailBuilder.append("Order n. ${orderEntity.getId()} successfully issued.")
+
+        val msg = mailBuilder.toString()
+
+        mailBuilder.append(" Buyer id ${orderEntity.buyerId}.")
+
+        val msg2 = mailBuilder.toString()
+
+        mailService.sendMessage(orderReq.email, "NEW ORDER REQUEST", msg)
+
+        catalogConnector.getAdmins().forEach {
+            mailService.sendMessage(it.email, "NEW ORDER REQUEST", msg2)
         }
-        */
+
         return orderEntity.convert()
         
     }
@@ -341,20 +350,24 @@ class OrderServiceImpl: OrderService {
     }
 
     @MultiserviceTransactional
-    override fun deleteOrder(orderId: Long,userId: Long): OrderDto {
+    override fun deleteOrder(orderId: Long,userId: Long): OrderUpdate {
         logger.info("Deleting order with Id: $orderId")
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
         if(order.status != OrderStatus.ISSUED) throw GenericBadRequestException("Too late to delete the order")
         refundCustomer(order,userId,OrderStatus.CANCELED)
+        val oldStatus = order.status
         order.status = OrderStatus.CANCELED
-        return orderRepo.save(order).convert()
+        return OrderUpdate(
+            orderRepo.save(order).convert(),
+            oldStatus ?: OrderStatus.ISSUED
+        )
     }
 
     @Rollback
-    private fun rollbackForDeleteOrder(orderId: Long,userId: Long, order: OrderDto ){
+    private fun rollbackForDeleteOrder(orderId: Long,userId: Long, orderUpdate: OrderUpdate ){
         logger.warn("Rollback for delete of order $orderId")
         val order = orderRepo.findByIdOrNull(orderId) ?: throw EntityNotFoundException(orderId)
-        order.status = OrderStatus.ISSUED
+        order.status = orderUpdate.oldStatus
         orderRepo.save(order)
     }
 }

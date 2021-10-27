@@ -22,16 +22,16 @@ class ProductConnector {
 
     fun rateProductById(productId: Long, ratingDto: RatingRequest): Long? {
         val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
+        headers.contentType = MediaType.APPLICATION_JSON
 
         val requestEntity: HttpEntity<RatingRequest> = HttpEntity(ratingDto, headers)
 
-        val responseEntity: ResponseEntity<RatingDto> =
-            restTemplate.postForEntity("$uri/$productId/rating", requestEntity, RatingDto::class.java)
+        val responseEntity: ResponseEntity<Long> =
+            restTemplate.postForEntity("$uri/products/$productId/rating", requestEntity, Long::class.java)
 
-        System.out.println("Status Code: " + responseEntity.statusCode)
+        println("Status Code: " + responseEntity.statusCode)
 
-        return responseEntity.body?.id
+        return responseEntity.body
     }
 
     fun addProduct(newProductRequest: NewProductRequest): ProductDto? {
@@ -47,7 +47,7 @@ class ProductConnector {
 
     fun deleteProduct(productId: Long): Long {
         val headers = HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
+        headers.contentType = MediaType.APPLICATION_JSON
 
         restTemplate.delete("$uri/products/$productId")
 

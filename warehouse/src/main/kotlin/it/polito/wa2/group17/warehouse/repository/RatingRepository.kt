@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface RatingRepository : CrudRepository<RatingEntity, Long> {
-
 }
