@@ -32,6 +32,8 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.0.3")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("junit:junit:4.13.1")
+    implementation("junit:junit:4.13.1")
 }
 
 tasks.withType<KotlinCompile> {
