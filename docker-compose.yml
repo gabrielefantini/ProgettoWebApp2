@@ -1,34 +1,34 @@
 version: "3.7"
 services:
   catalog:
-    build: ./catalog
+    image: gabrielefantini/finalprojectwa2_catalog:latest
     networks:
       - "myapp"
     ports: 
      - 8085:8085
   
   eureka:
-    build: ./eureka-server
+    image: gabrielefantini/finalprojectwa2_eureka:latest
     networks:
       - "myapp"
   
   mail:
-    build: ./mail
+    image: gabrielefantini/finalprojectwa2_mail:latest
     networks:
       - "myapp"
   
   order:
-    build: ./order
+    image: gabrielefantini/finalprojectwa2_order:latest
     networks:
       - "myapp"
   
   wallet:
-    build: ./wallet
+    image: gabrielefantini/finalprojectwa2_wallet:latest
     networks:
       - "myapp"
   
   warehouse:
-    build: ./warehouse
+    image: gabrielefantini/finalprojectwa2_warehouse:latest
     networks:
       - "myapp"
   
@@ -42,6 +42,8 @@ services:
     restart: on-failure
     volumes:
       - ${PWD}/mariadb:/var/lib/mysql
+    ports:
+    - 3306:3306
     networks:
     - "myapp"
 
