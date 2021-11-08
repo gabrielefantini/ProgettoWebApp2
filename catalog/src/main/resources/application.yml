@@ -2,7 +2,7 @@ spring:
   application:
     name: catalog-service
   datasource:
-    url: jdbc:mariadb://localhost:3306/final_project
+    url: jdbc:mariadb://mariadb:3306/final_project
     username: root
     password: password
   jpa:
@@ -29,33 +29,29 @@ connectors:
   order:
     uri: http://order-service
     mock:
-      enabled: true
+      enabled: false
   warehouse:
     uri: http://warehouse-service
     mock:
-      enabled: true
+      enabled: false
   mail:
     uri: http://mail-service
     mock:
-      enabled: true
-  login:
-    uri: http://login-service
-    mock:
-      enabled: true
+      enabled: false
   product:
       uri: http://product-service
       mock:
-        enabled: true
+        enabled: false
 
 
 transaction:
   kafka:
-    bootstrapServer: localhost:9092
+    bootstrapServer: kafka:9092
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+      defaultZone: ${EUREKA_SERVER:http://eureka:8761/eureka}
   instance:
     prefer-ip-address: true
 

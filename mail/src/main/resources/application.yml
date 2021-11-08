@@ -18,12 +18,12 @@ spring:
         debug: false
 transaction:
   kafka:
-    bootstrapServer: localhost:9092
+    bootstrapServer: kafka:9092
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+      defaultZone: ${EUREKA_SERVER:http://eureka:8761/eureka}
   instance:
     prefer-ip-address: true
 
