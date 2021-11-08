@@ -42,7 +42,10 @@ connectors:
       uri: http://product-service
       mock:
         enabled: false
-
+  wallet:
+    uri: http://wallet-service
+    mock:
+      enabled: false
 
 transaction:
   kafka:
