@@ -95,7 +95,7 @@ class AuthController {
         return ResponseEntity.ok("User account has been confirmed")
     }
 
-    @ApiOperation(value="Get the list of admins",tags = ["auth-controller"])
+    @ApiOperation(value="Get the list of admins",tags = ["auth-controller"], hidden = true)
     @GetMapping("/admins")
     fun getAdmins(): List<UserDetailsDto> {
         logger.info("Searching for the admins")
